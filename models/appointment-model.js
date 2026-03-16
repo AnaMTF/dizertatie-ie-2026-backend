@@ -6,8 +6,8 @@ const appointmentModel = database.define("Appointment", {
     uuid: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
         allowNull: false,
-        unique: true,
     },
     dateTime: {
         type: DataTypes.DATE,

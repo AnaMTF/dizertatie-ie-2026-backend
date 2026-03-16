@@ -6,8 +6,8 @@ const doctorModel = database.define("Doctor", {
     uuid: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
         allowNull: false,
-        unique: true,
     },
     email: {
         type: DataTypes.STRING,
