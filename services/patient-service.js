@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 
-import models from "../models/index.js";
+import { appointmentModel, patientModel } from "../models/index.js";
 
 const publicPatientAttributes = {
     exclude: ["passwordHash"],
@@ -19,7 +19,7 @@ async function ensureSelfAccess(patientId, user) {
 }
 
 async function doctorHasAccessToPatient(patientId, doctorId) {
-    const appointment = await models.appointmentModel.findOne({
+    const appointment = await appointmentModel.findOne({
         where: {
             patientId,
             doctorId,
@@ -32,7 +32,7 @@ async function doctorHasAccessToPatient(patientId, doctorId) {
 export async function createPatient(data) {
     const passwordHash = await bcrypt.hash(data.password, 12);
 
-    const patient = await models.patientModel.create({
+    const patient = await patientModel.create({
         email: data.email,
         passwordHash,
         firstName: data.firstName,
@@ -43,7 +43,7 @@ export async function createPatient(data) {
         additionalMedicalInfo: data.additionalMedicalInfo,
     });
 
-    return models.patientModel.findByPk(patient.id, {
+    return patientModel.findByPk(patient.id, {
         attributes: publicPatientAttributes,
     });
 }
@@ -51,7 +51,7 @@ export async function createPatient(data) {
 export async function replacePatient(id, data, user) {
     await ensureSelfAccess(id, user);
 
-    const [updatedRows] = await models.patientModel.update(data, {
+    const [updatedRows] = await patientModel.update(data, {
         where: { id },
     });
 
@@ -59,7 +59,7 @@ export async function replacePatient(id, data, user) {
         return null;
     }
 
-    return models.patientModel.findByPk(id, {
+    return patientModel.findByPk(id, {
         attributes: publicPatientAttributes,
     });
 }
@@ -67,7 +67,7 @@ export async function replacePatient(id, data, user) {
 export async function updatePatient(id, data, user) {
     await ensureSelfAccess(id, user);
 
-    const [updatedRows] = await models.patientModel.update(data, {
+    const [updatedRows] = await patientModel.update(data, {
         where: { id },
     });
 
@@ -75,7 +75,7 @@ export async function updatePatient(id, data, user) {
         return null;
     }
 
-    return models.patientModel.findByPk(id, {
+    return patientModel.findByPk(id, {
         attributes: publicPatientAttributes,
     });
 }
@@ -83,7 +83,7 @@ export async function updatePatient(id, data, user) {
 export async function deletePatient(id, user) {
     await ensureSelfAccess(id, user);
 
-    const deletedRows = await models.patientModel.destroy({
+    const deletedRows = await patientModel.destroy({
         where: { id },
     });
 
@@ -92,7 +92,7 @@ export async function deletePatient(id, user) {
 
 export async function getPatients(user) {
     if (user.role === "patient") {
-        const patient = await models.patientModel.findByPk(user.id, {
+        const patient = await patientModel.findByPk(user.id, {
             attributes: publicPatientAttributes,
         });
 
@@ -100,12 +100,12 @@ export async function getPatients(user) {
     }
 
     if (user.role === "doctor") {
-        return models.patientModel.findAll({
+        return patientModel.findAll({
             distinct: true,
             attributes: publicPatientAttributes,
             include: [
                 {
-                    model: models.appointmentModel,
+                    model: appointmentModel,
                     as: "appointments",
                     where: { doctorId: user.id },
                     attributes: [],
@@ -136,7 +136,7 @@ export async function getPatientById(id, user) {
         throw createError(403, "Forbidden");
     }
 
-    return models.patientModel.findByPk(patientId, {
+    return patientModel.findByPk(patientId, {
         attributes: publicPatientAttributes,
     });
 }

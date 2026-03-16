@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 
-import models from "../models/index.js";
+import { clinicModel, doctorModel } from "../models/index.js";
 
 const publicDoctorAttributes = {
     exclude: ["passwordHash"],
@@ -21,7 +21,7 @@ function ensureSelfAccess(doctorId, user) {
 export async function createDoctor(data) {
     const passwordHash = await bcrypt.hash(data.password, 12);
 
-    const doctor = await models.doctorModel.create({
+    const doctor = await doctorModel.create({
         email: data.email,
         passwordHash,
         firstName: data.firstName,
@@ -30,7 +30,7 @@ export async function createDoctor(data) {
         clinicId: data.clinicId,
     });
 
-    return models.doctorModel.findByPk(doctor.id, {
+    return doctorModel.findByPk(doctor.id, {
         attributes: publicDoctorAttributes,
     });
 }
@@ -38,7 +38,7 @@ export async function createDoctor(data) {
 export async function replaceDoctor(id, data, user) {
     ensureSelfAccess(id, user);
 
-    const [updatedRows] = await models.doctorModel.update(data, {
+    const [updatedRows] = await doctorModel.update(data, {
         where: { id },
     });
 
@@ -46,7 +46,7 @@ export async function replaceDoctor(id, data, user) {
         return null;
     }
 
-    return models.doctorModel.findByPk(id, {
+    return doctorModel.findByPk(id, {
         attributes: publicDoctorAttributes,
     });
 }
@@ -54,7 +54,7 @@ export async function replaceDoctor(id, data, user) {
 export async function updateDoctor(id, data, user) {
     ensureSelfAccess(id, user);
 
-    const [updatedRows] = await models.doctorModel.update(data, {
+    const [updatedRows] = await doctorModel.update(data, {
         where: { id },
     });
 
@@ -62,7 +62,7 @@ export async function updateDoctor(id, data, user) {
         return null;
     }
 
-    return models.doctorModel.findByPk(id, {
+    return doctorModel.findByPk(id, {
         attributes: publicDoctorAttributes,
     });
 }
@@ -70,7 +70,7 @@ export async function updateDoctor(id, data, user) {
 export async function deleteDoctor(id, user) {
     ensureSelfAccess(id, user);
 
-    const deletedRows = await models.doctorModel.destroy({
+    const deletedRows = await doctorModel.destroy({
         where: { id },
     });
 
@@ -78,11 +78,11 @@ export async function deleteDoctor(id, user) {
 }
 
 export async function getDoctors() {
-    return models.doctorModel.findAll({
+    return doctorModel.findAll({
         attributes: publicDoctorAttributes,
         include: [
             {
-                model: models.clinicModel,
+                model: clinicModel,
                 as: "clinic",
             },
         ],
@@ -90,11 +90,11 @@ export async function getDoctors() {
 }
 
 export async function getDoctorById(id) {
-    return models.doctorModel.findByPk(id, {
+    return doctorModel.findByPk(id, {
         attributes: publicDoctorAttributes,
         include: [
             {
-                model: models.clinicModel,
+                model: clinicModel,
                 as: "clinic",
             },
         ],

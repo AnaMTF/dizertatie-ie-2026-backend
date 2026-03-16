@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-import models from "../models/index.js";
+import { doctorModel, patientModel } from "../models/index.js";
 
 const SALT_ROUNDS = 12;
 
@@ -52,11 +52,11 @@ function toPublicDoctor(doctor) {
 }
 
 export async function register(data) {
-    const existingPatient = await models.patientModel.findOne({
+    const existingPatient = await patientModel.findOne({
         where: { email: data.email },
     });
 
-    const existingDoctor = await models.doctorModel.findOne({
+    const existingDoctor = await doctorModel.findOne({
         where: { email: data.email },
     });
 
@@ -68,7 +68,7 @@ export async function register(data) {
 
     const passwordHash = await bcrypt.hash(data.password, SALT_ROUNDS);
 
-    const patient = await models.patientModel.create({
+    const patient = await patientModel.create({
         email: data.email,
         passwordHash,
         firstName: data.firstName,
@@ -88,7 +88,7 @@ export async function register(data) {
 }
 
 export async function login(data) {
-    const patient = await models.patientModel.findOne({
+    const patient = await patientModel.findOne({
         where: { email: data.email },
     });
 
@@ -112,7 +112,7 @@ export async function login(data) {
         };
     }
 
-    const doctor = await models.doctorModel.findOne({
+    const doctor = await doctorModel.findOne({
         where: { email: data.email },
     });
 

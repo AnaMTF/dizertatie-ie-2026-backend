@@ -1,7 +1,7 @@
-import appointmentModel from "./appointment-model.js";
-import clinicModel from "./clinic-model.js";
-import doctorModel from "./doctor-model.js";
-import patientModel from "./patient-model.js";
+import { appointmentModel } from "./appointment-model.js";
+import { clinicModel } from "./clinic-model.js";
+import { doctorModel } from "./doctor-model.js";
+import { patientModel } from "./patient-model.js";
 
 clinicModel.hasMany(doctorModel, {
     foreignKey: {
@@ -83,9 +83,4 @@ appointmentModel.belongsTo(clinicModel, {
     onDelete: "RESTRICT",
 });
 
-export default {
-    appointmentModel,
-    clinicModel,
-    doctorModel,
-    patientModel,
-};
+export { appointmentModel, clinicModel, doctorModel, patientModel };

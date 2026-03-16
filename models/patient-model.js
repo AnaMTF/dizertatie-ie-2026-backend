@@ -2,7 +2,7 @@ import { DataTypes } from "sequelize";
 
 import database from "../database/index.js";
 
-const patientModel = database.define("Patient", {
+export const patientModel = database.define("Patient", {
     uuid: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
@@ -43,5 +43,3 @@ const patientModel = database.define("Patient", {
         allowNull: true,
     },
 });
-
-export default patientModel;

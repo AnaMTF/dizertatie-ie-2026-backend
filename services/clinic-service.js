@@ -1,11 +1,11 @@
-import models from "../models/index.js";
+import { clinicModel } from "../models/index.js";
 
 export async function createClinic(data) {
-    return models.clinicModel.create(data);
+    return clinicModel.create(data);
 }
 
 export async function replaceClinic(id, data) {
-    const [updatedRows] = await models.clinicModel.update(data, {
+    const [updatedRows] = await clinicModel.update(data, {
         where: { id },
     });
 
@@ -13,11 +13,11 @@ export async function replaceClinic(id, data) {
         return null;
     }
 
-    return models.clinicModel.findByPk(id);
+    return clinicModel.findByPk(id);
 }
 
 export async function updateClinic(id, data) {
-    const [updatedRows] = await models.clinicModel.update(data, {
+    const [updatedRows] = await clinicModel.update(data, {
         where: { id },
     });
 
@@ -25,11 +25,11 @@ export async function updateClinic(id, data) {
         return null;
     }
 
-    return models.clinicModel.findByPk(id);
+    return clinicModel.findByPk(id);
 }
 
 export async function deleteClinic(id) {
-    const deletedRows = await models.clinicModel.destroy({
+    const deletedRows = await clinicModel.destroy({
         where: { id },
     });
 
@@ -37,9 +37,9 @@ export async function deleteClinic(id) {
 }
 
 export async function getClinics() {
-    return models.clinicModel.findAll();
+    return clinicModel.findAll();
 }
 
 export async function getClinicById(id) {
-    return models.clinicModel.findByPk(id);
+    return clinicModel.findByPk(id);
 }

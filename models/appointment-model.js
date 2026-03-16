@@ -2,7 +2,7 @@ import { DataTypes } from "sequelize";
 
 import database from "../database/index.js";
 
-const appointmentModel = database.define("Appointment", {
+export const appointmentModel = database.define("Appointment", {
     uuid: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
@@ -23,5 +23,3 @@ const appointmentModel = database.define("Appointment", {
         allowNull: true,
     },
 });
-
-export default appointmentModel;

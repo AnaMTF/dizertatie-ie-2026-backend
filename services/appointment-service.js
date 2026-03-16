@@ -1,4 +1,9 @@
-import models from "../models/index.js";
+import {
+    appointmentModel,
+    clinicModel,
+    doctorModel,
+    patientModel,
+} from "../models/index.js";
 
 function createError(status, message) {
     const error = new Error(message);
@@ -8,12 +13,12 @@ function createError(status, message) {
 
 const appointmentInclude = [
     {
-        model: models.patientModel,
+        model: patientModel,
         as: "patient",
         attributes: ["id", "uuid", "email", "firstName", "lastName"],
     },
     {
-        model: models.doctorModel,
+        model: doctorModel,
         as: "doctor",
         attributes: [
             "id",
@@ -26,13 +31,13 @@ const appointmentInclude = [
         ],
     },
     {
-        model: models.clinicModel,
+        model: clinicModel,
         as: "clinic",
     },
 ];
 
 async function getOwnedAppointment(appointmentId, user) {
-    const appointment = await models.appointmentModel.findByPk(appointmentId);
+    const appointment = await appointmentModel.findByPk(appointmentId);
 
     if (!appointment) {
         return null;
@@ -60,7 +65,7 @@ export async function createAppointment(data, user) {
         throw createError(403, "Only patients can create appointments");
     }
 
-    const appointment = await models.appointmentModel.create({
+    const appointment = await appointmentModel.create({
         dateTime: data.dateTime,
         patientId: user.id,
         doctorId: data.doctorId,
@@ -68,7 +73,7 @@ export async function createAppointment(data, user) {
         status: "scheduled",
     });
 
-    return models.appointmentModel.findByPk(appointment.id, {
+    return appointmentModel.findByPk(appointment.id, {
         include: appointmentInclude,
     });
 }
@@ -90,7 +95,7 @@ export async function replaceAppointment(id, data, user) {
         data.status === "cancelled" ? (data.cancellationReason ?? null) : null;
     await appointment.save();
 
-    return models.appointmentModel.findByPk(appointment.id, {
+    return appointmentModel.findByPk(appointment.id, {
         include: appointmentInclude,
     });
 }
@@ -136,7 +141,7 @@ export async function updateAppointment(id, data, user) {
 
     await appointment.save();
 
-    return models.appointmentModel.findByPk(appointment.id, {
+    return appointmentModel.findByPk(appointment.id, {
         include: appointmentInclude,
     });
 }
@@ -171,13 +176,13 @@ export async function getAppointments(user) {
 export async function getAppointmentById(id, user) {
     await getOwnedAppointment(id, user);
 
-    return models.appointmentModel.findByPk(id, {
+    return appointmentModel.findByPk(id, {
         include: appointmentInclude,
     });
 }
 
 export async function getAppointmentsByPatientId(patientId) {
-    return models.appointmentModel.findAll({
+    return appointmentModel.findAll({
         where: { patientId },
         include: appointmentInclude,
         order: [["dateTime", "ASC"]],
@@ -185,7 +190,7 @@ export async function getAppointmentsByPatientId(patientId) {
 }
 
 export async function getAppointmentsByDoctorId(doctorId) {
-    return models.appointmentModel.findAll({
+    return appointmentModel.findAll({
         where: { doctorId },
         include: appointmentInclude,
         order: [["dateTime", "ASC"]],
