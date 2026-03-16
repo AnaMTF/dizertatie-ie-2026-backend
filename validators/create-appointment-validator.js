@@ -11,15 +11,15 @@ const schema = {
     properties: {
         dateTime: {
             type: "string",
-            format: "date-time"
+            format: "date-time",
         },
         doctorId: {
-            type: "integer"
+            type: "integer",
         },
         clinicId: {
-            type: "integer"
-        }
-    }
+            type: "integer",
+        },
+    },
 };
 
 export const validateCreateAppointment = ajv.compile(schema);

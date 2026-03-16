@@ -29,7 +29,7 @@ const doctorModel = database.define("Doctor", {
     specialization: {
         type: DataTypes.STRING,
         allowNull: false,
-    }
+    },
 });
 
 export default doctorModel;

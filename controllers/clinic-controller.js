@@ -72,4 +72,3 @@ export async function getClinicById(request, response) {
         response.status(error.status || 500).json({ message: error.message });
     }
 }
-

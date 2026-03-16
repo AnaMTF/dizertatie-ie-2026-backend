@@ -16,7 +16,11 @@ export async function createPatient(request, response) {
 export async function replacePatient(request, response) {
     try {
         const { id } = request.params;
-        const patient = await patientService.replacePatient(id, request.body, request.user);
+        const patient = await patientService.replacePatient(
+            id,
+            request.body,
+            request.user,
+        );
         if (!patient) {
             return response.status(404).json({ message: "Patient not found" });
         }
@@ -29,7 +33,11 @@ export async function replacePatient(request, response) {
 export async function updatePatient(request, response) {
     try {
         const { id } = request.params;
-        const patient = await patientService.updatePatient(id, request.body, request.user);
+        const patient = await patientService.updatePatient(
+            id,
+            request.body,
+            request.user,
+        );
         if (!patient) {
             return response.status(404).json({ message: "Patient not found" });
         }

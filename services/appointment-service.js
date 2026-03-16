@@ -15,7 +15,15 @@ const appointmentInclude = [
     {
         model: models.doctorModel,
         as: "doctor",
-        attributes: ["id", "uuid", "email", "firstName", "lastName", "specialization", "clinicId"],
+        attributes: [
+            "id",
+            "uuid",
+            "email",
+            "firstName",
+            "lastName",
+            "specialization",
+            "clinicId",
+        ],
     },
     {
         model: models.clinicModel,
@@ -31,11 +39,17 @@ async function getOwnedAppointment(appointmentId, user) {
     }
 
     if (user.role === "patient" && appointment.patientId !== user.id) {
-        throw createError(403, "Patients can only access their own appointments");
+        throw createError(
+            403,
+            "Patients can only access their own appointments",
+        );
     }
 
     if (user.role === "doctor" && appointment.doctorId !== user.id) {
-        throw createError(403, "Doctors can only access their own appointments");
+        throw createError(
+            403,
+            "Doctors can only access their own appointments",
+        );
     }
 
     return appointment;
@@ -72,7 +86,8 @@ export async function replaceAppointment(id, data, user) {
 
     appointment.dateTime = data.dateTime;
     appointment.status = data.status;
-    appointment.cancellationReason = data.status === "cancelled" ? data.cancellationReason ?? null : null;
+    appointment.cancellationReason =
+        data.status === "cancelled" ? (data.cancellationReason ?? null) : null;
     await appointment.save();
 
     return models.appointmentModel.findByPk(appointment.id, {

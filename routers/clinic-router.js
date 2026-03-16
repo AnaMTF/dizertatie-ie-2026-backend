@@ -21,34 +21,34 @@ router.post(
     authenticate,
     authorizeRoles("doctor"),
     validate(validateCreateClinic),
-    createClinic);
-    
+    createClinic,
+);
+
 router.put(
     "/clinic/:id",
     authenticate,
     authorizeRoles("doctor"),
     validate(validateReplaceClinic),
-    replaceClinic);
-    
+    replaceClinic,
+);
+
 router.patch(
     "/clinic/:id",
     authenticate,
     authorizeRoles("doctor"),
     validate(validateUpdateClinic),
-    updateClinic);
-    
+    updateClinic,
+);
+
 router.delete(
     "/clinic/:id",
     authenticate,
     authorizeRoles("doctor"),
-    deleteClinic);
-    
-router.get(
-    "/clinic",
-    getClinics);
-    
-router.get(
-    "/clinic/:id",
-    getClinicById);
+    deleteClinic,
+);
+
+router.get("/clinic", getClinics);
+
+router.get("/clinic/:id", getClinicById);
 
 export default router;

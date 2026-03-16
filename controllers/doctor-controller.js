@@ -15,7 +15,11 @@ export async function createDoctor(request, response) {
 export async function replaceDoctor(request, response) {
     try {
         const { id } = request.params;
-        const doctor = await doctorService.replaceDoctor(id, request.body, request.user);
+        const doctor = await doctorService.replaceDoctor(
+            id,
+            request.body,
+            request.user,
+        );
         if (!doctor) {
             return response.status(404).json({ message: "Doctor not found" });
         }
@@ -28,7 +32,11 @@ export async function replaceDoctor(request, response) {
 export async function updateDoctor(request, response) {
     try {
         const { id } = request.params;
-        const doctor = await doctorService.updateDoctor(id, request.body, request.user);
+        const doctor = await doctorService.updateDoctor(
+            id,
+            request.body,
+            request.user,
+        );
         if (!doctor) {
             return response.status(404).json({ message: "Doctor not found" });
         }
@@ -72,4 +80,3 @@ export async function getDoctorById(request, response) {
         response.status(error.status || 500).json({ message: error.message });
     }
 }
-

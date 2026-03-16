@@ -127,7 +127,10 @@ export async function getPatientById(id, user) {
         const hasAccess = await doctorHasAccessToPatient(patientId, user.id);
 
         if (!hasAccess) {
-            throw createError(403, "Doctors can only access patients they have appointments with");
+            throw createError(
+                403,
+                "Doctors can only access patients they have appointments with",
+            );
         }
     } else {
         throw createError(403, "Forbidden");

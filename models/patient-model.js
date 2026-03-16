@@ -41,7 +41,7 @@ const patientModel = database.define("Patient", {
     additionalMedicalInfo: {
         type: DataTypes.TEXT,
         allowNull: true,
-    }
+    },
 });
 
 export default patientModel;

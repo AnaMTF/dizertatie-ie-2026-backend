@@ -11,14 +11,14 @@ const schema = {
     properties: {
         email: {
             type: "string",
-            format: "email"
+            format: "email",
         },
         password: {
             type: "string",
             minLength: 8,
-            maxLength: 128
-        }
-    }
+            maxLength: 128,
+        },
+    },
 };
 
 export const validateLogin = ajv.compile(schema);

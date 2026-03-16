@@ -11,34 +11,34 @@ const schema = {
     properties: {
         email: {
             type: "string",
-            format: "email"
+            format: "email",
         },
         firstName: {
             type: "string",
             minLength: 1,
-            maxLength: 100
+            maxLength: 100,
         },
         lastName: {
             type: "string",
             minLength: 1,
-            maxLength: 100
+            maxLength: 100,
         },
         dateOfBirth: {
             type: "string",
-            format: "date"
+            format: "date",
         },
         height: {
             type: "number",
-            minimum: 0
+            minimum: 0,
         },
         weight: {
             type: "number",
-            minimum: 0
+            minimum: 0,
         },
         additionalMedicalInfo: {
-            type: "string"
-        }
-    }
+            type: "string",
+        },
+    },
 };
 
 export const validateUpdatePatient = ajv.compile(schema);

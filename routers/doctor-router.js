@@ -16,37 +16,33 @@ import {
 
 const router = express.Router();
 
-router.post(
-    "/doctor",
-    validate(validateCreateDoctor),
-    createDoctor);
-    
+router.post("/doctor", validate(validateCreateDoctor), createDoctor);
+
 router.put(
     "/doctor/:id",
     authenticate,
     authorizeRoles("doctor"),
     validate(validateReplaceDoctor),
-    replaceDoctor);
-    
+    replaceDoctor,
+);
+
 router.patch(
     "/doctor/:id",
     authenticate,
     authorizeRoles("doctor"),
     validate(validateUpdateDoctor),
-    updateDoctor);
-    
+    updateDoctor,
+);
+
 router.delete(
     "/doctor/:id",
     authenticate,
     authorizeRoles("doctor"),
-    deleteDoctor);
-    
-router.get(
-    "/doctor",
-    getDoctors);
-    
-router.get(
-    "/doctor/:id",
-    getDoctorById);
+    deleteDoctor,
+);
+
+router.get("/doctor", getDoctors);
+
+router.get("/doctor/:id", getDoctorById);
 
 export default router;

@@ -5,20 +5,8 @@ import { validateLogin, validateRegister } from "../validators/index.js";
 
 const router = express.Router();
 
-router.post(
-    "/login",
-    validate(validateLogin),
-    login
-);
-router.post(
-    "/register",
-    validate(validateRegister),
-    register
-);
-router.post(
-    "/logout",
-    authenticate,
-    logout
-);
+router.post("/login", validate(validateLogin), login);
+router.post("/register", validate(validateRegister), register);
+router.post("/logout", authenticate, logout);
 
 export default router;

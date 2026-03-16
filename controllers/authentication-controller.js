@@ -24,4 +24,3 @@ export async function login(request, response) {
 export async function logout(request, response) {
     response.status(204).send();
 }
-

@@ -93,7 +93,10 @@ export async function login(data) {
     });
 
     if (patient) {
-        const passwordMatches = await bcrypt.compare(data.password, patient.passwordHash);
+        const passwordMatches = await bcrypt.compare(
+            data.password,
+            patient.passwordHash,
+        );
 
         if (!passwordMatches) {
             const error = new Error("Invalid email or password");
@@ -114,7 +117,10 @@ export async function login(data) {
     });
 
     if (doctor) {
-        const passwordMatches = await bcrypt.compare(data.password, doctor.passwordHash);
+        const passwordMatches = await bcrypt.compare(
+            data.password,
+            doctor.passwordHash,
+        );
 
         if (!passwordMatches) {
             const error = new Error("Invalid email or password");

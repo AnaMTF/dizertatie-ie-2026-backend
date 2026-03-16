@@ -11,27 +11,27 @@ const schema = {
     properties: {
         email: {
             type: "string",
-            format: "email"
+            format: "email",
         },
         firstName: {
             type: "string",
             minLength: 1,
-            maxLength: 100
+            maxLength: 100,
         },
         lastName: {
             type: "string",
             minLength: 1,
-            maxLength: 100
+            maxLength: 100,
         },
         specialization: {
             type: "string",
             minLength: 1,
-            maxLength: 100
+            maxLength: 100,
         },
         clinicId: {
-            type: "integer"
-        }
-    }
+            type: "integer",
+        },
+    },
 };
 
 export const validateReplaceDoctor = ajv.compile(schema);

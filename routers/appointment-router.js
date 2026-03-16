@@ -21,38 +21,44 @@ router.post(
     authenticate,
     authorizeRoles("patient"),
     validate(validateCreateAppointment),
-    createAppointment);
+    createAppointment,
+);
 
 router.put(
     "/appointment/:id",
     authenticate,
     authorizeRoles("patient"),
     validate(validateReplaceAppointment),
-    replaceAppointment);
+    replaceAppointment,
+);
 
 router.patch(
     "/appointment/:id",
     authenticate,
     authorizeRoles("patient", "doctor"),
     validate(validateUpdateAppointment),
-    updateAppointment);
+    updateAppointment,
+);
 
 router.delete(
     "/appointment/:id",
     authenticate,
     authorizeRoles("patient"),
-    deleteAppointment);
+    deleteAppointment,
+);
 
 router.get(
     "/appointment",
     authenticate,
     authorizeRoles("patient", "doctor"),
-    getAppointments);
+    getAppointments,
+);
 
 router.get(
     "/appointment/:id",
     authenticate,
     authorizeRoles("patient", "doctor"),
-    getAppointmentById);
+    getAppointmentById,
+);
 
 export default router;

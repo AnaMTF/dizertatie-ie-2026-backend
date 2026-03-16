@@ -16,24 +16,33 @@ export function authenticate(request, response, next) {
     const authorization = request.headers.authorization;
 
     if (!authorization || !authorization.startsWith("Bearer ")) {
-        return response.status(401).json({ message: "Authentication required" });
+        return response
+            .status(401)
+            .json({ message: "Authentication required" });
     }
 
     const token = authorization.slice(7);
 
     try {
-        const payload = jwt.verify(token, process.env.JWT_SECRET || "dev-secret-change-me");
+        const payload = jwt.verify(
+            token,
+            process.env.JWT_SECRET || "dev-secret-change-me",
+        );
         request.user = payload;
         next();
     } catch {
-        return response.status(401).json({ message: "Invalid or expired token" });
+        return response
+            .status(401)
+            .json({ message: "Invalid or expired token" });
     }
 }
 
 export function authorizeRoles(...allowedRoles) {
     return (request, response, next) => {
         if (!request.user) {
-            return response.status(401).json({ message: "Authentication required" });
+            return response
+                .status(401)
+                .json({ message: "Authentication required" });
         }
 
         if (!allowedRoles.includes(request.user.role)) {
@@ -43,4 +52,3 @@ export function authorizeRoles(...allowedRoles) {
         next();
     };
 }
-

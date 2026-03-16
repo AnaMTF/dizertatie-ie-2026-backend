@@ -6,37 +6,44 @@ addFormats(ajv);
 
 const schema = {
     type: "object",
-    required: ["email", "password", "firstName", "lastName", "specialization", "clinicId"],
+    required: [
+        "email",
+        "password",
+        "firstName",
+        "lastName",
+        "specialization",
+        "clinicId",
+    ],
     additionalProperties: false,
     properties: {
         email: {
             type: "string",
-            format: "email"
+            format: "email",
         },
         password: {
             type: "string",
             minLength: 8,
-            maxLength: 128
+            maxLength: 128,
         },
         firstName: {
             type: "string",
             minLength: 1,
-            maxLength: 100
+            maxLength: 100,
         },
         lastName: {
             type: "string",
             minLength: 1,
-            maxLength: 100
+            maxLength: 100,
         },
         specialization: {
             type: "string",
             minLength: 1,
-            maxLength: 100
+            maxLength: 100,
         },
         clinicId: {
-            type: "integer"
-        }
-    }
+            type: "integer",
+        },
+    },
 };
 
 export const validateCreateDoctor = ajv.compile(schema);

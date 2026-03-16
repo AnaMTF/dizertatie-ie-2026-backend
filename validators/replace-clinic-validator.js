@@ -12,14 +12,14 @@ const schema = {
         name: {
             type: "string",
             minLength: 1,
-            maxLength: 200
+            maxLength: 200,
         },
         address: {
             type: "string",
             minLength: 1,
-            maxLength: 500
-        }
-    }
+            maxLength: 500,
+        },
+    },
 };
 
 export const validateReplaceClinic = ajv.compile(schema);

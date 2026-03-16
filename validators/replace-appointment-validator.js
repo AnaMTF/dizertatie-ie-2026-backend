@@ -11,17 +11,17 @@ const schema = {
     properties: {
         dateTime: {
             type: "string",
-            format: "date-time"
+            format: "date-time",
         },
         status: {
             type: "string",
-            enum: ["scheduled", "cancelled", "rescheduled"]
+            enum: ["scheduled", "cancelled", "rescheduled"],
         },
         cancellationReason: {
             type: "string",
-            maxLength: 1000
-        }
-    }
+            maxLength: 1000,
+        },
+    },
 };
 
 export const validateReplaceAppointment = ajv.compile(schema);
