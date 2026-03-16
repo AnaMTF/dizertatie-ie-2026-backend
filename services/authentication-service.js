@@ -5,6 +5,10 @@ import { doctorModel, patientModel } from "../models/index.js";
 
 const SALT_ROUNDS = 12;
 
+if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET environment variable is required");
+}
+
 function createAuthToken(user) {
     return jwt.sign(
         {
@@ -12,9 +16,9 @@ function createAuthToken(user) {
             uuid: user.uuid,
             role: user.role,
         },
-        process.env.JWT_SECRET || "dev-secret-change-me",
+        process.env.JWT_SECRET,
         {
-            expiresIn: process.env.JWT_EXPIRES_IN || "1h",
+            expiresIn: process.env.JWT_EXPIRES_IN || "1d",
         },
     );
 }

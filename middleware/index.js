@@ -1,5 +1,9 @@
 import jwt from "jsonwebtoken";
 
+if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET environment variable is required");
+}
+
 export function validate(validateFn) {
     return (request, response, next) => {
         const isValid = validateFn(request.body);
@@ -26,7 +30,7 @@ export function authenticate(request, response, next) {
     try {
         const payload = jwt.verify(
             token,
-            process.env.JWT_SECRET || "dev-secret-change-me",
+            process.env.JWT_SECRET,
         );
         request.user = payload;
         next();
