@@ -1,9 +1,5 @@
 import * as doctorService from "../services/doctor-service.js";
 
-function handleError(response, error) {
-    response.status(error.status || 500).json({ message: error.message });
-}
-
 async function createDoctor(request, response) {
     try {
         const doctor = await doctorService.createDoctor(request.body);
@@ -12,7 +8,7 @@ async function createDoctor(request, response) {
             data: doctor,
         });
     } catch (error) {
-        handleError(response, error);
+        response.status(error.status || 500).json({ message: error.message });
     }
 }
 
@@ -25,7 +21,7 @@ async function replaceDoctor(request, response) {
         }
         response.status(200).json({ doctor });
     } catch (error) {
-        handleError(response, error);
+        response.status(error.status || 500).json({ message: error.message });
     }
 }
 
@@ -38,7 +34,7 @@ async function updateDoctor(request, response) {
         }
         response.status(200).json({ doctor });
     } catch (error) {
-        handleError(response, error);
+        response.status(error.status || 500).json({ message: error.message });
     }
 }
 
@@ -51,7 +47,7 @@ async function deleteDoctor(request, response) {
         }
         response.status(204).send();
     } catch (error) {
-        handleError(response, error);
+        response.status(error.status || 500).json({ message: error.message });
     }
 }
 
@@ -60,7 +56,7 @@ async function getDoctors(request, response) {
         const doctors = await doctorService.getDoctors();
         response.status(200).json({ doctors });
     } catch (error) {
-        handleError(response, error);
+        response.status(error.status || 500).json({ message: error.message });
     }
 }
 
@@ -73,7 +69,7 @@ async function getDoctorById(request, response) {
         }
         response.status(200).json({ doctor });
     } catch (error) {
-        handleError(response, error);
+        response.status(error.status || 500).json({ message: error.message });
     }
 }
 

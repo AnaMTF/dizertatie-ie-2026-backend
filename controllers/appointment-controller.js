@@ -1,9 +1,5 @@
 import * as appointmentService from "../services/appointment-service.js";
 
-function handleError(response, error) {
-    response.status(error.status || 500).json({ message: error.message });
-}
-
 /* crud */
 async function createAppointment(request, response) {
     try {
@@ -13,7 +9,7 @@ async function createAppointment(request, response) {
             data: appointment,
         });
     } catch (error) {
-        handleError(response, error);
+        response.status(error.status || 500).json({ message: error.message });
     }
 }
 
@@ -26,7 +22,7 @@ async function replaceAppointment(request, response) {
         }
         response.status(200).json({ appointment });
     } catch (error) {
-        handleError(response, error);
+        response.status(error.status || 500).json({ message: error.message });
     }
 }
 
@@ -39,7 +35,7 @@ async function updateAppointment(request, response) {
         }
         response.status(200).json({ appointment });
     } catch (error) {
-        handleError(response, error);
+        response.status(error.status || 500).json({ message: error.message });
     }
 }
 
@@ -52,7 +48,7 @@ async function deleteAppointment(request, response) {
         }
         response.status(204).send();
     } catch (error) {
-        handleError(response, error);
+        response.status(error.status || 500).json({ message: error.message });
     }
 }
 
@@ -62,7 +58,7 @@ async function getAppointments(request, response) {
         const appointments = await appointmentService.getAppointments(request.user);
         response.status(200).json({ appointments });
     } catch (error) {
-        handleError(response, error);
+        response.status(error.status || 500).json({ message: error.message });
     }
 }
 
@@ -75,7 +71,7 @@ async function getAppointmentById(request, response) {
         }
         response.status(200).json({ appointment });
     } catch (error) {
-        handleError(response, error);
+        response.status(error.status || 500).json({ message: error.message });
     }
 }
 

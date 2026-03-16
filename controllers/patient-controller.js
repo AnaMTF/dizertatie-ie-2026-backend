@@ -1,9 +1,5 @@
 import * as patientService from "../services/patient-service.js";
 
-function handleError(response, error) {
-    response.status(error.status || 500).json({ message: error.message });
-}
-
 /* crud */
 async function createPatient(request, response) {
     try {
@@ -13,7 +9,7 @@ async function createPatient(request, response) {
             data: patient,
         });
     } catch (error) {
-        handleError(response, error);
+        response.status(error.status || 500).json({ message: error.message });
     }
 }
 
@@ -26,7 +22,7 @@ async function replacePatient(request, response) {
         }
         response.status(200).json({ patient });
     } catch (error) {
-        handleError(response, error);
+        response.status(error.status || 500).json({ message: error.message });
     }
 }
 
@@ -39,7 +35,7 @@ async function updatePatient(request, response) {
         }
         response.status(200).json({ patient });
     } catch (error) {
-        handleError(response, error);
+        response.status(error.status || 500).json({ message: error.message });
     }
 }
 
@@ -52,7 +48,7 @@ async function deletePatient(request, response) {
         }
         response.status(204).send();
     } catch (error) {
-        handleError(response, error);
+        response.status(error.status || 500).json({ message: error.message });
     }
 }
 
@@ -62,7 +58,7 @@ async function getPatients(request, response) {
         const patients = await patientService.getPatients(request.user);
         response.status(200).json({ patients });
     } catch (error) {
-        handleError(response, error);
+        response.status(error.status || 500).json({ message: error.message });
     }
 }
 
@@ -75,7 +71,7 @@ async function getPatientById(request, response) {
         }
         response.status(200).json({ patient });
     } catch (error) {
-        handleError(response, error);
+        response.status(error.status || 500).json({ message: error.message });
     }
 }
 

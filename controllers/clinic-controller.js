@@ -1,9 +1,5 @@
 import * as clinicService from "../services/clinic-service.js";
 
-function handleError(response, error) {
-    response.status(error.status || 500).json({ message: error.message });
-}
-
 async function createClinic(request, response) {
     try {
         const clinic = await clinicService.createClinic(request.body);
@@ -12,7 +8,7 @@ async function createClinic(request, response) {
             data: clinic,
         });
     } catch (error) {
-        handleError(response, error);
+        response.status(error.status || 500).json({ message: error.message });
     }
 }
 
@@ -25,7 +21,7 @@ async function replaceClinic(request, response) {
         }
         response.status(200).json({ clinic });
     } catch (error) {
-        handleError(response, error);
+        response.status(error.status || 500).json({ message: error.message });
     }
 }
 
@@ -38,7 +34,7 @@ async function updateClinic(request, response) {
         }
         response.status(200).json({ clinic });
     } catch (error) {
-        handleError(response, error);
+        response.status(error.status || 500).json({ message: error.message });
     }
 }
 
@@ -51,7 +47,7 @@ async function deleteClinic(request, response) {
         }
         response.status(204).send();
     } catch (error) {
-        handleError(response, error);
+        response.status(error.status || 500).json({ message: error.message });
     }
 }
 
@@ -60,7 +56,7 @@ async function getClinics(request, response) {
         const clinics = await clinicService.getClinics();
         response.status(200).json({ clinics });
     } catch (error) {
-        handleError(response, error);
+        response.status(error.status || 500).json({ message: error.message });
     }
 }
 
@@ -73,7 +69,7 @@ async function getClinicById(request, response) {
         }
         response.status(200).json({ clinic });
     } catch (error) {
-        handleError(response, error);
+        response.status(error.status || 500).json({ message: error.message });
     }
 }
 
