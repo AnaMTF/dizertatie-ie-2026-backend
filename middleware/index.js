@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-function validate(validateFn) {
+export function validate(validateFn) {
     return (request, response, next) => {
         const isValid = validateFn(request.body);
 
@@ -12,7 +12,7 @@ function validate(validateFn) {
     };
 }
 
-function authenticate(request, response, next) {
+export function authenticate(request, response, next) {
     const authorization = request.headers.authorization;
 
     if (!authorization || !authorization.startsWith("Bearer ")) {
@@ -30,7 +30,7 @@ function authenticate(request, response, next) {
     }
 }
 
-function authorizeRoles(...allowedRoles) {
+export function authorizeRoles(...allowedRoles) {
     return (request, response, next) => {
         if (!request.user) {
             return response.status(401).json({ message: "Authentication required" });
@@ -44,8 +44,3 @@ function authorizeRoles(...allowedRoles) {
     };
 }
 
-export default {
-    validate,
-    authenticate,
-    authorizeRoles,
-};

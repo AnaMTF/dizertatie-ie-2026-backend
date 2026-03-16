@@ -34,6 +34,4 @@ const schema = {
     }
 };
 
-const validate = ajv.compile(schema);
-
-export default validate;
+export const validateReplaceDoctor = ajv.compile(schema);

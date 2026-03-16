@@ -21,6 +21,4 @@ const schema = {
     }
 };
 
-const validate = ajv.compile(schema);
-
-export default validate;
+export const validateLogin = ajv.compile(schema);

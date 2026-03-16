@@ -1,25 +1,24 @@
 import express from "express";
-import controllers from "../controllers/index.js";
-import middleware from "../middleware/index.js";
-import validateLogin from "../validators/login-validator.js";
-import validateRegister from "../validators/register-validator.js";
+import { login, logout, register } from "../controllers/index.js";
+import { authenticate, validate } from "../middleware/index.js";
+import { validateLogin, validateRegister } from "../validators/index.js";
 
 const router = express.Router();
 
 router.post(
     "/login",
-    middleware.validate(validateLogin),
-    controllers.authenticationController.login
+    validate(validateLogin),
+    login
 );
 router.post(
     "/register",
-    middleware.validate(validateRegister),
-    controllers.authenticationController.register
+    validate(validateRegister),
+    register
 );
 router.post(
     "/logout",
-    middleware.authenticate,
-    controllers.authenticationController.logout
+    authenticate,
+    logout
 );
 
 export default router;

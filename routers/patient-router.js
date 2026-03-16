@@ -1,44 +1,55 @@
 import express from "express";
-import controllers from "../controllers/index.js";
-import middleware from "../middleware/index.js";
-import validators from "../validators/index.js";
+import {
+    createPatient,
+    replacePatient,
+    updatePatient,
+    deletePatient,
+    getPatients,
+    getPatientById,
+} from "../controllers/index.js";
+import { authenticate, authorizeRoles, validate } from "../middleware/index.js";
+import {
+    validateCreatePatient,
+    validateReplacePatient,
+    validateUpdatePatient,
+} from "../validators/index.js";
 
 const router = express.Router();
 
 router.post(
     "/patient", 
-    middleware.authenticate, 
-    middleware.authorizeRoles("doctor"), 
-    middleware.validate(validators.validateCreatePatient), 
-    controllers.patientController.createPatient);
+    authenticate, 
+    authorizeRoles("doctor"), 
+    validate(validateCreatePatient), 
+    createPatient);
     
 router.put(
     "/patient/:id", 
-    middleware.authenticate, 
-    middleware.authorizeRoles("patient"), 
-    middleware.validate(validators.validateReplacePatient), 
-    controllers.patientController.replacePatient);
+    authenticate, 
+    authorizeRoles("patient"), 
+    validate(validateReplacePatient), 
+    replacePatient);
     
 router.patch(
     "/patient/:id", 
-    middleware.authenticate, 
-    middleware.authorizeRoles("patient"), 
-    middleware.validate(validators.validateUpdatePatient), 
-    controllers.patientController.updatePatient);
+    authenticate, 
+    authorizeRoles("patient"), 
+    validate(validateUpdatePatient), 
+    updatePatient);
     
 router.delete(
     "/patient/:id", 
-    middleware.authenticate, 
-    middleware.authorizeRoles("patient"), 
-    controllers.patientController.deletePatient);
+    authenticate, 
+    authorizeRoles("patient"), 
+    deletePatient);
     
 router.get(
-    "/patient", middleware.authenticate, middleware.authorizeRoles("patient", "doctor"), 
-    controllers.patientController.getPatients);
+    "/patient", authenticate, authorizeRoles("patient", "doctor"), 
+    getPatients);
     
 router.get(
-    "/patient/:id", middleware.authenticate, 
-    middleware.authorizeRoles("patient", "doctor"), 
-    controllers.patientController.getPatientById);
+    "/patient/:id", authenticate, 
+    authorizeRoles("patient", "doctor"), 
+    getPatientById);
 
 export default router;

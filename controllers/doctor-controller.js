@@ -1,6 +1,6 @@
 import * as doctorService from "../services/doctor-service.js";
 
-async function createDoctor(request, response) {
+export async function createDoctor(request, response) {
     try {
         const doctor = await doctorService.createDoctor(request.body);
         response.status(201).json({
@@ -12,7 +12,7 @@ async function createDoctor(request, response) {
     }
 }
 
-async function replaceDoctor(request, response) {
+export async function replaceDoctor(request, response) {
     try {
         const { id } = request.params;
         const doctor = await doctorService.replaceDoctor(id, request.body, request.user);
@@ -25,7 +25,7 @@ async function replaceDoctor(request, response) {
     }
 }
 
-async function updateDoctor(request, response) {
+export async function updateDoctor(request, response) {
     try {
         const { id } = request.params;
         const doctor = await doctorService.updateDoctor(id, request.body, request.user);
@@ -38,7 +38,7 @@ async function updateDoctor(request, response) {
     }
 }
 
-async function deleteDoctor(request, response) {
+export async function deleteDoctor(request, response) {
     try {
         const { id } = request.params;
         const deleted = await doctorService.deleteDoctor(id, request.user);
@@ -51,7 +51,7 @@ async function deleteDoctor(request, response) {
     }
 }
 
-async function getDoctors(request, response) {
+export async function getDoctors(request, response) {
     try {
         const doctors = await doctorService.getDoctors();
         response.status(200).json({ doctors });
@@ -60,7 +60,7 @@ async function getDoctors(request, response) {
     }
 }
 
-async function getDoctorById(request, response) {
+export async function getDoctorById(request, response) {
     try {
         const { id } = request.params;
         const doctor = await doctorService.getDoctorById(id);
@@ -73,11 +73,3 @@ async function getDoctorById(request, response) {
     }
 }
 
-export default {
-    createDoctor,
-    replaceDoctor,
-    updateDoctor,
-    deleteDoctor,
-    getDoctors,
-    getDoctorById,
-};

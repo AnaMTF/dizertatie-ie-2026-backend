@@ -1,41 +1,52 @@
 import express from "express";
-import controllers from "../controllers/index.js";
-import middleware from "../middleware/index.js";
-import validators from "../validators/index.js";
+import {
+    createDoctor,
+    replaceDoctor,
+    updateDoctor,
+    deleteDoctor,
+    getDoctors,
+    getDoctorById,
+} from "../controllers/index.js";
+import { authenticate, authorizeRoles, validate } from "../middleware/index.js";
+import {
+    validateCreateDoctor,
+    validateReplaceDoctor,
+    validateUpdateDoctor,
+} from "../validators/index.js";
 
 const router = express.Router();
 
 router.post(
     "/doctor",
-    middleware.validate(validators.validateCreateDoctor),
-    controllers.doctorController.createDoctor);
+    validate(validateCreateDoctor),
+    createDoctor);
     
 router.put(
     "/doctor/:id",
-    middleware.authenticate,
-    middleware.authorizeRoles("doctor"),
-    middleware.validate(validators.validateReplaceDoctor),
-    controllers.doctorController.replaceDoctor);
+    authenticate,
+    authorizeRoles("doctor"),
+    validate(validateReplaceDoctor),
+    replaceDoctor);
     
 router.patch(
     "/doctor/:id",
-    middleware.authenticate,
-    middleware.authorizeRoles("doctor"),
-    middleware.validate(validators.validateUpdateDoctor),
-    controllers.doctorController.updateDoctor);
+    authenticate,
+    authorizeRoles("doctor"),
+    validate(validateUpdateDoctor),
+    updateDoctor);
     
 router.delete(
     "/doctor/:id",
-    middleware.authenticate,
-    middleware.authorizeRoles("doctor"),
-    controllers.doctorController.deleteDoctor);
+    authenticate,
+    authorizeRoles("doctor"),
+    deleteDoctor);
     
 router.get(
     "/doctor",
-    controllers.doctorController.getDoctors);
+    getDoctors);
     
 router.get(
     "/doctor/:id",
-    controllers.doctorController.getDoctorById);
+    getDoctorById);
 
 export default router;

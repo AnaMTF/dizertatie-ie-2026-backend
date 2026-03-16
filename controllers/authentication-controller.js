@@ -1,6 +1,6 @@
 import * as authenticationService from "../services/authentication-service.js";
 
-async function register(request, response) {
+export async function register(request, response) {
     try {
         const patient = await authenticationService.register(request.body);
         response.status(201).json({
@@ -12,7 +12,7 @@ async function register(request, response) {
     }
 }
 
-async function login(request, response) {
+export async function login(request, response) {
     try {
         const result = await authenticationService.login(request.body);
         response.status(200).json(result);
@@ -21,12 +21,7 @@ async function login(request, response) {
     }
 }
 
-async function logout(request, response) {
+export async function logout(request, response) {
     response.status(204).send();
 }
 
-export default {
-    register,
-    login,
-    logout,
-};

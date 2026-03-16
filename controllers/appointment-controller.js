@@ -1,7 +1,7 @@
 import * as appointmentService from "../services/appointment-service.js";
 
 /* crud */
-async function createAppointment(request, response) {
+export async function createAppointment(request, response) {
     try {
         const appointment = await appointmentService.createAppointment(request.body, request.user);
         response.status(201).json({
@@ -13,7 +13,7 @@ async function createAppointment(request, response) {
     }
 }
 
-async function replaceAppointment(request, response) {
+export async function replaceAppointment(request, response) {
     try {
         const { id } = request.params;
         const appointment = await appointmentService.replaceAppointment(id, request.body, request.user);
@@ -26,7 +26,7 @@ async function replaceAppointment(request, response) {
     }
 }
 
-async function updateAppointment(request, response) {
+export async function updateAppointment(request, response) {
     try {
         const { id } = request.params;
         const appointment = await appointmentService.updateAppointment(id, request.body, request.user);
@@ -39,7 +39,7 @@ async function updateAppointment(request, response) {
     }
 }
 
-async function deleteAppointment(request, response) {
+export async function deleteAppointment(request, response) {
     try {
         const { id } = request.params;
         const deleted = await appointmentService.deleteAppointment(id, request.user);
@@ -53,7 +53,7 @@ async function deleteAppointment(request, response) {
 }
 
 /* queries */
-async function getAppointments(request, response) {
+export async function getAppointments(request, response) {
     try {
         const appointments = await appointmentService.getAppointments(request.user);
         response.status(200).json({ appointments });
@@ -62,7 +62,7 @@ async function getAppointments(request, response) {
     }
 }
 
-async function getAppointmentById(request, response) {
+export async function getAppointmentById(request, response) {
     try {
         const { id } = request.params;
         const appointment = await appointmentService.getAppointmentById(id, request.user);
@@ -74,12 +74,3 @@ async function getAppointmentById(request, response) {
         response.status(error.status || 500).json({ message: error.message });
     }
 }
-
-export default {
-    createAppointment,
-    replaceAppointment,
-    updateAppointment,
-    deleteAppointment,
-    getAppointments,
-    getAppointmentById,
-};

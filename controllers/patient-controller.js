@@ -1,7 +1,7 @@
 import * as patientService from "../services/patient-service.js";
 
 /* crud */
-async function createPatient(request, response) {
+export async function createPatient(request, response) {
     try {
         const patient = await patientService.createPatient(request.body);
         response.status(201).json({
@@ -13,7 +13,7 @@ async function createPatient(request, response) {
     }
 }
 
-async function replacePatient(request, response) {
+export async function replacePatient(request, response) {
     try {
         const { id } = request.params;
         const patient = await patientService.replacePatient(id, request.body, request.user);
@@ -26,7 +26,7 @@ async function replacePatient(request, response) {
     }
 }
 
-async function updatePatient(request, response) {
+export async function updatePatient(request, response) {
     try {
         const { id } = request.params;
         const patient = await patientService.updatePatient(id, request.body, request.user);
@@ -39,7 +39,7 @@ async function updatePatient(request, response) {
     }
 }
 
-async function deletePatient(request, response) {
+export async function deletePatient(request, response) {
     try {
         const { id } = request.params;
         const deleted = await patientService.deletePatient(id, request.user);
@@ -53,7 +53,7 @@ async function deletePatient(request, response) {
 }
 
 /* queries */
-async function getPatients(request, response) {
+export async function getPatients(request, response) {
     try {
         const patients = await patientService.getPatients(request.user);
         response.status(200).json({ patients });
@@ -62,7 +62,7 @@ async function getPatients(request, response) {
     }
 }
 
-async function getPatientById(request, response) {
+export async function getPatientById(request, response) {
     try {
         const { id } = request.params;
         const patient = await patientService.getPatientById(id, request.user);
@@ -74,12 +74,3 @@ async function getPatientById(request, response) {
         response.status(error.status || 500).json({ message: error.message });
     }
 }
-
-export default {
-    createPatient,
-    replacePatient,
-    updatePatient,
-    deletePatient,
-    getPatients,
-    getPatientById,
-};

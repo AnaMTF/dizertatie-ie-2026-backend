@@ -1,47 +1,58 @@
 import express from "express";
-import controllers from "../controllers/index.js";
-import middleware from "../middleware/index.js";
-import validators from "../validators/index.js";
+import {
+    createAppointment,
+    replaceAppointment,
+    updateAppointment,
+    deleteAppointment,
+    getAppointments,
+    getAppointmentById,
+} from "../controllers/index.js";
+import { authenticate, authorizeRoles, validate } from "../middleware/index.js";
+import {
+    validateCreateAppointment,
+    validateReplaceAppointment,
+    validateUpdateAppointment,
+} from "../validators/index.js";
 
 const router = express.Router();
 
 router.post(
     "/appointment",
-    middleware.authenticate,
-    middleware.authorizeRoles("patient"), 
-    middleware.validate(validators.validateCreateAppointment),
-    controllers.appointmentController.createAppointment);
+    authenticate,
+    authorizeRoles("patient"),
+    validate(validateCreateAppointment),
+    createAppointment);
 
 router.put(
     "/appointment/:id",
-    middleware.authenticate,
-    middleware.authorizeRoles("patient"),
-    middleware.validate(validators.validateReplaceAppointment),
-    controllers.appointmentController.replaceAppointment);
+    authenticate,
+    authorizeRoles("patient"),
+    validate(validateReplaceAppointment),
+    replaceAppointment);
 
 router.patch(
     "/appointment/:id",
-    middleware.authenticate,
-    middleware.authorizeRoles("patient", "doctor"),
-    middleware.validate(validators.validateUpdateAppointment),
-    controllers.appointmentController.updateAppointment);
+    authenticate,
+    authorizeRoles("patient", "doctor"),
+    validate(validateUpdateAppointment),
+    updateAppointment);
 
 router.delete(
     "/appointment/:id",
-    middleware.authenticate,
-    middleware.authorizeRoles("patient"),
-    controllers.appointmentController.deleteAppointment);
+    authenticate,
+    authorizeRoles("patient"),
+    deleteAppointment);
 
 router.get(
     "/appointment",
-    middleware.authenticate,
-    middleware.authorizeRoles("patient", "doctor"),
-    controllers.appointmentController.getAppointments);
+    authenticate,
+    authorizeRoles("patient", "doctor"),
+    getAppointments);
 
 router.get(
     "/appointment/:id",
-    middleware.authenticate,
-    middleware.authorizeRoles("patient", "doctor"),
-    controllers.appointmentController.getAppointmentById);
+    authenticate,
+    authorizeRoles("patient", "doctor"),
+    getAppointmentById);
 
 export default router;

@@ -1,6 +1,6 @@
 import * as clinicService from "../services/clinic-service.js";
 
-async function createClinic(request, response) {
+export async function createClinic(request, response) {
     try {
         const clinic = await clinicService.createClinic(request.body);
         response.status(201).json({
@@ -12,7 +12,7 @@ async function createClinic(request, response) {
     }
 }
 
-async function replaceClinic(request, response) {
+export async function replaceClinic(request, response) {
     try {
         const { id } = request.params;
         const clinic = await clinicService.replaceClinic(id, request.body);
@@ -25,7 +25,7 @@ async function replaceClinic(request, response) {
     }
 }
 
-async function updateClinic(request, response) {
+export async function updateClinic(request, response) {
     try {
         const { id } = request.params;
         const clinic = await clinicService.updateClinic(id, request.body);
@@ -38,7 +38,7 @@ async function updateClinic(request, response) {
     }
 }
 
-async function deleteClinic(request, response) {
+export async function deleteClinic(request, response) {
     try {
         const { id } = request.params;
         const deleted = await clinicService.deleteClinic(id);
@@ -51,7 +51,7 @@ async function deleteClinic(request, response) {
     }
 }
 
-async function getClinics(request, response) {
+export async function getClinics(request, response) {
     try {
         const clinics = await clinicService.getClinics();
         response.status(200).json({ clinics });
@@ -60,7 +60,7 @@ async function getClinics(request, response) {
     }
 }
 
-async function getClinicById(request, response) {
+export async function getClinicById(request, response) {
     try {
         const { id } = request.params;
         const clinic = await clinicService.getClinicById(id);
@@ -73,11 +73,3 @@ async function getClinicById(request, response) {
     }
 }
 
-export default {
-    createClinic,
-    replaceClinic,
-    updateClinic,
-    deleteClinic,
-    getClinics,
-    getClinicById,
-};

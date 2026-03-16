@@ -8,7 +8,13 @@ import rateLimit from "express-rate-limit";
 
 import database from "./database/index.js";
 import "./models/index.js";
-import routers from "./routers/index.js";
+import {
+    appointmentRouter,
+    authenticationRouter,
+    clinicRouter,
+    doctorRouter,
+    patientRouter,
+} from "./routers/index.js";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -31,12 +37,12 @@ const authLimiter = rateLimit({
 
 app.use(generalLimiter);
 
-app.use("/api/v1", routers.appointmentRouter);
-app.use("/api/v1", routers.clinicRouter);
-app.use("/api/v1", routers.doctorRouter);
-app.use("/api/v1", routers.patientRouter);
+app.use("/api/v1", appointmentRouter);
+app.use("/api/v1", clinicRouter);
+app.use("/api/v1", doctorRouter);
+app.use("/api/v1", patientRouter);
 
-app.use("/auth", authLimiter, routers.authenticationRouter);
+app.use("/auth", authLimiter, authenticationRouter);
 
 async function start() {
     await database.authenticate();

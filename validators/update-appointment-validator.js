@@ -24,6 +24,4 @@ const schema = {
     }
 };
 
-const validate = ajv.compile(schema);
-
-export default validate;
+export const validateUpdateAppointment = ajv.compile(schema);

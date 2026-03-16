@@ -1,43 +1,54 @@
 import express from "express";
-import controllers from "../controllers/index.js";
-import middleware from "../middleware/index.js";
-import validators from "../validators/index.js";
+import {
+    createClinic,
+    replaceClinic,
+    updateClinic,
+    deleteClinic,
+    getClinics,
+    getClinicById,
+} from "../controllers/index.js";
+import { authenticate, authorizeRoles, validate } from "../middleware/index.js";
+import {
+    validateCreateClinic,
+    validateReplaceClinic,
+    validateUpdateClinic,
+} from "../validators/index.js";
 
 const router = express.Router();
 
 router.post(
     "/clinic",
-    middleware.authenticate,
-    middleware.authorizeRoles("doctor"),
-    middleware.validate(validators.validateCreateClinic),
-    controllers.clinicController.createClinic);
+    authenticate,
+    authorizeRoles("doctor"),
+    validate(validateCreateClinic),
+    createClinic);
     
 router.put(
     "/clinic/:id",
-    middleware.authenticate,
-    middleware.authorizeRoles("doctor"),
-    middleware.validate(validators.validateReplaceClinic),
-    controllers.clinicController.replaceClinic);
+    authenticate,
+    authorizeRoles("doctor"),
+    validate(validateReplaceClinic),
+    replaceClinic);
     
 router.patch(
     "/clinic/:id",
-    middleware.authenticate,
-    middleware.authorizeRoles("doctor"),
-    middleware.validate(validators.validateUpdateClinic),
-    controllers.clinicController.updateClinic);
+    authenticate,
+    authorizeRoles("doctor"),
+    validate(validateUpdateClinic),
+    updateClinic);
     
 router.delete(
     "/clinic/:id",
-    middleware.authenticate,
-    middleware.authorizeRoles("doctor"),
-    controllers.clinicController.deleteClinic);
+    authenticate,
+    authorizeRoles("doctor"),
+    deleteClinic);
     
 router.get(
     "/clinic",
-    controllers.clinicController.getClinics);
+    getClinics);
     
 router.get(
     "/clinic/:id",
-    controllers.clinicController.getClinicById);
+    getClinicById);
 
 export default router;
