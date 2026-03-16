@@ -12,8 +12,8 @@ function createError(status, message) {
     return error;
 }
 
-function ensureSelfAccess(doctorId, user) {
-    if (!user || user.role !== "doctor" || user.id !== Number(doctorId)) {
+function ensureSelfAccess(doctorUuid, user) {
+    if (!user || user.role !== "doctor" || user.uuid !== doctorUuid) {
         throw createError(403, "Doctors can only update their own profile");
     }
 }
@@ -27,51 +27,51 @@ export async function createDoctor(data) {
         firstName: data.firstName,
         lastName: data.lastName,
         specialization: data.specialization,
-        clinicId: data.clinicId,
+        clinicUuid: data.clinicUuid,
     });
 
-    return doctorModel.findByPk(doctor.id, {
+    return doctorModel.findByPk(doctor.uuid, {
         attributes: publicDoctorAttributes,
     });
 }
 
-export async function replaceDoctor(id, data, user) {
-    ensureSelfAccess(id, user);
+export async function replaceDoctor(uuid, data, user) {
+    ensureSelfAccess(uuid, user);
 
     const [updatedRows] = await doctorModel.update(data, {
-        where: { id },
+        where: { uuid },
     });
 
     if (!updatedRows) {
         return null;
     }
 
-    return doctorModel.findByPk(id, {
+    return doctorModel.findByPk(uuid, {
         attributes: publicDoctorAttributes,
     });
 }
 
-export async function updateDoctor(id, data, user) {
-    ensureSelfAccess(id, user);
+export async function updateDoctor(uuid, data, user) {
+    ensureSelfAccess(uuid, user);
 
     const [updatedRows] = await doctorModel.update(data, {
-        where: { id },
+        where: { uuid },
     });
 
     if (!updatedRows) {
         return null;
     }
 
-    return doctorModel.findByPk(id, {
+    return doctorModel.findByPk(uuid, {
         attributes: publicDoctorAttributes,
     });
 }
 
-export async function deleteDoctor(id, user) {
-    ensureSelfAccess(id, user);
+export async function deleteDoctor(uuid, user) {
+    ensureSelfAccess(uuid, user);
 
     const deletedRows = await doctorModel.destroy({
-        where: { id },
+        where: { uuid },
     });
 
     return deletedRows > 0;
@@ -89,8 +89,8 @@ export async function getDoctors() {
     });
 }
 
-export async function getDoctorById(id) {
-    return doctorModel.findByPk(id, {
+export async function getDoctorByUuid(uuid) {
+    return doctorModel.findByPk(uuid, {
         attributes: publicDoctorAttributes,
         include: [
             {

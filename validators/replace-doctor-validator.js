@@ -6,7 +6,13 @@ addFormats(ajv);
 
 const schema = {
     type: "object",
-    required: ["email", "firstName", "lastName", "specialization", "clinicId"],
+    required: [
+        "email",
+        "firstName",
+        "lastName",
+        "specialization",
+        "clinicUuid",
+    ],
     additionalProperties: false,
     properties: {
         email: {
@@ -28,8 +34,9 @@ const schema = {
             minLength: 1,
             maxLength: 100,
         },
-        clinicId: {
-            type: "integer",
+        clinicUuid: {
+            type: "string",
+            format: "uuid",
         },
     },
 };

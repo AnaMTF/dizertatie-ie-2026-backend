@@ -28,8 +28,9 @@ const schema = {
             minLength: 1,
             maxLength: 100,
         },
-        clinicId: {
-            type: "integer",
+        clinicUuid: {
+            type: "string",
+            format: "uuid",
         },
     },
 };

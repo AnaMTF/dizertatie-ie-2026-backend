@@ -5,7 +5,7 @@ import {
     updateDoctor,
     deleteDoctor,
     getDoctors,
-    getDoctorById,
+    getDoctorByUuid,
 } from "../controllers/index.js";
 import { authenticate, authorizeRoles, validate } from "../middleware/index.js";
 import {
@@ -19,7 +19,7 @@ const router = express.Router();
 router.post("/doctor", validate(validateCreateDoctor), createDoctor);
 
 router.put(
-    "/doctor/:id",
+    "/doctor/:uuid",
     authenticate,
     authorizeRoles("doctor"),
     validate(validateReplaceDoctor),
@@ -27,7 +27,7 @@ router.put(
 );
 
 router.patch(
-    "/doctor/:id",
+    "/doctor/:uuid",
     authenticate,
     authorizeRoles("doctor"),
     validate(validateUpdateDoctor),
@@ -35,7 +35,7 @@ router.patch(
 );
 
 router.delete(
-    "/doctor/:id",
+    "/doctor/:uuid",
     authenticate,
     authorizeRoles("doctor"),
     deleteDoctor,
@@ -43,6 +43,6 @@ router.delete(
 
 router.get("/doctor", getDoctors);
 
-router.get("/doctor/:id", getDoctorById);
+router.get("/doctor/:uuid", getDoctorByUuid);
 
 export default router;

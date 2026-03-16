@@ -12,17 +12,17 @@ function createError(status, message) {
     return error;
 }
 
-async function ensureSelfAccess(patientId, user) {
-    if (user.role !== "patient" || user.id !== Number(patientId)) {
+async function ensureSelfAccess(patientUuid, user) {
+    if (user.role !== "patient" || user.uuid !== patientUuid) {
         throw createError(403, "Patients can only access their own profile");
     }
 }
 
-async function doctorHasAccessToPatient(patientId, doctorId) {
+async function doctorHasAccessToPatient(patientUuid, doctorUuid) {
     const appointment = await appointmentModel.findOne({
         where: {
-            patientId,
-            doctorId,
+            patientUuid,
+            doctorUuid,
         },
     });
 
@@ -43,48 +43,48 @@ export async function createPatient(data) {
         additionalMedicalInfo: data.additionalMedicalInfo,
     });
 
-    return patientModel.findByPk(patient.id, {
+    return patientModel.findByPk(patient.uuid, {
         attributes: publicPatientAttributes,
     });
 }
 
-export async function replacePatient(id, data, user) {
-    await ensureSelfAccess(id, user);
+export async function replacePatient(uuid, data, user) {
+    await ensureSelfAccess(uuid, user);
 
     const [updatedRows] = await patientModel.update(data, {
-        where: { id },
+        where: { uuid },
     });
 
     if (!updatedRows) {
         return null;
     }
 
-    return patientModel.findByPk(id, {
+    return patientModel.findByPk(uuid, {
         attributes: publicPatientAttributes,
     });
 }
 
-export async function updatePatient(id, data, user) {
-    await ensureSelfAccess(id, user);
+export async function updatePatient(uuid, data, user) {
+    await ensureSelfAccess(uuid, user);
 
     const [updatedRows] = await patientModel.update(data, {
-        where: { id },
+        where: { uuid },
     });
 
     if (!updatedRows) {
         return null;
     }
 
-    return patientModel.findByPk(id, {
+    return patientModel.findByPk(uuid, {
         attributes: publicPatientAttributes,
     });
 }
 
-export async function deletePatient(id, user) {
-    await ensureSelfAccess(id, user);
+export async function deletePatient(uuid, user) {
+    await ensureSelfAccess(uuid, user);
 
     const deletedRows = await patientModel.destroy({
-        where: { id },
+        where: { uuid },
     });
 
     return deletedRows > 0;
@@ -92,7 +92,7 @@ export async function deletePatient(id, user) {
 
 export async function getPatients(user) {
     if (user.role === "patient") {
-        const patient = await patientModel.findByPk(user.id, {
+        const patient = await patientModel.findByPk(user.uuid, {
             attributes: publicPatientAttributes,
         });
 
@@ -107,7 +107,7 @@ export async function getPatients(user) {
                 {
                     model: appointmentModel,
                     as: "appointments",
-                    where: { doctorId: user.id },
+                    where: { doctorUuid: user.uuid },
                     attributes: [],
                     required: true,
                 },
@@ -118,13 +118,11 @@ export async function getPatients(user) {
     throw createError(403, "Forbidden");
 }
 
-export async function getPatientById(id, user) {
-    const patientId = Number(id);
-
+export async function getPatientByUuid(uuid, user) {
     if (user.role === "patient") {
-        await ensureSelfAccess(patientId, user);
+        await ensureSelfAccess(uuid, user);
     } else if (user.role === "doctor") {
-        const hasAccess = await doctorHasAccessToPatient(patientId, user.id);
+        const hasAccess = await doctorHasAccessToPatient(uuid, user.uuid);
 
         if (!hasAccess) {
             throw createError(
@@ -136,7 +134,7 @@ export async function getPatientById(id, user) {
         throw createError(403, "Forbidden");
     }
 
-    return patientModel.findByPk(patientId, {
+    return patientModel.findByPk(uuid, {
         attributes: publicPatientAttributes,
     });
 }

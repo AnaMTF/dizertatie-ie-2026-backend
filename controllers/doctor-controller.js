@@ -14,9 +14,9 @@ export async function createDoctor(request, response) {
 
 export async function replaceDoctor(request, response) {
     try {
-        const { id } = request.params;
+        const { uuid } = request.params;
         const doctor = await doctorService.replaceDoctor(
-            id,
+            uuid,
             request.body,
             request.user,
         );
@@ -31,9 +31,9 @@ export async function replaceDoctor(request, response) {
 
 export async function updateDoctor(request, response) {
     try {
-        const { id } = request.params;
+        const { uuid } = request.params;
         const doctor = await doctorService.updateDoctor(
-            id,
+            uuid,
             request.body,
             request.user,
         );
@@ -48,8 +48,8 @@ export async function updateDoctor(request, response) {
 
 export async function deleteDoctor(request, response) {
     try {
-        const { id } = request.params;
-        const deleted = await doctorService.deleteDoctor(id, request.user);
+        const { uuid } = request.params;
+        const deleted = await doctorService.deleteDoctor(uuid, request.user);
         if (!deleted) {
             return response.status(404).json({ message: "Doctor not found" });
         }
@@ -68,10 +68,10 @@ export async function getDoctors(request, response) {
     }
 }
 
-export async function getDoctorById(request, response) {
+export async function getDoctorByUuid(request, response) {
     try {
-        const { id } = request.params;
-        const doctor = await doctorService.getDoctorById(id);
+        const { uuid } = request.params;
+        const doctor = await doctorService.getDoctorByUuid(uuid);
         if (!doctor) {
             return response.status(404).json({ message: "Doctor not found" });
         }

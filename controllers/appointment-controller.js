@@ -18,9 +18,9 @@ export async function createAppointment(request, response) {
 
 export async function replaceAppointment(request, response) {
     try {
-        const { id } = request.params;
+        const { uuid } = request.params;
         const appointment = await appointmentService.replaceAppointment(
-            id,
+            uuid,
             request.body,
             request.user,
         );
@@ -37,9 +37,9 @@ export async function replaceAppointment(request, response) {
 
 export async function updateAppointment(request, response) {
     try {
-        const { id } = request.params;
+        const { uuid } = request.params;
         const appointment = await appointmentService.updateAppointment(
-            id,
+            uuid,
             request.body,
             request.user,
         );
@@ -56,9 +56,9 @@ export async function updateAppointment(request, response) {
 
 export async function deleteAppointment(request, response) {
     try {
-        const { id } = request.params;
+        const { uuid } = request.params;
         const deleted = await appointmentService.deleteAppointment(
-            id,
+            uuid,
             request.user,
         );
         if (!deleted) {
@@ -84,11 +84,11 @@ export async function getAppointments(request, response) {
     }
 }
 
-export async function getAppointmentById(request, response) {
+export async function getAppointmentByUuid(request, response) {
     try {
-        const { id } = request.params;
-        const appointment = await appointmentService.getAppointmentById(
-            id,
+        const { uuid } = request.params;
+        const appointment = await appointmentService.getAppointmentByUuid(
+            uuid,
             request.user,
         );
         if (!appointment) {

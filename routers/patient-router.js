@@ -5,7 +5,7 @@ import {
     updatePatient,
     deletePatient,
     getPatients,
-    getPatientById,
+    getPatientByUuid,
 } from "../controllers/index.js";
 import { authenticate, authorizeRoles, validate } from "../middleware/index.js";
 import {
@@ -25,7 +25,7 @@ router.post(
 );
 
 router.put(
-    "/patient/:id",
+    "/patient/:uuid",
     authenticate,
     authorizeRoles("patient"),
     validate(validateReplacePatient),
@@ -33,7 +33,7 @@ router.put(
 );
 
 router.patch(
-    "/patient/:id",
+    "/patient/:uuid",
     authenticate,
     authorizeRoles("patient"),
     validate(validateUpdatePatient),
@@ -41,7 +41,7 @@ router.patch(
 );
 
 router.delete(
-    "/patient/:id",
+    "/patient/:uuid",
     authenticate,
     authorizeRoles("patient"),
     deletePatient,
@@ -55,10 +55,10 @@ router.get(
 );
 
 router.get(
-    "/patient/:id",
+    "/patient/:uuid",
     authenticate,
     authorizeRoles("patient", "doctor"),
-    getPatientById,
+    getPatientByUuid,
 );
 
 export default router;

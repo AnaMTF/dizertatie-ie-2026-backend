@@ -5,7 +5,7 @@ import {
     updateClinic,
     deleteClinic,
     getClinics,
-    getClinicById,
+    getClinicByUuid,
 } from "../controllers/index.js";
 import { authenticate, authorizeRoles, validate } from "../middleware/index.js";
 import {
@@ -25,7 +25,7 @@ router.post(
 );
 
 router.put(
-    "/clinic/:id",
+    "/clinic/:uuid",
     authenticate,
     authorizeRoles("doctor"),
     validate(validateReplaceClinic),
@@ -33,7 +33,7 @@ router.put(
 );
 
 router.patch(
-    "/clinic/:id",
+    "/clinic/:uuid",
     authenticate,
     authorizeRoles("doctor"),
     validate(validateUpdateClinic),
@@ -41,7 +41,7 @@ router.patch(
 );
 
 router.delete(
-    "/clinic/:id",
+    "/clinic/:uuid",
     authenticate,
     authorizeRoles("doctor"),
     deleteClinic,
@@ -49,6 +49,6 @@ router.delete(
 
 router.get("/clinic", getClinics);
 
-router.get("/clinic/:id", getClinicById);
+router.get("/clinic/:uuid", getClinicByUuid);
 
 export default router;

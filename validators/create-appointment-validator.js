@@ -6,18 +6,20 @@ addFormats(ajv);
 
 const schema = {
     type: "object",
-    required: ["dateTime", "doctorId", "clinicId"],
+    required: ["dateTime", "doctorUuid", "clinicUuid"],
     additionalProperties: false,
     properties: {
         dateTime: {
             type: "string",
             format: "date-time",
         },
-        doctorId: {
-            type: "integer",
+        doctorUuid: {
+            type: "string",
+            format: "uuid",
         },
-        clinicId: {
-            type: "integer",
+        clinicUuid: {
+            type: "string",
+            format: "uuid",
         },
     },
 };

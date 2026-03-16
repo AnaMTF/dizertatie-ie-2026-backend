@@ -14,8 +14,8 @@ export async function createClinic(request, response) {
 
 export async function replaceClinic(request, response) {
     try {
-        const { id } = request.params;
-        const clinic = await clinicService.replaceClinic(id, request.body);
+        const { uuid } = request.params;
+        const clinic = await clinicService.replaceClinic(uuid, request.body);
         if (!clinic) {
             return response.status(404).json({ message: "Clinic not found" });
         }
@@ -27,8 +27,8 @@ export async function replaceClinic(request, response) {
 
 export async function updateClinic(request, response) {
     try {
-        const { id } = request.params;
-        const clinic = await clinicService.updateClinic(id, request.body);
+        const { uuid } = request.params;
+        const clinic = await clinicService.updateClinic(uuid, request.body);
         if (!clinic) {
             return response.status(404).json({ message: "Clinic not found" });
         }
@@ -40,8 +40,8 @@ export async function updateClinic(request, response) {
 
 export async function deleteClinic(request, response) {
     try {
-        const { id } = request.params;
-        const deleted = await clinicService.deleteClinic(id);
+        const { uuid } = request.params;
+        const deleted = await clinicService.deleteClinic(uuid);
         if (!deleted) {
             return response.status(404).json({ message: "Clinic not found" });
         }
@@ -60,10 +60,10 @@ export async function getClinics(request, response) {
     }
 }
 
-export async function getClinicById(request, response) {
+export async function getClinicByUuid(request, response) {
     try {
-        const { id } = request.params;
-        const clinic = await clinicService.getClinicById(id);
+        const { uuid } = request.params;
+        const clinic = await clinicService.getClinicByUuid(uuid);
         if (!clinic) {
             return response.status(404).json({ message: "Clinic not found" });
         }

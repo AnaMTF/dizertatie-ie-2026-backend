@@ -12,7 +12,6 @@ if (!process.env.JWT_SECRET) {
 function createAuthToken(user) {
     return jwt.sign(
         {
-            id: user.id,
             uuid: user.uuid,
             role: user.role,
         },
@@ -25,7 +24,6 @@ function createAuthToken(user) {
 
 function toPublicPatient(patient) {
     return {
-        id: patient.id,
         uuid: patient.uuid,
         role: "patient",
         email: patient.email,
@@ -42,14 +40,13 @@ function toPublicPatient(patient) {
 
 function toPublicDoctor(doctor) {
     return {
-        id: doctor.id,
         uuid: doctor.uuid,
         role: "doctor",
         email: doctor.email,
         firstName: doctor.firstName,
         lastName: doctor.lastName,
         specialization: doctor.specialization,
-        clinicId: doctor.clinicId,
+        clinicUuid: doctor.clinicUuid,
         createdAt: doctor.createdAt,
         updatedAt: doctor.updatedAt,
     };

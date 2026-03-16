@@ -28,10 +28,7 @@ export function authenticate(request, response, next) {
     const token = authorization.slice(7);
 
     try {
-        const payload = jwt.verify(
-            token,
-            process.env.JWT_SECRET,
-        );
+        const payload = jwt.verify(token, process.env.JWT_SECRET);
         request.user = payload;
         next();
     } catch {

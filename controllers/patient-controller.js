@@ -15,9 +15,9 @@ export async function createPatient(request, response) {
 
 export async function replacePatient(request, response) {
     try {
-        const { id } = request.params;
+        const { uuid } = request.params;
         const patient = await patientService.replacePatient(
-            id,
+            uuid,
             request.body,
             request.user,
         );
@@ -32,9 +32,9 @@ export async function replacePatient(request, response) {
 
 export async function updatePatient(request, response) {
     try {
-        const { id } = request.params;
+        const { uuid } = request.params;
         const patient = await patientService.updatePatient(
-            id,
+            uuid,
             request.body,
             request.user,
         );
@@ -49,8 +49,8 @@ export async function updatePatient(request, response) {
 
 export async function deletePatient(request, response) {
     try {
-        const { id } = request.params;
-        const deleted = await patientService.deletePatient(id, request.user);
+        const { uuid } = request.params;
+        const deleted = await patientService.deletePatient(uuid, request.user);
         if (!deleted) {
             return response.status(404).json({ message: "Patient not found" });
         }
@@ -70,10 +70,13 @@ export async function getPatients(request, response) {
     }
 }
 
-export async function getPatientById(request, response) {
+export async function getPatientByUuid(request, response) {
     try {
-        const { id } = request.params;
-        const patient = await patientService.getPatientById(id, request.user);
+        const { uuid } = request.params;
+        const patient = await patientService.getPatientByUuid(
+            uuid,
+            request.user,
+        );
         if (!patient) {
             return response.status(404).json({ message: "Patient not found" });
         }

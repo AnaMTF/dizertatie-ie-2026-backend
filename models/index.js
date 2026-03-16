@@ -5,7 +5,7 @@ import { patientModel } from "./patient-model.js";
 
 clinicModel.hasMany(doctorModel, {
     foreignKey: {
-        name: "clinicId",
+        name: "clinicUuid",
         allowNull: false,
     },
     as: "doctors",
@@ -15,7 +15,7 @@ clinicModel.hasMany(doctorModel, {
 
 doctorModel.belongsTo(clinicModel, {
     foreignKey: {
-        name: "clinicId",
+        name: "clinicUuid",
         allowNull: false,
     },
     as: "clinic",
@@ -25,7 +25,7 @@ doctorModel.belongsTo(clinicModel, {
 
 patientModel.hasMany(appointmentModel, {
     foreignKey: {
-        name: "patientId",
+        name: "patientUuid",
         allowNull: false,
     },
     as: "appointments",
@@ -35,7 +35,7 @@ patientModel.hasMany(appointmentModel, {
 
 appointmentModel.belongsTo(patientModel, {
     foreignKey: {
-        name: "patientId",
+        name: "patientUuid",
         allowNull: false,
     },
     as: "patient",
@@ -45,7 +45,7 @@ appointmentModel.belongsTo(patientModel, {
 
 doctorModel.hasMany(appointmentModel, {
     foreignKey: {
-        name: "doctorId",
+        name: "doctorUuid",
         allowNull: false,
     },
     as: "appointments",
@@ -55,7 +55,7 @@ doctorModel.hasMany(appointmentModel, {
 
 appointmentModel.belongsTo(doctorModel, {
     foreignKey: {
-        name: "doctorId",
+        name: "doctorUuid",
         allowNull: false,
     },
     as: "doctor",
@@ -65,7 +65,7 @@ appointmentModel.belongsTo(doctorModel, {
 
 clinicModel.hasMany(appointmentModel, {
     foreignKey: {
-        name: "clinicId",
+        name: "clinicUuid",
         allowNull: false,
     },
     as: "appointments",
@@ -75,7 +75,7 @@ clinicModel.hasMany(appointmentModel, {
 
 appointmentModel.belongsTo(clinicModel, {
     foreignKey: {
-        name: "clinicId",
+        name: "clinicUuid",
         allowNull: false,
     },
     as: "clinic",

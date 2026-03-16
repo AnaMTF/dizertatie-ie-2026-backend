@@ -5,7 +5,7 @@ import {
     updateAppointment,
     deleteAppointment,
     getAppointments,
-    getAppointmentById,
+    getAppointmentByUuid,
 } from "../controllers/index.js";
 import { authenticate, authorizeRoles, validate } from "../middleware/index.js";
 import {
@@ -25,7 +25,7 @@ router.post(
 );
 
 router.put(
-    "/appointment/:id",
+    "/appointment/:uuid",
     authenticate,
     authorizeRoles("patient"),
     validate(validateReplaceAppointment),
@@ -33,7 +33,7 @@ router.put(
 );
 
 router.patch(
-    "/appointment/:id",
+    "/appointment/:uuid",
     authenticate,
     authorizeRoles("patient", "doctor"),
     validate(validateUpdateAppointment),
@@ -41,7 +41,7 @@ router.patch(
 );
 
 router.delete(
-    "/appointment/:id",
+    "/appointment/:uuid",
     authenticate,
     authorizeRoles("patient"),
     deleteAppointment,
@@ -55,10 +55,10 @@ router.get(
 );
 
 router.get(
-    "/appointment/:id",
+    "/appointment/:uuid",
     authenticate,
     authorizeRoles("patient", "doctor"),
-    getAppointmentById,
+    getAppointmentByUuid,
 );
 
 export default router;
