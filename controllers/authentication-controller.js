@@ -21,6 +21,15 @@ export async function login(request, response) {
     }
 }
 
+export async function lookupEmail(request, response) {
+    try {
+        const result = await authenticationService.lookupEmail(request.body);
+        response.status(200).json(result);
+    } catch (error) {
+        response.status(error.status || 500).json({ message: error.message });
+    }
+}
+
 export async function logout(request, response) {
     response.status(204).send();
 }

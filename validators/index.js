@@ -1,4 +1,5 @@
 export { validateLogin } from "./login-validator.js";
+export { validateEmailLookup } from "./email-lookup-validator.js";
 export { validateRegister } from "./register-validator.js";
 export { validateCreateAppointment } from "./create-appointment-validator.js";
 export { validateReplaceAppointment } from "./replace-appointment-validator.js";

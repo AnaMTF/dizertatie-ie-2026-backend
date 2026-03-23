@@ -141,3 +141,31 @@ export async function login(data) {
     error.status = 401;
     throw error;
 }
+
+export async function lookupEmail(data) {
+    const patient = await patientModel.findOne({
+        where: { email: data.email },
+    });
+
+    if (patient) {
+        return {
+            exists: true,
+            role: "patient",
+        };
+    }
+
+    const doctor = await doctorModel.findOne({
+        where: { email: data.email },
+    });
+
+    if (doctor) {
+        return {
+            exists: true,
+            role: "doctor",
+        };
+    }
+
+    return {
+        exists: false,
+    };
+}
