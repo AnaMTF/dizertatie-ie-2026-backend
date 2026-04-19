@@ -27,7 +27,22 @@ export const doctorModel = database.define("Doctor", {
         allowNull: false,
     },
     specialization: {
-        type: DataTypes.STRING,
+        type: DataTypes.ENUM(
+            "general",
+            "cardiology",
+            "dermatology",
+            "endocrinology",
+            "gastroenterology",
+            "gynecology",
+            "neurology",
+            "oncology",
+            "ophthalmology",
+            "orthopedics",
+            "otolaryngology",
+            "psychiatry",
+            "pulmonology",
+            "urology",
+        ),
         allowNull: false,
     },
 });
