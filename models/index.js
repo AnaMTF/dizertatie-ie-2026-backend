@@ -2,6 +2,8 @@ import { appointmentModel } from "./appointment-model.js";
 import { clinicModel } from "./clinic-model.js";
 import { doctorModel } from "./doctor-model.js";
 import { patientModel } from "./patient-model.js";
+import { scanModel } from "./scan-model.js";
+import { scanImageModel } from "./scan-image-model.js";
 
 clinicModel.hasMany(doctorModel, {
     foreignKey: {
@@ -83,4 +85,51 @@ appointmentModel.belongsTo(clinicModel, {
     onDelete: "RESTRICT",
 });
 
-export { appointmentModel, clinicModel, doctorModel, patientModel };
+patientModel.hasMany(scanModel, {
+    foreignKey: {
+        name: "patientUuid",
+        allowNull: false,
+    },
+    as: "scans",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
+scanModel.belongsTo(patientModel, {
+    foreignKey: {
+        name: "patientUuid",
+        allowNull: false,
+    },
+    as: "patient",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
+scanModel.hasMany(scanImageModel, {
+    foreignKey: {
+        name: "scanUuid",
+        allowNull: false,
+    },
+    as: "images",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
+scanImageModel.belongsTo(scanModel, {
+    foreignKey: {
+        name: "scanUuid",
+        allowNull: false,
+    },
+    as: "scan",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
+export {
+    appointmentModel,
+    clinicModel,
+    doctorModel,
+    patientModel,
+    scanModel,
+    scanImageModel,
+};
