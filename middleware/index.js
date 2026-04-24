@@ -53,3 +53,28 @@ export function authorizeRoles(...allowedRoles) {
         next();
     };
 }
+
+export function parseScanMetadata(req, res, next) {
+    try {
+        req.body = JSON.parse(req.body.metadata);
+        next();
+    } catch {
+        return res.status(400).json({ error: "Invalid metadata JSON." });
+    }
+}
+
+export function validateFileCount(req, res, next) {
+    if (!req.files?.length) {
+        return res
+            .status(400)
+            .json({ error: "At least one image is required." });
+    }
+
+    if (req.files.length !== req.body.length) {
+        return res.status(400).json({
+            error: "Each uploaded image must have one metadata item.",
+        });
+    }
+
+    next();
+}
