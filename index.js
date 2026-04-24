@@ -14,6 +14,7 @@ import {
     clinicRouter,
     doctorRouter,
     patientRouter,
+    scanRouter,
 } from "./routers/index.js";
 
 const app = express();
@@ -41,6 +42,7 @@ app.use("/api/v1", appointmentRouter);
 app.use("/api/v1", clinicRouter);
 app.use("/api/v1", doctorRouter);
 app.use("/api/v1", patientRouter);
+app.use("/api/v1", scanRouter);
 
 app.use("/auth", authLimiter, authenticationRouter);
 
