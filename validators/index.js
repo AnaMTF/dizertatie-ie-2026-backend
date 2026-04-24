@@ -13,3 +13,4 @@ export { validateUpdateClinic } from "./update-clinic-validator.js";
 export { validateCreateDoctor } from "./create-doctor-validator.js";
 export { validateReplaceDoctor } from "./replace-doctor-validator.js";
 export { validateUpdateDoctor } from "./update-doctor-validator.js";
+export { validateCreateScan } from "./create-scan-validator.js";
