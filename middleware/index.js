@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { sendError } from "../utils/response.js";
 
 if (!process.env.JWT_SECRET) {
     throw new Error("JWT_SECRET environment variable is required");
@@ -9,7 +10,7 @@ export function validate(validateFn) {
         const isValid = validateFn(request.body);
 
         if (!isValid) {
-            return response.status(400).json({ errors: validateFn.errors });
+            return sendError(response, 400, validateFn.errors);
         }
 
         next();
@@ -20,9 +21,7 @@ export function authenticate(request, response, next) {
     const authorization = request.headers.authorization;
 
     if (!authorization || !authorization.startsWith("Bearer ")) {
-        return response
-            .status(401)
-            .json({ message: "Authentication required" });
+        return sendError(response, 401, "Authentication required");
     }
 
     const token = authorization.slice(7);
@@ -32,22 +31,18 @@ export function authenticate(request, response, next) {
         request.user = payload;
         next();
     } catch {
-        return response
-            .status(401)
-            .json({ message: "Invalid or expired token" });
+        return sendError(response, 401, "Invalid or expired token");
     }
 }
 
 export function authorizeRoles(...allowedRoles) {
     return (request, response, next) => {
         if (!request.user) {
-            return response
-                .status(401)
-                .json({ message: "Authentication required" });
+            return sendError(response, 401, "Authentication required");
         }
 
         if (!allowedRoles.includes(request.user.role)) {
-            return response.status(403).json({ message: "Forbidden" });
+            return sendError(response, 403, "Forbidden");
         }
 
         next();
@@ -59,21 +54,21 @@ export function parseScanMetadata(req, res, next) {
         req.body = JSON.parse(req.body.metadata);
         next();
     } catch {
-        return res.status(400).json({ error: "Invalid metadata JSON." });
+        return sendError(res, 400, "Invalid metadata JSON.");
     }
 }
 
 export function validateFileCount(req, res, next) {
     if (!req.files?.length) {
-        return res
-            .status(400)
-            .json({ error: "At least one image is required." });
+        return sendError(res, 400, "At least one image is required.");
     }
 
     if (req.files.length !== req.body.length) {
-        return res.status(400).json({
-            error: "Each uploaded image must have one metadata item.",
-        });
+        return sendError(
+            res,
+            400,
+            "Each uploaded image must have one metadata item.",
+        );
     }
 
     next();
