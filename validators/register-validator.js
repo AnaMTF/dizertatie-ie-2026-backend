@@ -25,6 +25,12 @@ const schema = {
             type: "string",
             minLength: 8,
             maxLength: 128,
+            allOf: [
+                { pattern: ".*[A-Z].*" }, // contains at least one uppercase letter
+                { pattern: ".*[a-z].*" }, // contains at least one lowercase letter
+                { pattern: ".*[0-9].*" }, // contains at least one digit
+                { pattern: ".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?].*" }, // contains at least one special character
+            ],
         },
         firstName: {
             type: "string",
