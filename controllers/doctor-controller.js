@@ -1,14 +1,12 @@
 import * as doctorService from "../services/doctor-service.js";
+import { sendError, sendSuccess } from "../utils/response.js";
 
 export async function createDoctor(request, response) {
     try {
         const doctor = await doctorService.createDoctor(request.body);
-        response.status(201).json({
-            message: "New doctor created",
-            data: doctor,
-        });
+        sendSuccess(response, 201, doctor);
     } catch (error) {
-        response.status(error.status || 500).json({ message: error.message });
+        sendError(response, error.status || 500, error.message);
     }
 }
 
@@ -21,11 +19,11 @@ export async function replaceDoctor(request, response) {
             request.user,
         );
         if (!doctor) {
-            return response.status(404).json({ message: "Doctor not found" });
+            return sendError(response, 404, "Doctor not found");
         }
-        response.status(200).json({ doctor });
+        sendSuccess(response, 200, doctor);
     } catch (error) {
-        response.status(error.status || 500).json({ message: error.message });
+        sendError(response, error.status || 500, error.message);
     }
 }
 
@@ -38,11 +36,11 @@ export async function updateDoctor(request, response) {
             request.user,
         );
         if (!doctor) {
-            return response.status(404).json({ message: "Doctor not found" });
+            return sendError(response, 404, "Doctor not found");
         }
-        response.status(200).json({ doctor });
+        sendSuccess(response, 200, doctor);
     } catch (error) {
-        response.status(error.status || 500).json({ message: error.message });
+        sendError(response, error.status || 500, error.message);
     }
 }
 
@@ -51,20 +49,20 @@ export async function deleteDoctor(request, response) {
         const { uuid } = request.params;
         const deleted = await doctorService.deleteDoctor(uuid, request.user);
         if (!deleted) {
-            return response.status(404).json({ message: "Doctor not found" });
+            return sendError(response, 404, "Doctor not found");
         }
-        response.status(204).send();
+        sendSuccess(response, 200, null);
     } catch (error) {
-        response.status(error.status || 500).json({ message: error.message });
+        sendError(response, error.status || 500, error.message);
     }
 }
 
 export async function getDoctors(request, response) {
     try {
         const doctors = await doctorService.getDoctors();
-        response.status(200).json({ doctors });
+        sendSuccess(response, 200, doctors);
     } catch (error) {
-        response.status(error.status || 500).json({ message: error.message });
+        sendError(response, error.status || 500, error.message);
     }
 }
 
@@ -73,10 +71,10 @@ export async function getDoctorByUuid(request, response) {
         const { uuid } = request.params;
         const doctor = await doctorService.getDoctorByUuid(uuid);
         if (!doctor) {
-            return response.status(404).json({ message: "Doctor not found" });
+            return sendError(response, 404, "Doctor not found");
         }
-        response.status(200).json({ doctor });
+        sendSuccess(response, 200, doctor);
     } catch (error) {
-        response.status(error.status || 500).json({ message: error.message });
+        sendError(response, error.status || 500, error.message);
     }
 }

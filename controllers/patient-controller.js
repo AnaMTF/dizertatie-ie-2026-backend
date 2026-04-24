@@ -1,15 +1,13 @@
 import * as patientService from "../services/patient-service.js";
+import { sendError, sendSuccess } from "../utils/response.js";
 
 /* crud */
 export async function createPatient(request, response) {
     try {
         const patient = await patientService.createPatient(request.body);
-        response.status(201).json({
-            message: "New patient created",
-            data: patient,
-        });
+        sendSuccess(response, 201, patient);
     } catch (error) {
-        response.status(error.status || 500).json({ message: error.message });
+        sendError(response, error.status || 500, error.message);
     }
 }
 
@@ -22,11 +20,11 @@ export async function replacePatient(request, response) {
             request.user,
         );
         if (!patient) {
-            return response.status(404).json({ message: "Patient not found" });
+            return sendError(response, 404, "Patient not found");
         }
-        response.status(200).json({ patient });
+        sendSuccess(response, 200, patient);
     } catch (error) {
-        response.status(error.status || 500).json({ message: error.message });
+        sendError(response, error.status || 500, error.message);
     }
 }
 
@@ -39,11 +37,11 @@ export async function updatePatient(request, response) {
             request.user,
         );
         if (!patient) {
-            return response.status(404).json({ message: "Patient not found" });
+            return sendError(response, 404, "Patient not found");
         }
-        response.status(200).json({ patient });
+        sendSuccess(response, 200, patient);
     } catch (error) {
-        response.status(error.status || 500).json({ message: error.message });
+        sendError(response, error.status || 500, error.message);
     }
 }
 
@@ -52,11 +50,11 @@ export async function deletePatient(request, response) {
         const { uuid } = request.params;
         const deleted = await patientService.deletePatient(uuid, request.user);
         if (!deleted) {
-            return response.status(404).json({ message: "Patient not found" });
+            return sendError(response, 404, "Patient not found");
         }
-        response.status(204).send();
+        sendSuccess(response, 200, null);
     } catch (error) {
-        response.status(error.status || 500).json({ message: error.message });
+        sendError(response, error.status || 500, error.message);
     }
 }
 
@@ -64,9 +62,9 @@ export async function deletePatient(request, response) {
 export async function getPatients(request, response) {
     try {
         const patients = await patientService.getPatients(request.user);
-        response.status(200).json({ patients });
+        sendSuccess(response, 200, patients);
     } catch (error) {
-        response.status(error.status || 500).json({ message: error.message });
+        sendError(response, error.status || 500, error.message);
     }
 }
 
@@ -78,10 +76,10 @@ export async function getPatientByUuid(request, response) {
             request.user,
         );
         if (!patient) {
-            return response.status(404).json({ message: "Patient not found" });
+            return sendError(response, 404, "Patient not found");
         }
-        response.status(200).json({ patient });
+        sendSuccess(response, 200, patient);
     } catch (error) {
-        response.status(error.status || 500).json({ message: error.message });
+        sendError(response, error.status || 500, error.message);
     }
 }

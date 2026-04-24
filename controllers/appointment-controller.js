@@ -1,4 +1,5 @@
 import * as appointmentService from "../services/appointment-service.js";
+import { sendError, sendSuccess } from "../utils/response.js";
 
 /* crud */
 export async function createAppointment(request, response) {
@@ -7,12 +8,9 @@ export async function createAppointment(request, response) {
             request.body,
             request.user,
         );
-        response.status(201).json({
-            message: "New appointment created",
-            data: appointment,
-        });
+        sendSuccess(response, 201, appointment);
     } catch (error) {
-        response.status(error.status || 500).json({ message: error.message });
+        sendError(response, error.status || 500, error.message);
     }
 }
 
@@ -25,13 +23,11 @@ export async function replaceAppointment(request, response) {
             request.user,
         );
         if (!appointment) {
-            return response
-                .status(404)
-                .json({ message: "Appointment not found" });
+            return sendError(response, 404, "Appointment not found");
         }
-        response.status(200).json({ appointment });
+        sendSuccess(response, 200, appointment);
     } catch (error) {
-        response.status(error.status || 500).json({ message: error.message });
+        sendError(response, error.status || 500, error.message);
     }
 }
 
@@ -44,13 +40,11 @@ export async function updateAppointment(request, response) {
             request.user,
         );
         if (!appointment) {
-            return response
-                .status(404)
-                .json({ message: "Appointment not found" });
+            return sendError(response, 404, "Appointment not found");
         }
-        response.status(200).json({ appointment });
+        sendSuccess(response, 200, appointment);
     } catch (error) {
-        response.status(error.status || 500).json({ message: error.message });
+        sendError(response, error.status || 500, error.message);
     }
 }
 
@@ -62,13 +56,11 @@ export async function deleteAppointment(request, response) {
             request.user,
         );
         if (!deleted) {
-            return response
-                .status(404)
-                .json({ message: "Appointment not found" });
+            return sendError(response, 404, "Appointment not found");
         }
-        response.status(204).send();
+        sendSuccess(response, 200, null);
     } catch (error) {
-        response.status(error.status || 500).json({ message: error.message });
+        sendError(response, error.status || 500, error.message);
     }
 }
 
@@ -78,9 +70,9 @@ export async function getAppointments(request, response) {
         const appointments = await appointmentService.getAppointments(
             request.user,
         );
-        response.status(200).json({ appointments });
+        sendSuccess(response, 200, appointments);
     } catch (error) {
-        response.status(error.status || 500).json({ message: error.message });
+        sendError(response, error.status || 500, error.message);
     }
 }
 
@@ -92,12 +84,10 @@ export async function getAppointmentByUuid(request, response) {
             request.user,
         );
         if (!appointment) {
-            return response
-                .status(404)
-                .json({ message: "Appointment not found" });
+            return sendError(response, 404, "Appointment not found");
         }
-        response.status(200).json({ appointment });
+        sendSuccess(response, 200, appointment);
     } catch (error) {
-        response.status(error.status || 500).json({ message: error.message });
+        sendError(response, error.status || 500, error.message);
     }
 }

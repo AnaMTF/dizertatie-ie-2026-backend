@@ -1,35 +1,33 @@
 import * as authenticationService from "../services/authentication-service.js";
+import { sendError, sendSuccess } from "../utils/response.js";
 
 export async function register(request, response) {
     try {
         const patient = await authenticationService.register(request.body);
-        response.status(201).json({
-            message: "New patient created",
-            data: patient,
-        });
+        sendSuccess(response, 201, patient);
     } catch (error) {
-        response.status(error.status || 500).json({ message: error.message });
+        sendError(response, error.status || 500, error.message);
     }
 }
 
 export async function login(request, response) {
     try {
         const result = await authenticationService.login(request.body);
-        response.status(200).json(result);
+        sendSuccess(response, 200, result);
     } catch (error) {
-        response.status(error.status || 500).json({ message: error.message });
+        sendError(response, error.status || 500, error.message);
     }
 }
 
 export async function lookupEmail(request, response) {
     try {
         const result = await authenticationService.lookupEmail(request.body);
-        response.status(200).json(result);
+        sendSuccess(response, 200, result);
     } catch (error) {
-        response.status(error.status || 500).json({ message: error.message });
+        sendError(response, error.status || 500, error.message);
     }
 }
 
 export async function logout(request, response) {
-    response.status(204).send();
+    sendSuccess(response, 200, null);
 }
