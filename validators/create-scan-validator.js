@@ -6,6 +6,7 @@ addFormats(ajv);
 
 const allowedBodyParts = [
     "Head / Brain",
+    "Eyes",
     "Neck",
     "Chest",
     "Abdomen",
