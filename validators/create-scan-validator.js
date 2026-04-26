@@ -4,6 +4,31 @@ import addFormats from "ajv-formats";
 const ajv = new Ajv();
 addFormats(ajv);
 
+const allowedBodyParts = [
+    "Head / Brain",
+    "Neck",
+    "Chest",
+    "Abdomen",
+    "Pelvis",
+    "Spine",
+    "Shoulder",
+    "Arm",
+    "Elbow",
+    "Wrist / Hand",
+    "Hip",
+    "Knee",
+    "Ankle / Foot",
+];
+
+const allowedImageTypes = [
+    "X-Ray",
+    "CT Scan",
+    "MRI",
+    "Ultrasound",
+    "PET Scan",
+    "Mammography",
+];
+
 const schema = {
     type: "array",
     minItems: 1,
@@ -20,11 +45,11 @@ const schema = {
             },
             bodyPart: {
                 type: "string",
-                enum: [],
+                enum: allowedBodyParts,
             },
             imageType: {
                 type: "string",
-                enum: [],
+                enum: allowedImageTypes,
             },
         },
     },
