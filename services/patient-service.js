@@ -1,16 +1,11 @@
 import bcrypt from "bcryptjs";
 
 import { appointmentModel, patientModel } from "../models/index.js";
+import { createError } from "../utils/error.js";
 
 const publicPatientAttributes = {
     exclude: ["passwordHash"],
 };
-
-function createError(status, message) {
-    const error = new Error(message);
-    error.status = status;
-    return error;
-}
 
 async function ensureSelfAccess(patientUuid, user) {
     if (user.role !== "patient" || user.uuid !== patientUuid) {

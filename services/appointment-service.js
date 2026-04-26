@@ -4,12 +4,7 @@ import {
     doctorModel,
     patientModel,
 } from "../models/index.js";
-
-function createError(status, message) {
-    const error = new Error(message);
-    error.status = status;
-    return error;
-}
+import { createError } from "../utils/error.js";
 
 const appointmentInclude = [
     {

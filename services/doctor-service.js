@@ -1,16 +1,11 @@
 import bcrypt from "bcryptjs";
 
 import { clinicModel, doctorModel } from "../models/index.js";
+import { createError } from "../utils/error.js";
 
 const publicDoctorAttributes = {
     exclude: ["passwordHash"],
 };
-
-function createError(status, message) {
-    const error = new Error(message);
-    error.status = status;
-    return error;
-}
 
 function ensureSelfAccess(doctorUuid, user) {
     if (!user || user.role !== "doctor" || user.uuid !== doctorUuid) {
