@@ -1,4 +1,5 @@
 import { unlink } from "node:fs/promises";
+import { fileTypeFromFile } from "file-type";
 
 import database from "../database/index.js";
 import { scanImageModel, scanModel } from "../models/index.js";
@@ -13,7 +14,7 @@ const scanInclude = [
     {
         model: scanImageModel,
         as: "images",
-        attributes: ["uuid", "filePath", "bodyPart", "imageType"],
+        attributes: ["uuid", "filePath", "mimeType", "bodyPart", "imageType"],
     },
 ];
 
@@ -47,6 +48,11 @@ async function cleanupUploadedFiles(files) {
     await Promise.allSettled((files ?? []).map((file) => unlink(file.path)));
 }
 
+async function resolveStoredMimeType(filePath) {
+    const fileType = await fileTypeFromFile(filePath);
+    return fileType?.mime || "application/octet-stream";
+}
+
 async function getOwnedScan(uuid, user) {
     const scan = await scanModel.findByPk(uuid, { include: scanInclude });
 
@@ -67,6 +73,10 @@ export async function createScan(data, files, user) {
     }
 
     try {
+        const detectedMimeTypes = await Promise.all(
+            (files ?? []).map((file) => resolveStoredMimeType(file.path)),
+        );
+
         const scan = await database.transaction(async (transaction) => {
             const createdScan = await scanModel.create(
                 {
@@ -79,6 +89,7 @@ export async function createScan(data, files, user) {
                 data.map((image, index) => ({
                     scanUuid: createdScan.uuid,
                     filePath: files[index].path,
+                    mimeType: detectedMimeTypes[index],
                     bodyPart: image.bodyPart,
                     imageType: image.imageType,
                 })),
