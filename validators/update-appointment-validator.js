@@ -4,14 +4,20 @@ import addFormats from "ajv-formats";
 const ajv = new Ajv();
 addFormats(ajv);
 
+const timeSlots = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"];
+
 const schema = {
     type: "object",
     minProperties: 1,
     additionalProperties: false,
     properties: {
-        dateTime: {
+        date: {
             type: "string",
-            format: "date-time",
+            pattern: "^\\d{4}-\\d{2}-\\d{2}$",
+        },
+        timeSlot: {
+            type: "string",
+            enum: timeSlots,
         },
         status: {
             type: "string",
@@ -20,6 +26,10 @@ const schema = {
         cancellationReason: {
             type: "string",
             maxLength: 1000,
+        },
+        notes: {
+            type: "string",
+            maxLength: 5000,
         },
     },
 };
