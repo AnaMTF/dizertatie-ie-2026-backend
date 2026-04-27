@@ -1,8 +1,10 @@
-import { unlink } from "node:fs/promises";
+import path from "node:path";
+import { randomUUID } from "node:crypto";
 import { fileTypeFromFile } from "file-type";
 
 import database from "../database/index.js";
 import { scanImageModel, scanModel } from "../models/index.js";
+import { publishScanJob } from "./rabbitmq-service.js";
 import { createError } from "../utils/error.js";
 
 const scanInclude = [
@@ -39,13 +41,34 @@ function serializeScan(scan) {
     return serializedScan;
 }
 
-async function cleanupUploadedFiles(files) {
-    await Promise.allSettled((files ?? []).map((file) => unlink(file.path)));
-}
-
 async function resolveStoredMimeType(filePath) {
     const fileType = await fileTypeFromFile(filePath);
     return fileType?.mime || "application/octet-stream";
+}
+
+function buildScanJobPayload(scan) {
+    const uploadsBasePath =
+        process.env.UPLOADS_BASE_PATH || path.resolve(process.cwd(), "uploads");
+
+    return {
+        schemaVersion: "1.0",
+        eventType: "scan.job.v1",
+        jobId: randomUUID(),
+        scanUuid: scan.uuid,
+        patientUuid: scan.patientUuid,
+        createdAt: new Date().toISOString(),
+        storage: {
+            kind: "local-shared-volume",
+            uploadsBasePath,
+        },
+        images: (scan.images ?? []).map((image) => ({
+            imageUuid: image.uuid,
+            filePath: image.filePath,
+            mimeType: image.mimeType,
+            bodyPart: image.bodyPart,
+            imageType: image.imageType,
+        })),
+    };
 }
 
 async function getOwnedScan(uuid, user) {
@@ -67,41 +90,53 @@ export async function createScan(data, files, user) {
         throw createError(403, "Only patients can create scans");
     }
 
-    try {
-        const detectedMimeTypes = await Promise.all(
-            (files ?? []).map((file) => resolveStoredMimeType(file.path)),
+    const detectedMimeTypes = await Promise.all(
+        (files ?? []).map((file) => resolveStoredMimeType(file.path)),
+    );
+
+    const scan = await database.transaction(async (transaction) => {
+        const createdScan = await scanModel.create(
+            {
+                patientUuid: user.uuid,
+            },
+            { transaction },
         );
 
-        const scan = await database.transaction(async (transaction) => {
-            const createdScan = await scanModel.create(
-                {
-                    patientUuid: user.uuid,
-                },
-                { transaction },
-            );
+        await scanImageModel.bulkCreate(
+            data.map((image, index) => ({
+                scanUuid: createdScan.uuid,
+                filePath: files[index].path,
+                mimeType: detectedMimeTypes[index],
+                bodyPart: image.bodyPart,
+                imageType: image.imageType,
+            })),
+            { transaction },
+        );
 
-            await scanImageModel.bulkCreate(
-                data.map((image, index) => ({
-                    scanUuid: createdScan.uuid,
-                    filePath: files[index].path,
-                    mimeType: detectedMimeTypes[index],
-                    bodyPart: image.bodyPart,
-                    imageType: image.imageType,
-                })),
-                { transaction },
-            );
-
-            return scanModel.findByPk(createdScan.uuid, {
-                include: scanInclude,
-                transaction,
-            });
+        return scanModel.findByPk(createdScan.uuid, {
+            include: scanInclude,
+            transaction,
         });
+    });
 
-        return serializeScan(scan);
+    const jobPayload = buildScanJobPayload(scan);
+
+    try {
+        await publishScanJob(jobPayload);
     } catch (error) {
-        await cleanupUploadedFiles(files);
-        throw error;
+        const queueError =
+            error instanceof Error ? error.message : "Failed to queue scan job";
+
+        await scan.update({
+            status: "failed",
+            results: {
+                error: "Failed to queue scan processing job",
+                details: queueError,
+            },
+        });
     }
+
+    return serializeScan(scan);
 }
 
 export async function getScans(user) {
