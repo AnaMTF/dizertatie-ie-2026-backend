@@ -9,6 +9,11 @@ import rateLimit from "express-rate-limit";
 import database from "./database/index.js";
 import "./models/index.js";
 import {
+    consumeScanResults,
+    closeRabbitMq,
+} from "./services/rabbitmq-service.js";
+import { applyScanResult } from "./services/scan-result-service.js";
+import {
     appointmentRouter,
     authenticationRouter,
     clinicRouter,
@@ -49,11 +54,34 @@ app.use("/api/v1/auth", authLimiter, authenticationRouter);
 async function start() {
     await database.authenticate();
     await database.sync();
+    await consumeScanResults(applyScanResult);
 
     app.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);
     });
 }
+
+async function shutdown(signal) {
+    console.log(`Received ${signal}. Shutting down...`);
+
+    await closeRabbitMq().catch((error) => {
+        console.error("Failed to close RabbitMQ cleanly", error);
+    });
+
+    await database.close().catch((error) => {
+        console.error("Failed to close database cleanly", error);
+    });
+
+    process.exit(0);
+}
+
+process.on("SIGINT", () => {
+    shutdown("SIGINT");
+});
+
+process.on("SIGTERM", () => {
+    shutdown("SIGTERM");
+});
 
 start().catch((error) => {
     console.error("Failed to start backend", error);
