@@ -1,4 +1,5 @@
 import { appointmentModel } from "./appointment-model.js";
+import { appointmentDocumentModel } from "./appointment-document-model.js";
 import { clinicModel } from "./clinic-model.js";
 import { doctorModel } from "./doctor-model.js";
 import { patientModel } from "./patient-model.js";
@@ -85,6 +86,26 @@ appointmentModel.belongsTo(clinicModel, {
     onDelete: "RESTRICT",
 });
 
+appointmentModel.hasMany(appointmentDocumentModel, {
+    foreignKey: {
+        name: "appointmentUuid",
+        allowNull: false,
+    },
+    as: "documents",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
+appointmentDocumentModel.belongsTo(appointmentModel, {
+    foreignKey: {
+        name: "appointmentUuid",
+        allowNull: false,
+    },
+    as: "appointment",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
 patientModel.hasMany(scanModel, {
     foreignKey: {
         name: "patientUuid",
@@ -127,6 +148,7 @@ scanImageModel.belongsTo(scanModel, {
 
 export {
     appointmentModel,
+    appointmentDocumentModel,
     clinicModel,
     doctorModel,
     patientModel,
