@@ -32,6 +32,24 @@ const schema = {
             maxLength: 5000,
         },
     },
+    allOf: [
+        {
+            if: {
+                required: ["date"],
+            },
+            then: {
+                required: ["timeSlot"],
+            },
+        },
+        {
+            if: {
+                required: ["timeSlot"],
+            },
+            then: {
+                required: ["date"],
+            },
+        },
+    ],
 };
 
 export const validateUpdateAppointment = ajv.compile(schema);
