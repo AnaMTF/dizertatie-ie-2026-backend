@@ -10,6 +10,19 @@ export async function createAppointment(request, response) {
         );
         sendSuccess(response, 201, appointment);
     } catch (error) {
+        if (error?.name === "SequelizeForeignKeyConstraintError") {
+            return sendError(
+                response,
+                400,
+                "Invalid appointment references. Please refresh and try again.",
+            );
+        }
+
+        if (error?.name === "SequelizeValidationError") {
+            const detail = error.errors?.[0]?.message || "Validation error";
+            return sendError(response, 400, detail);
+        }
+
         sendError(response, error.status || 500, error.message);
     }
 }
@@ -76,6 +89,19 @@ export async function getAppointments(request, response) {
     }
 }
 
+export async function getAppointmentAvailability(request, response) {
+    try {
+        const availability =
+            await appointmentService.getAppointmentAvailability(
+                request.query,
+                request.user,
+            );
+        sendSuccess(response, 200, availability);
+    } catch (error) {
+        sendError(response, error.status || 500, error.message);
+    }
+}
+
 export async function getAppointmentByUuid(request, response) {
     try {
         const { uuid } = request.params;
@@ -87,6 +113,57 @@ export async function getAppointmentByUuid(request, response) {
             return sendError(response, 404, "Appointment not found");
         }
         sendSuccess(response, 200, appointment);
+    } catch (error) {
+        sendError(response, error.status || 500, error.message);
+    }
+}
+
+export async function createAppointmentDocuments(request, response) {
+    try {
+        const { uuid } = request.params;
+        const appointment = await appointmentService.createAppointmentDocuments(
+            uuid,
+            request.body,
+            request.files,
+            request.user,
+        );
+
+        sendSuccess(response, 201, appointment);
+    } catch (error) {
+        sendError(response, error.status || 500, error.message);
+    }
+}
+
+export async function getAppointmentDocumentByUuid(request, response) {
+    try {
+        const { uuid, documentUuid } = request.params;
+        const document = await appointmentService.getAppointmentDocumentByUuid(
+            uuid,
+            documentUuid,
+            request.user,
+        );
+
+        response.setHeader("Content-Type", document.mimeType);
+        response.download(document.filePath, document.fileName);
+    } catch (error) {
+        sendError(response, error.status || 500, error.message);
+    }
+}
+
+export async function deleteAppointmentDocument(request, response) {
+    try {
+        const { uuid, documentUuid } = request.params;
+        const deleted = await appointmentService.deleteAppointmentDocument(
+            uuid,
+            documentUuid,
+            request.user,
+        );
+
+        if (!deleted) {
+            return sendError(response, 404, "Document not found");
+        }
+
+        sendSuccess(response, 200, null);
     } catch (error) {
         sendError(response, error.status || 500, error.message);
     }

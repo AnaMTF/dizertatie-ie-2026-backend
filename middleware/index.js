@@ -73,3 +73,32 @@ export function validateFileCount(req, res, next) {
 
     next();
 }
+
+export function parseAppointmentDocumentMetadata(req, res, next) {
+    try {
+        req.body = JSON.parse(req.body.metadata);
+        next();
+    } catch {
+        return sendError(res, 400, "Invalid metadata JSON.");
+    }
+}
+
+export function validateAppointmentDocumentFileCount(req, res, next) {
+    if (!req.files?.length) {
+        return sendError(res, 400, "At least one document is required.");
+    }
+
+    if (!Array.isArray(req.body)) {
+        return sendError(res, 400, "Document metadata must be an array.");
+    }
+
+    if (req.files.length !== req.body.length) {
+        return sendError(
+            res,
+            400,
+            "Each uploaded document must have one metadata item.",
+        );
+    }
+
+    next();
+}
