@@ -18,12 +18,4 @@ export const scanImageModel = database.define("ScanImage", {
         allowNull: false,
         defaultValue: "application/octet-stream",
     },
-    bodyPart: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    imageType: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
 });

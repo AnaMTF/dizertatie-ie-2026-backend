@@ -31,27 +31,17 @@ const allowedImageTypes = [
 ];
 
 const schema = {
-    type: "array",
-    minItems: 1,
-    maxItems: 4,
-    items: {
-        type: "object",
-        additionalProperties: false,
-        required: ["fileName", "bodyPart", "imageType"],
-        properties: {
-            fileName: {
-                type: "string",
-                minLength: 1,
-                maxLength: 255,
-            },
-            bodyPart: {
-                type: "string",
-                enum: allowedBodyParts,
-            },
-            imageType: {
-                type: "string",
-                enum: allowedImageTypes,
-            },
+    type: "object",
+    additionalProperties: false,
+    required: ["bodyPart", "imageType"],
+    properties: {
+        bodyPart: {
+            type: "string",
+            enum: allowedBodyParts,
+        },
+        imageType: {
+            type: "string",
+            enum: allowedImageTypes,
         },
     },
 };

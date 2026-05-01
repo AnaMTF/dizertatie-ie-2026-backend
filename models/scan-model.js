@@ -14,6 +14,14 @@ export const scanModel = database.define("Scan", {
         allowNull: false,
         defaultValue: "processing",
     },
+    bodyPart: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    imageType: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
     results: {
         type: DataTypes.JSON,
         allowNull: true,
