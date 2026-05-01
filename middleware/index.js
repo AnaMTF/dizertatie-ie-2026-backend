@@ -63,12 +63,8 @@ export function validateFileCount(req, res, next) {
         return sendError(res, 400, "At least one image is required.");
     }
 
-    if (req.files.length !== req.body.length) {
-        return sendError(
-            res,
-            400,
-            "Each uploaded image must have one metadata item.",
-        );
+    if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
+        return sendError(res, 400, "Scan metadata must be an object.");
     }
 
     next();

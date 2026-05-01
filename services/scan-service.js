@@ -11,7 +11,7 @@ const scanInclude = [
     {
         model: scanImageModel,
         as: "images",
-        attributes: ["uuid", "filePath", "mimeType", "bodyPart", "imageType"],
+        attributes: ["uuid", "filePath", "mimeType"],
     },
 ];
 
@@ -56,6 +56,8 @@ function buildScanJobPayload(scan) {
         jobId: randomUUID(),
         scanUuid: scan.uuid,
         patientUuid: scan.patientUuid,
+        bodyPart: scan.bodyPart,
+        imageType: scan.imageType,
         createdAt: new Date().toISOString(),
         storage: {
             kind: "local-shared-volume",
@@ -65,8 +67,6 @@ function buildScanJobPayload(scan) {
             imageUuid: image.uuid,
             filePath: image.filePath,
             mimeType: image.mimeType,
-            bodyPart: image.bodyPart,
-            imageType: image.imageType,
         })),
     };
 }
@@ -98,17 +98,17 @@ export async function createScan(data, files, user) {
         const createdScan = await scanModel.create(
             {
                 patientUuid: user.uuid,
+                bodyPart: data.bodyPart,
+                imageType: data.imageType,
             },
             { transaction },
         );
 
         await scanImageModel.bulkCreate(
-            data.map((image, index) => ({
+            files.map((file, index) => ({
                 scanUuid: createdScan.uuid,
-                filePath: files[index].path,
+                filePath: file.path,
                 mimeType: detectedMimeTypes[index],
-                bodyPart: image.bodyPart,
-                imageType: image.imageType,
             })),
             { transaction },
         );
