@@ -226,6 +226,13 @@ export async function replaceAppointment(uuid, data, user) {
     await ensureDoctorAndClinic(appointment.doctorUuid, appointment.clinicUuid);
     await ensureSlotNotBooked(appointment.doctorUuid, date, timeSlot, uuid);
 
+    if (data.status === "completed") {
+        throw createError(
+            403,
+            "Patients cannot mark appointments as completed",
+        );
+    }
+
     appointment.date = date;
     appointment.timeSlot = timeSlot;
     appointment.status = data.status;
@@ -264,6 +271,13 @@ export async function updateAppointment(uuid, data, user) {
         }
 
         if (data.status !== undefined) {
+            if (data.status === "completed") {
+                throw createError(
+                    403,
+                    "Patients cannot mark appointments as completed",
+                );
+            }
+
             appointment.status = data.status;
         }
 
@@ -279,8 +293,15 @@ export async function updateAppointment(uuid, data, user) {
             throw createError(403, "Doctors cannot reschedule appointments");
         }
 
-        if (data.status !== undefined && data.status !== "cancelled") {
-            throw createError(403, "Doctors can only cancel appointments");
+        if (
+            data.status !== undefined &&
+            data.status !== "cancelled" &&
+            data.status !== "completed"
+        ) {
+            throw createError(
+                403,
+                "Doctors can only cancel or complete appointments",
+            );
         }
 
         if (data.status !== undefined) {
