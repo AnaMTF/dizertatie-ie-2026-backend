@@ -11,6 +11,7 @@ const schema = {
         "password",
         "firstName",
         "lastName",
+        "sex",
         "dateOfBirth",
         "height",
         "weight",
@@ -35,6 +36,10 @@ const schema = {
             type: "string",
             minLength: 1,
             maxLength: 100,
+        },
+        sex: {
+            type: "string",
+            enum: ["Man", "Woman"],
         },
         dateOfBirth: {
             type: "string",

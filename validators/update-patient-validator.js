@@ -23,6 +23,10 @@ const schema = {
             minLength: 1,
             maxLength: 100,
         },
+        sex: {
+            type: "string",
+            enum: ["Man", "Woman"],
+        },
         dateOfBirth: {
             type: "string",
             format: "date",

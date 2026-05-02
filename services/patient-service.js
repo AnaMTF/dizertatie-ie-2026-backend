@@ -32,6 +32,7 @@ export async function createPatient(data) {
         passwordHash,
         firstName: data.firstName,
         lastName: data.lastName,
+        sex: data.sex,
         dateOfBirth: data.dateOfBirth,
         height: data.height,
         weight: data.weight,

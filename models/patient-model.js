@@ -26,6 +26,13 @@ export const patientModel = database.define("Patient", {
         type: DataTypes.STRING,
         allowNull: false,
     },
+    sex: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+            isIn: [["Man", "Woman"]],
+        },
+    },
     dateOfBirth: {
         type: DataTypes.DATEONLY,
         allowNull: false,
