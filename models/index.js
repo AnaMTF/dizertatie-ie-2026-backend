@@ -2,7 +2,10 @@ import { appointmentModel } from "./appointment-model.js";
 import { appointmentDocumentModel } from "./appointment-document-model.js";
 import { clinicModel } from "./clinic-model.js";
 import { doctorModel } from "./doctor-model.js";
+import { followUpReminderModel } from "./follow-up-reminder-model.js";
+import { notificationModel } from "./notification-model.js";
 import { patientModel } from "./patient-model.js";
+import { pushSubscriptionModel } from "./push-subscription-model.js";
 import { scanModel } from "./scan-model.js";
 import { scanImageModel } from "./scan-image-model.js";
 
@@ -146,12 +149,95 @@ scanImageModel.belongsTo(scanModel, {
     onDelete: "CASCADE",
 });
 
+patientModel.hasMany(pushSubscriptionModel, {
+    foreignKey: {
+        name: "patientUuid",
+        allowNull: false,
+    },
+    as: "pushSubscriptions",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
+pushSubscriptionModel.belongsTo(patientModel, {
+    foreignKey: {
+        name: "patientUuid",
+        allowNull: false,
+    },
+    as: "patient",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
+patientModel.hasMany(notificationModel, {
+    foreignKey: {
+        name: "patientUuid",
+        allowNull: false,
+    },
+    as: "notifications",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
+notificationModel.belongsTo(patientModel, {
+    foreignKey: {
+        name: "patientUuid",
+        allowNull: false,
+    },
+    as: "patient",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
+patientModel.hasMany(followUpReminderModel, {
+    foreignKey: {
+        name: "patientUuid",
+        allowNull: false,
+    },
+    as: "followUpReminders",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
+followUpReminderModel.belongsTo(patientModel, {
+    foreignKey: {
+        name: "patientUuid",
+        allowNull: false,
+    },
+    as: "patient",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
+appointmentModel.hasMany(followUpReminderModel, {
+    foreignKey: {
+        name: "appointmentUuid",
+        allowNull: false,
+    },
+    as: "followUpReminders",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
+followUpReminderModel.belongsTo(appointmentModel, {
+    foreignKey: {
+        name: "appointmentUuid",
+        allowNull: false,
+    },
+    as: "appointment",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
 export {
     appointmentModel,
     appointmentDocumentModel,
     clinicModel,
     doctorModel,
+    followUpReminderModel,
+    notificationModel,
     patientModel,
+    pushSubscriptionModel,
     scanModel,
     scanImageModel,
 };

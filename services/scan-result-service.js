@@ -1,4 +1,5 @@
 import { scanModel } from "../models/index.js";
+import { createNotification } from "./notification-service.js";
 
 function normalizeFailedPayload(payload) {
     if (payload?.results && typeof payload.results === "object") {
@@ -42,6 +43,19 @@ export async function applyScanResult(payload) {
                 jobId: payload.jobId,
                 processedAt: payload.processedAt,
             },
+        });
+
+        await createNotification({
+            userId: scan.patientUuid,
+            type: "scan_results_ready",
+            title: "AI scan results are ready",
+            body: "Open the app to review your completed analysis.",
+            data: {
+                scanId: scan.uuid,
+                scanUuid: scan.uuid,
+                url: `/ai-scan?scan=${scan.uuid}`,
+            },
+            sendPush: true,
         });
 
         return;

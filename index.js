@@ -18,9 +18,12 @@ import {
     authenticationRouter,
     clinicRouter,
     doctorRouter,
+    notificationRouter,
     patientRouter,
+    pushRouter,
     scanRouter,
 } from "./routers/index.js";
+import { startSchedulers } from "./services/scheduler-service.js";
 
 const app = express();
 const PORT = process.env.PORT || 9000;
@@ -46,7 +49,9 @@ app.use(generalLimiter);
 app.use("/api/v1", appointmentRouter);
 app.use("/api/v1", clinicRouter);
 app.use("/api/v1", doctorRouter);
+app.use("/api/v1", notificationRouter);
 app.use("/api/v1", patientRouter);
+app.use("/api/v1", pushRouter);
 app.use("/api/v1", scanRouter);
 
 app.use("/api/v1/auth", authLimiter, authenticationRouter);
@@ -55,6 +60,7 @@ async function start() {
     await database.authenticate();
     await database.sync();
     await consumeScanResults(applyScanResult);
+    startSchedulers();
 
     app.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);
