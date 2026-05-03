@@ -1,4 +1,5 @@
 import * as scanService from "../services/scan-service.js";
+import { supportedScanOptions } from "../config/supported-scan-options.js";
 import { sendError, sendSuccess } from "../utils/response.js";
 
 export async function createScan(request, response) {
@@ -21,6 +22,10 @@ export async function getScans(request, response) {
     } catch (error) {
         sendError(response, error.status || 500, error.message);
     }
+}
+
+export function getScanOptions(_request, response) {
+    sendSuccess(response, 200, supportedScanOptions);
 }
 
 export async function getScanByUuid(request, response) {

@@ -1,7 +1,12 @@
 import express from "express";
 import multer from "multer";
 
-import { createScan, getScans, getScanByUuid } from "../controllers/index.js";
+import {
+    createScan,
+    getScanByUuid,
+    getScanOptions,
+    getScans,
+} from "../controllers/index.js";
 import {
     authenticate,
     authorizeRoles,
@@ -29,6 +34,13 @@ router.post(
     validate(validateCreateScan),
     validateFileCount,
     createScan,
+);
+
+router.get(
+    "/scan/options",
+    authenticate,
+    authorizeRoles("patient"),
+    getScanOptions,
 );
 
 router.get("/scan", authenticate, authorizeRoles("patient"), getScans);
