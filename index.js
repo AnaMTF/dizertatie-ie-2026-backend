@@ -27,6 +27,15 @@ import { startSchedulers } from "./services/scheduler-service.js";
 
 const app = express();
 const PORT = process.env.PORT || 9000;
+const readHeavyEndpoints = new Set([
+    "/api/v1/scan",
+    "/api/v1/scan/options",
+    "/api/v1/notifications/unread-count",
+]);
+
+function isReadHeavyRequest(request) {
+    return request.method === "GET" && readHeavyEndpoints.has(request.path);
+}
 
 app.use(helmet());
 app.use(cors());
@@ -36,7 +45,14 @@ app.use(express.json());
 
 const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100,
+    max: 250,
+    skip: isReadHeavyRequest,
+});
+
+const readHeavyLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 600,
+    skip: (request) => !isReadHeavyRequest(request),
 });
 
 const authLimiter = rateLimit({
@@ -44,7 +60,9 @@ const authLimiter = rateLimit({
     max: 20,
 });
 
+app.use("/api/v1/auth", authLimiter, authenticationRouter);
 app.use(generalLimiter);
+app.use(readHeavyLimiter);
 
 app.use("/api/v1", appointmentRouter);
 app.use("/api/v1", clinicRouter);
@@ -53,8 +71,6 @@ app.use("/api/v1", notificationRouter);
 app.use("/api/v1", patientRouter);
 app.use("/api/v1", pushRouter);
 app.use("/api/v1", scanRouter);
-
-app.use("/api/v1/auth", authLimiter, authenticationRouter);
 
 async function start() {
     await database.authenticate();
