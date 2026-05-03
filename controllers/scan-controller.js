@@ -41,3 +41,41 @@ export async function getScanByUuid(request, response) {
         sendError(response, error.status || 500, error.message);
     }
 }
+
+export async function getOptimizedScanImage(request, response) {
+    try {
+        const optimizedImage = await scanService.getOptimizedScanImage({
+            scanUuid: request.params.scanUuid,
+            imageUuid: request.params.imageUuid,
+            user: request.user,
+            query: request.query,
+        });
+
+        if (request.headers["if-none-match"] === optimizedImage.etag) {
+            response.status(304).end();
+            return;
+        }
+
+        response.set("Cache-Control", optimizedImage.cacheControl);
+        response.set("Content-Type", optimizedImage.contentType);
+        response.set("ETag", optimizedImage.etag);
+        response.set("Last-Modified", optimizedImage.lastModified);
+        response.sendFile(
+            optimizedImage.filePath,
+            { dotfiles: "allow" },
+            (sendFileError) => {
+                if (!sendFileError || response.headersSent) {
+                    return;
+                }
+
+                sendError(
+                    response,
+                    sendFileError.status || 500,
+                    sendFileError.message || "Unable to send optimized image",
+                );
+            },
+        );
+    } catch (error) {
+        sendError(response, error.status || 500, error.message);
+    }
+}

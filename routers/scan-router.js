@@ -3,6 +3,7 @@ import multer from "multer";
 
 import {
     createScan,
+    getOptimizedScanImage,
     getScanByUuid,
     getScanOptions,
     getScans,
@@ -44,6 +45,13 @@ router.get(
 );
 
 router.get("/scan", authenticate, authorizeRoles("patient"), getScans);
+
+router.get(
+    "/scan/:scanUuid/images/:imageUuid",
+    authenticate,
+    authorizeRoles("patient"),
+    getOptimizedScanImage,
+);
 
 router.get(
     "/scan/:uuid",
