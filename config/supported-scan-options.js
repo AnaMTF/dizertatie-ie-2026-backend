@@ -231,6 +231,21 @@ export const supportedScanOptions = [
                 "Cardiac image workflows for binary abnormality support.",
         },
     },
+    {
+        id: "colon-endoscopy",
+        label: "Colon Endoscopy",
+        description:
+            "Colonoscopy imagery analyzed for 8-class GI finding classification.",
+        bodyPart: "Colon",
+        imageType: "Endoscopy",
+        modelKeys: ["colonoscopy_finetuned"],
+        region: {
+            key: "colon",
+            name: "Colon",
+            description:
+                "Endoscopic colonoscopy review for gastrointestinal findings.",
+        },
+    },
 ];
 
 export const supportedScanPairs = supportedScanOptions.map((option) => ({
