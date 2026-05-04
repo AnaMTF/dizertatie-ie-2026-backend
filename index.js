@@ -15,6 +15,7 @@ import {
 import { applyScanResult } from "./services/scan-result-service.js";
 import {
     appointmentRouter,
+    appointmentRecommendationRouter,
     authenticationRouter,
     clinicRouter,
     doctorRouter,
@@ -64,6 +65,7 @@ app.use("/api/v1/auth", authLimiter, authenticationRouter);
 app.use(generalLimiter);
 app.use(readHeavyLimiter);
 
+app.use("/api/v1", appointmentRecommendationRouter);
 app.use("/api/v1", appointmentRouter);
 app.use("/api/v1", clinicRouter);
 app.use("/api/v1", doctorRouter);
