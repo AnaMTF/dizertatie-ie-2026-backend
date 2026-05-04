@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 import { doctorModel, patientModel } from "../models/index.js";
+import { refreshAppointmentRecommendationsForPatient } from "./appointment-recommendation-service.js";
 
 const SALT_ROUNDS = 12;
 
@@ -81,6 +82,18 @@ export async function register(data) {
         weight: data.weight,
         additionalMedicalInfo: data.additionalMedicalInfo,
     });
+
+    try {
+        await refreshAppointmentRecommendationsForPatient(patient, {
+            source: "signup",
+            sendNotification: true,
+        });
+    } catch (error) {
+        console.error(
+            "Failed to generate signup appointment recommendations",
+            error,
+        );
+    }
 
     const user = toPublicPatient(patient);
 
