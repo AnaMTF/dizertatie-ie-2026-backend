@@ -1,6 +1,7 @@
 import { DataTypes } from "sequelize";
 
 import database from "../database/index.js";
+import { medicalSpecialties } from "../config/medical-specialties.js";
 
 export const doctorModel = database.define("Doctor", {
     uuid: {
@@ -27,22 +28,7 @@ export const doctorModel = database.define("Doctor", {
         allowNull: false,
     },
     specialization: {
-        type: DataTypes.ENUM(
-            "general",
-            "cardiology",
-            "dermatology",
-            "endocrinology",
-            "gastroenterology",
-            "gynecology",
-            "neurology",
-            "oncology",
-            "ophthalmology",
-            "orthopedics",
-            "otolaryngology",
-            "psychiatry",
-            "pulmonology",
-            "urology",
-        ),
+        type: DataTypes.ENUM(...medicalSpecialties),
         allowNull: false,
     },
 });

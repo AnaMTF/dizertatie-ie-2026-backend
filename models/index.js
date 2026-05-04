@@ -1,5 +1,6 @@
 import { appointmentModel } from "./appointment-model.js";
 import { appointmentDocumentModel } from "./appointment-document-model.js";
+import { appointmentRecommendationModel } from "./appointment-recommendation-model.js";
 import { clinicModel } from "./clinic-model.js";
 import { doctorModel } from "./doctor-model.js";
 import { followUpReminderModel } from "./follow-up-reminder-model.js";
@@ -229,9 +230,30 @@ followUpReminderModel.belongsTo(appointmentModel, {
     onDelete: "CASCADE",
 });
 
+patientModel.hasMany(appointmentRecommendationModel, {
+    foreignKey: {
+        name: "patientUuid",
+        allowNull: false,
+    },
+    as: "appointmentRecommendations",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
+appointmentRecommendationModel.belongsTo(patientModel, {
+    foreignKey: {
+        name: "patientUuid",
+        allowNull: false,
+    },
+    as: "patient",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
 export {
     appointmentModel,
     appointmentDocumentModel,
+    appointmentRecommendationModel,
     clinicModel,
     doctorModel,
     followUpReminderModel,
