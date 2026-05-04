@@ -1,0 +1,16 @@
+export const medicalSpecialties = [
+    "general",
+    "cardiology",
+    "dermatology",
+    "endocrinology",
+    "gastroenterology",
+    "gynecology",
+    "neurology",
+    "oncology",
+    "ophthalmology",
+    "orthopedics",
+    "otolaryngology",
+    "psychiatry",
+    "pulmonology",
+    "urology",
+];
