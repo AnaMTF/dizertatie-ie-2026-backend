@@ -226,10 +226,10 @@ export async function replaceAppointment(uuid, data, user) {
     await ensureDoctorAndClinic(appointment.doctorUuid, appointment.clinicUuid);
     await ensureSlotNotBooked(appointment.doctorUuid, date, timeSlot, uuid);
 
-    if (data.status === "completed") {
+    if (data.status === "completed" || data.status === "confirmed") {
         throw createError(
             403,
-            "Patients cannot mark appointments as completed",
+            "Patients cannot mark appointments as confirmed or completed",
         );
     }
 
@@ -271,10 +271,10 @@ export async function updateAppointment(uuid, data, user) {
         }
 
         if (data.status !== undefined) {
-            if (data.status === "completed") {
+            if (data.status === "completed" || data.status === "confirmed") {
                 throw createError(
                     403,
-                    "Patients cannot mark appointments as completed",
+                    "Patients cannot mark appointments as confirmed or completed",
                 );
             }
 
@@ -289,27 +289,87 @@ export async function updateAppointment(uuid, data, user) {
             appointment.notes = data.notes;
         }
     } else if (user.role === "doctor") {
-        if (data.date !== undefined || data.timeSlot !== undefined) {
-            throw createError(403, "Doctors cannot reschedule appointments");
-        }
+        const isRescheduling =
+            data.date !== undefined || data.timeSlot !== undefined;
 
-        if (
-            data.status !== undefined &&
-            data.status !== "cancelled" &&
-            data.status !== "completed"
-        ) {
-            throw createError(
-                403,
-                "Doctors can only cancel or complete appointments",
+        if (isRescheduling) {
+            if (
+                appointment.status === "cancelled" ||
+                appointment.status === "completed"
+            ) {
+                throw createError(
+                    409,
+                    "Finalized appointments cannot be rescheduled",
+                );
+            }
+
+            const { date, timeSlot } = normalizeScheduleInput(data);
+
+            await ensureSlotNotBooked(
+                appointment.doctorUuid,
+                date,
+                timeSlot,
+                appointment.uuid,
             );
+
+            appointment.date = date;
+            appointment.timeSlot = timeSlot;
+
+            if (data.status === undefined) {
+                appointment.status = "rescheduled";
+            }
         }
 
         if (data.status !== undefined) {
+            const allowedTransitions = {
+                scheduled: [
+                    "scheduled",
+                    "confirmed",
+                    "rescheduled",
+                    "cancelled",
+                ],
+                confirmed: [
+                    "confirmed",
+                    "rescheduled",
+                    "cancelled",
+                    "completed",
+                ],
+                rescheduled: [
+                    "rescheduled",
+                    "confirmed",
+                    "cancelled",
+                    "completed",
+                ],
+                cancelled: ["cancelled"],
+                completed: ["completed"],
+            };
+
+            const allowedTargetStatuses =
+                allowedTransitions[appointment.status] || [];
+
+            if (!allowedTargetStatuses.includes(data.status)) {
+                throw createError(
+                    403,
+                    "Doctors cannot apply this status transition",
+                );
+            }
+
             appointment.status = data.status;
         }
 
         if (data.cancellationReason !== undefined) {
+            if (appointment.status !== "cancelled") {
+                throw createError(
+                    400,
+                    "cancellationReason can only be set for cancelled appointments",
+                );
+            }
+
             appointment.cancellationReason = data.cancellationReason;
+        }
+
+        if (data.notes !== undefined) {
+            appointment.notes = data.notes;
         }
     } else {
         throw createError(403, "Forbidden");
@@ -524,6 +584,17 @@ export async function deleteAppointmentDocument(
 
     if (!appointment) {
         return false;
+    }
+
+    if (
+        appointment.status === "confirmed" ||
+        appointment.status === "completed" ||
+        appointment.status === "cancelled"
+    ) {
+        throw createError(
+            403,
+            "Cannot delete documents from a confirmed, completed, or cancelled appointment",
+        );
     }
 
     const document = await appointmentDocumentModel.findOne({

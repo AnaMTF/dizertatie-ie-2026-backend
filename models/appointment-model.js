@@ -20,6 +20,7 @@ export const appointmentModel = database.define("Appointment", {
     status: {
         type: DataTypes.ENUM(
             "scheduled",
+            "confirmed",
             "cancelled",
             "rescheduled",
             "completed",

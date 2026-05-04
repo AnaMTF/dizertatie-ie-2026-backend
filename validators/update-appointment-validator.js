@@ -21,7 +21,13 @@ const schema = {
         },
         status: {
             type: "string",
-            enum: ["scheduled", "cancelled", "rescheduled", "completed"],
+            enum: [
+                "scheduled",
+                "confirmed",
+                "cancelled",
+                "rescheduled",
+                "completed",
+            ],
         },
         cancellationReason: {
             type: "string",
