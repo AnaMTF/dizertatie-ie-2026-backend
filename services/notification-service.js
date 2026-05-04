@@ -1,14 +1,13 @@
 import { Op } from "sequelize";
 
-import {
-    notificationModel,
-    pushSubscriptionModel,
-} from "../models/index.js";
+import { notificationModel, pushSubscriptionModel } from "../models/index.js";
 import { createError } from "../utils/error.js";
 import { sendWebPushNotification } from "./web-push-service.js";
 
-const DEFAULT_PUSH_ICON = process.env.PUSH_ICON || "/images/logo/logo-light.webp";
-const DEFAULT_PUSH_BADGE = process.env.PUSH_BADGE || "/images/logo/logo-light.webp";
+const DEFAULT_PUSH_ICON =
+    process.env.PUSH_ICON || "/images/logo/logo-light.webp";
+const DEFAULT_PUSH_BADGE =
+    process.env.PUSH_BADGE || "/images/logo/logo-light.webp";
 
 function ensurePatientUser(user) {
     if (!user || user.role !== "patient") {
@@ -85,7 +84,10 @@ export async function createNotification({
     try {
         await sendPushForNotification(notification);
     } catch (error) {
-        console.error("Push pipeline failed after notification persistence", error);
+        console.error(
+            "Push pipeline failed after notification persistence",
+            error,
+        );
     }
 
     return notification;

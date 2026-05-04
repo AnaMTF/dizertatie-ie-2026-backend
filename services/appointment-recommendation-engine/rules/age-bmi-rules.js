@@ -1,9 +1,4 @@
-function createRecommendation({
-    specialty,
-    score,
-    rationale,
-    reasonCodes,
-}) {
+function createRecommendation({ specialty, score, rationale, reasonCodes }) {
     return {
         specialty,
         score,

@@ -49,9 +49,8 @@ export async function markNotificationAsRead(request, response) {
 
 export async function markAllNotificationsAsRead(request, response) {
     try {
-        const updatedCount = await notificationService.markAllNotificationsAsRead(
-            request.user,
-        );
+        const updatedCount =
+            await notificationService.markAllNotificationsAsRead(request.user);
 
         sendSuccess(response, 200, {
             updatedCount,

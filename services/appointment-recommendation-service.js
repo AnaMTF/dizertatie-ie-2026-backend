@@ -47,10 +47,10 @@ function buildNotificationPayload(recommendations) {
     };
 }
 
-export async function refreshAppointmentRecommendationsForPatient(patient, {
-    source = DEFAULT_SOURCE,
-    sendNotification = false,
-} = {}) {
+export async function refreshAppointmentRecommendationsForPatient(
+    patient,
+    { source = DEFAULT_SOURCE, sendNotification = false } = {},
+) {
     const generated = await generateAppointmentRecommendations(patient);
     const generatedAt = new Date();
 
@@ -105,7 +105,10 @@ export async function refreshAppointmentRecommendationsForPatient(patient, {
     return generated;
 }
 
-export async function refreshAppointmentRecommendationsFromUser(user, options = {}) {
+export async function refreshAppointmentRecommendationsFromUser(
+    user,
+    options = {},
+) {
     if (user.role !== "patient") {
         throw createError(403, "Only patients can refresh recommendations");
     }

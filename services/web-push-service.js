@@ -4,7 +4,8 @@ import { createError } from "../utils/error.js";
 
 const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY;
 const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY;
-const VAPID_SUBJECT = process.env.VAPID_SUBJECT || "mailto:no-reply@example.com";
+const VAPID_SUBJECT =
+    process.env.VAPID_SUBJECT || "mailto:no-reply@example.com";
 
 let isConfigured = false;
 
@@ -14,10 +15,7 @@ function ensureConfigured() {
     }
 
     if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
-        throw createError(
-            500,
-            "VAPID keys are not configured on the backend",
-        );
+        throw createError(500, "VAPID keys are not configured on the backend");
     }
 
     webPush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
