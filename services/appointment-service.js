@@ -254,6 +254,19 @@ export async function updateAppointment(uuid, data, user) {
     }
 
     if (user.role === "patient") {
+        const hasDoctorResultFields =
+            data.doctorDiagnosis !== undefined ||
+            data.doctorPrescription !== undefined ||
+            data.doctorFollowUpRecommendation !== undefined ||
+            data.doctorFollowUpDate !== undefined;
+
+        if (hasDoctorResultFields) {
+            throw createError(
+                403,
+                "Patients cannot modify doctor consultation results",
+            );
+        }
+
         const isRescheduling =
             data.date !== undefined || data.timeSlot !== undefined;
 
@@ -289,51 +302,24 @@ export async function updateAppointment(uuid, data, user) {
             appointment.notes = data.notes;
         }
     } else if (user.role === "doctor") {
-        const isRescheduling =
-            data.date !== undefined || data.timeSlot !== undefined;
-
-        if (isRescheduling) {
-            if (
-                appointment.status === "cancelled" ||
-                appointment.status === "completed"
-            ) {
-                throw createError(
-                    409,
-                    "Finalized appointments cannot be rescheduled",
-                );
-            }
-
-            const { date, timeSlot } = normalizeScheduleInput(data);
-
-            await ensureSlotNotBooked(
-                appointment.doctorUuid,
-                date,
-                timeSlot,
-                appointment.uuid,
+        if (data.date !== undefined || data.timeSlot !== undefined) {
+            throw createError(
+                403,
+                "Doctors cannot modify appointment date or time",
             );
+        }
 
-            appointment.date = date;
-            appointment.timeSlot = timeSlot;
-
-            if (data.status === undefined) {
-                appointment.status = "rescheduled";
-            }
+        if (data.notes !== undefined) {
+            throw createError(
+                403,
+                "Doctors cannot modify patient appointment notes",
+            );
         }
 
         if (data.status !== undefined) {
             const allowedTransitions = {
-                scheduled: [
-                    "scheduled",
-                    "confirmed",
-                    "rescheduled",
-                    "cancelled",
-                ],
-                confirmed: [
-                    "confirmed",
-                    "rescheduled",
-                    "cancelled",
-                    "completed",
-                ],
+                scheduled: ["scheduled", "confirmed", "cancelled"],
+                confirmed: ["confirmed", "cancelled", "completed"],
                 rescheduled: [
                     "rescheduled",
                     "confirmed",
@@ -357,6 +343,33 @@ export async function updateAppointment(uuid, data, user) {
             appointment.status = data.status;
         }
 
+        let hasDoctorResultChanges = false;
+
+        if (data.doctorDiagnosis !== undefined) {
+            appointment.doctorDiagnosis = data.doctorDiagnosis;
+            hasDoctorResultChanges = true;
+        }
+
+        if (data.doctorPrescription !== undefined) {
+            appointment.doctorPrescription = data.doctorPrescription;
+            hasDoctorResultChanges = true;
+        }
+
+        if (data.doctorFollowUpRecommendation !== undefined) {
+            appointment.doctorFollowUpRecommendation =
+                data.doctorFollowUpRecommendation;
+            hasDoctorResultChanges = true;
+        }
+
+        if (data.doctorFollowUpDate !== undefined) {
+            appointment.doctorFollowUpDate = data.doctorFollowUpDate;
+            hasDoctorResultChanges = true;
+        }
+
+        if (hasDoctorResultChanges) {
+            appointment.doctorResultsUpdatedAt = new Date();
+        }
+
         if (data.cancellationReason !== undefined) {
             if (appointment.status !== "cancelled") {
                 throw createError(
@@ -368,8 +381,21 @@ export async function updateAppointment(uuid, data, user) {
             appointment.cancellationReason = data.cancellationReason;
         }
 
-        if (data.notes !== undefined) {
-            appointment.notes = data.notes;
+        if (appointment.status === "completed") {
+            const diagnosis = String(appointment.doctorDiagnosis ?? "").trim();
+            const prescription = String(
+                appointment.doctorPrescription ?? "",
+            ).trim();
+            const followUpRecommendation = String(
+                appointment.doctorFollowUpRecommendation ?? "",
+            ).trim();
+
+            if (!diagnosis || !prescription || !followUpRecommendation) {
+                throw createError(
+                    400,
+                    "Diagnosis, prescription, and follow-up recommendation are required before completing an appointment",
+                );
+            }
         }
     } else {
         throw createError(403, "Forbidden");

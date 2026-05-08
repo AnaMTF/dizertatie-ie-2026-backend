@@ -37,6 +37,29 @@ const schema = {
             type: "string",
             maxLength: 5000,
         },
+        doctorDiagnosis: {
+            type: "string",
+            maxLength: 5000,
+        },
+        doctorPrescription: {
+            type: "string",
+            maxLength: 5000,
+        },
+        doctorFollowUpRecommendation: {
+            type: "string",
+            maxLength: 5000,
+        },
+        doctorFollowUpDate: {
+            anyOf: [
+                {
+                    type: "string",
+                    format: "date",
+                },
+                {
+                    type: "null",
+                },
+            ],
+        },
     },
     allOf: [
         {

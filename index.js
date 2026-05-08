@@ -5,6 +5,7 @@ import morgan from "morgan";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import { DataTypes } from "sequelize";
 
 import database from "./database/index.js";
 import "./models/index.js";
@@ -74,9 +75,68 @@ app.use("/api/v1", patientRouter);
 app.use("/api/v1", pushRouter);
 app.use("/api/v1", scanRouter);
 
+async function ensureAppointmentConsultationColumns() {
+    const queryInterface = database.getQueryInterface();
+    const table = await queryInterface
+        .describeTable("Appointments")
+        .catch(() => null);
+
+    if (!table) {
+        return;
+    }
+
+    if (!table.doctorDiagnosis) {
+        await queryInterface.addColumn("Appointments", "doctorDiagnosis", {
+            type: DataTypes.TEXT,
+            allowNull: true,
+        });
+    }
+
+    if (!table.doctorPrescription) {
+        await queryInterface.addColumn(
+            "Appointments",
+            "doctorPrescription",
+            {
+                type: DataTypes.TEXT,
+                allowNull: true,
+            },
+        );
+    }
+
+    if (!table.doctorFollowUpRecommendation) {
+        await queryInterface.addColumn(
+            "Appointments",
+            "doctorFollowUpRecommendation",
+            {
+                type: DataTypes.TEXT,
+                allowNull: true,
+            },
+        );
+    }
+
+    if (!table.doctorFollowUpDate) {
+        await queryInterface.addColumn("Appointments", "doctorFollowUpDate", {
+            type: DataTypes.STRING,
+            allowNull: true,
+        });
+    }
+
+    if (!table.doctorResultsUpdatedAt) {
+        await queryInterface.addColumn(
+            "Appointments",
+            "doctorResultsUpdatedAt",
+            {
+                type: DataTypes.DATE,
+                allowNull: true,
+            },
+        );
+    }
+}
+
 async function start() {
     await database.authenticate();
     await database.sync();
+    await ensureAppointmentConsultationColumns();
     await consumeScanResults(applyScanResult);
     startSchedulers();
 
