@@ -1,10 +1,4 @@
-const dbPath = process.argv[2];
-if (!dbPath) {
-    console.error("Usage: node setup.js <path-to-database.sqlite>");
-    process.exit(1);
-}
-process.env.DIALECT = "sqlite";
-process.env.DATABASE = dbPath;
+import "dotenv/config";
 
 const { default: bcrypt } = await import("bcryptjs");
 const { default: database } = await import("./index.js");
@@ -348,6 +342,25 @@ const doctors = [
 ];
 
 async function setup() {
+    const dialect = process.env.DIALECT || "sqlite";
+
+    if (dialect === "postgres") {
+        const requiredVars = ["DB_HOST", "DB_PORT", "DB_NAME", "DB_USER"];
+        const missingVars = requiredVars.filter(
+            (variableName) => !process.env[variableName],
+        );
+
+        if (missingVars.length > 0) {
+            throw new Error(
+                `Missing required PostgreSQL environment variables: ${missingVars.join(
+                    ", ",
+                )}`,
+            );
+        }
+    }
+
+    console.log(`Seeding database using DIALECT=${dialect}`);
+
     await database.authenticate();
     await database.sync();
 
