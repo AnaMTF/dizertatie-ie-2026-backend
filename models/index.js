@@ -6,6 +6,7 @@ import { doctorModel } from "./doctor-model.js";
 import { followUpReminderModel } from "./follow-up-reminder-model.js";
 import { notificationModel } from "./notification-model.js";
 import { patientModel } from "./patient-model.js";
+import { postEmbeddingModel } from "./post-embedding-model.js";
 import { pushSubscriptionModel } from "./push-subscription-model.js";
 import { scanModel } from "./scan-model.js";
 import { scanImageModel } from "./scan-image-model.js";
