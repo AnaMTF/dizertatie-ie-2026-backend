@@ -362,6 +362,9 @@ async function setup() {
     console.log(`Seeding database using DIALECT=${dialect}`);
 
     await database.authenticate();
+    if (dialect === "postgres") {
+        await database.query("CREATE EXTENSION IF NOT EXISTS vector");
+    }
     await database.sync();
 
     const passwordHash = await bcrypt.hash(DOCTOR_PASSWORD, 10);
