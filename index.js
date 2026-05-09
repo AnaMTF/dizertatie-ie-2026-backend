@@ -49,6 +49,7 @@ app.use("/api/v1", scanRouter);
 
 async function start() {
     await database.authenticate();
+    await database.query("CREATE EXTENSION IF NOT EXISTS vector");
     await database.sync();
     await consumeScanResults(applyScanResult);
     startSchedulers();
