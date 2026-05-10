@@ -35,6 +35,8 @@ function toPublicPatient(patient) {
         height: patient.height,
         weight: patient.weight,
         additionalMedicalInfo: patient.additionalMedicalInfo,
+        smoker: patient.smoker,
+        alcoholConsumptionFrequency: patient.alcoholConsumptionFrequency,
         createdAt: patient.createdAt,
         updatedAt: patient.updatedAt,
     };
@@ -81,6 +83,8 @@ export async function register(data) {
         height: data.height,
         weight: data.weight,
         additionalMedicalInfo: data.additionalMedicalInfo,
+        smoker: data.smoker,
+        alcoholConsumptionFrequency: data.alcoholConsumptionFrequency,
     });
 
     try {

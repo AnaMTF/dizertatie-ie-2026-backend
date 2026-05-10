@@ -37,6 +37,8 @@ export async function createPatient(data) {
         height: data.height,
         weight: data.weight,
         additionalMedicalInfo: data.additionalMedicalInfo,
+        smoker: data.smoker,
+        alcoholConsumptionFrequency: data.alcoholConsumptionFrequency,
     });
 
     return patientModel.findByPk(patient.uuid, {

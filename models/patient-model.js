@@ -49,4 +49,23 @@ export const patientModel = database.define("Patient", {
         type: DataTypes.TEXT,
         allowNull: true,
     },
+    smoker: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+    },
+    alcoholConsumptionFrequency: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        validate: {
+            isIn: [
+                [
+                    "never",
+                    "less_than_monthly",
+                    "monthly",
+                    "weekly",
+                    "daily_or_almost_daily",
+                ],
+            ],
+        },
+    },
 });

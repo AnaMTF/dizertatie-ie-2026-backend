@@ -50,6 +50,19 @@ const schema = {
         additionalMedicalInfo: {
             type: "string",
         },
+        smoker: {
+            type: "boolean",
+        },
+        alcoholConsumptionFrequency: {
+            type: "string",
+            enum: [
+                "never",
+                "less_than_monthly",
+                "monthly",
+                "weekly",
+                "daily_or_almost_daily",
+            ],
+        },
     },
 };
 
