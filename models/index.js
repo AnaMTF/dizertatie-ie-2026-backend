@@ -260,6 +260,7 @@ export {
     followUpReminderModel,
     notificationModel,
     patientModel,
+    postEmbeddingModel,
     pushSubscriptionModel,
     scanModel,
     scanImageModel,
