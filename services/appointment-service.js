@@ -10,6 +10,7 @@ import {
     patientModel,
 } from "../models/index.js";
 import { createError } from "../utils/error.js";
+import { createNotification } from "./notification-service.js";
 
 const SLOT_TIMES = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"];
 
@@ -253,6 +254,8 @@ export async function updateAppointment(uuid, data, user) {
         return null;
     }
 
+    const previousStatus = appointment.status;
+
     if (user.role === "patient") {
         const hasDoctorResultFields =
             data.doctorDiagnosis !== undefined ||
@@ -402,6 +405,30 @@ export async function updateAppointment(uuid, data, user) {
     }
 
     await appointment.save();
+
+    if (
+        user.role === "doctor" &&
+        previousStatus !== "completed" &&
+        appointment.status === "completed"
+    ) {
+        createNotification({
+            userId: appointment.patientUuid,
+            type: "system_message",
+            title: "Consultation completed",
+            body: "Your doctor has completed your consultation. View your results.",
+            data: {
+                category: "consultation_completed",
+                appointmentUuid: appointment.uuid,
+                url: `/appointments?appointment=${appointment.uuid}`,
+            },
+            sendPush: true,
+        }).catch((error) => {
+            console.error(
+                "Failed to send consultation completion notification",
+                error,
+            );
+        });
+    }
 
     return appointmentModel.findByPk(appointment.uuid, {
         include: appointmentInclude,

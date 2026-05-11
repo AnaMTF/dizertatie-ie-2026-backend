@@ -2,6 +2,21 @@ import bcrypt from "bcryptjs";
 
 import { appointmentModel, patientModel } from "../models/index.js";
 import { createError } from "../utils/error.js";
+import { refreshAppointmentRecommendationsForPatient } from "./appointment-recommendation-service.js";
+
+const HEALTH_IMPACTING_FIELDS = new Set([
+    "dateOfBirth",
+    "height",
+    "weight",
+    "sex",
+    "smoker",
+    "alcoholConsumptionFrequency",
+    "additionalMedicalInfo",
+]);
+
+function hasHealthImpactingChanges(data) {
+    return Object.keys(data).some((key) => HEALTH_IMPACTING_FIELDS.has(key));
+}
 
 const publicPatientAttributes = {
     exclude: ["passwordHash"],
@@ -57,9 +72,23 @@ export async function replacePatient(uuid, data, user) {
         return null;
     }
 
-    return patientModel.findByPk(uuid, {
+    const updated = await patientModel.findByPk(uuid, {
         attributes: publicPatientAttributes,
     });
+
+    if (updated) {
+        refreshAppointmentRecommendationsForPatient(updated, {
+            source: "profile_update",
+            sendNotification: true,
+        }).catch((error) => {
+            console.error(
+                "Failed to refresh recommendations after profile replace",
+                error,
+            );
+        });
+    }
+
+    return updated;
 }
 
 export async function updatePatient(uuid, data, user) {
@@ -73,9 +102,23 @@ export async function updatePatient(uuid, data, user) {
         return null;
     }
 
-    return patientModel.findByPk(uuid, {
+    const updated = await patientModel.findByPk(uuid, {
         attributes: publicPatientAttributes,
     });
+
+    if (updated && hasHealthImpactingChanges(data)) {
+        refreshAppointmentRecommendationsForPatient(updated, {
+            source: "profile_update",
+            sendNotification: true,
+        }).catch((error) => {
+            console.error(
+                "Failed to refresh recommendations after profile update",
+                error,
+            );
+        });
+    }
+
+    return updated;
 }
 
 export async function deletePatient(uuid, user) {

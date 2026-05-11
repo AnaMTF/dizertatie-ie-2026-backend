@@ -7,8 +7,8 @@ import {
 } from "../models/index.js";
 import { createNotification } from "./notification-service.js";
 
-const REMINDER_TYPE = "oncology_follow_up";
-const REMINDER_SPECIALTY = "oncology";
+const FOLLOW_UP_INTERVAL_DAYS =
+    Number(process.env.FOLLOW_UP_REMINDER_INTERVAL_DAYS) || 30;
 const MS_IN_DAY = 24 * 60 * 60 * 1000;
 
 function parseDateOnly(value) {
@@ -19,17 +19,25 @@ function toDateOnlyText(date) {
     return date.toISOString().slice(0, 10);
 }
 
-function hasAtLeastThirtyDaysElapsed(appointmentDateText, now = new Date()) {
+function hasAtLeastDaysElapsed(appointmentDateText, days, now = new Date()) {
     const appointmentDate = parseDateOnly(appointmentDateText);
     const diffMs = now.getTime() - appointmentDate.getTime();
-    return diffMs >= 30 * MS_IN_DAY;
+    return diffMs >= days * MS_IN_DAY;
 }
 
-export async function sendDueOncologyFollowUpReminders() {
+function getReminderType(specialty) {
+    return `${specialty}_follow_up`;
+}
+
+function toSpecialtyLabel(specialty) {
+    return specialty.charAt(0).toUpperCase() + specialty.slice(1);
+}
+
+export async function sendDueFollowUpReminders() {
     const now = new Date();
     const today = toDateOnlyText(now);
 
-    const completedOncologyAppointments = await appointmentModel.findAll({
+    const completedAppointments = await appointmentModel.findAll({
         where: {
             status: "completed",
         },
@@ -38,9 +46,6 @@ export async function sendDueOncologyFollowUpReminders() {
                 model: doctorModel,
                 as: "doctor",
                 attributes: ["uuid", "specialization"],
-                where: {
-                    specialization: REMINDER_SPECIALTY,
-                },
             },
         ],
         attributes: ["uuid", "patientUuid", "date", "timeSlot"],
@@ -51,22 +56,38 @@ export async function sendDueOncologyFollowUpReminders() {
         ],
     });
 
-    const latestCompletedByPatient = new Map();
+    // Group by patient+specialty; keep only the latest completed per pair
+    const latestByPatientSpecialty = new Map();
 
-    for (const appointment of completedOncologyAppointments) {
-        if (!latestCompletedByPatient.has(appointment.patientUuid)) {
-            latestCompletedByPatient.set(appointment.patientUuid, appointment);
+    for (const appointment of completedAppointments) {
+        const specialty = appointment.doctor?.specialization;
+        if (!specialty) {
+            continue;
+        }
+
+        const key = `${appointment.patientUuid}:${specialty}`;
+
+        if (!latestByPatientSpecialty.has(key)) {
+            latestByPatientSpecialty.set(key, appointment);
         }
     }
 
     let sentCount = 0;
 
-    for (const appointment of latestCompletedByPatient.values()) {
-        if (!hasAtLeastThirtyDaysElapsed(appointment.date, now)) {
+    for (const appointment of latestByPatientSpecialty.values()) {
+        const specialty = appointment.doctor.specialization;
+
+        if (
+            !hasAtLeastDaysElapsed(
+                appointment.date,
+                FOLLOW_UP_INTERVAL_DAYS,
+                now,
+            )
+        ) {
             continue;
         }
 
-        const hasFutureOncologyAppointment = await appointmentModel.findOne({
+        const hasFutureAppointment = await appointmentModel.findOne({
             where: {
                 patientUuid: appointment.patientUuid,
                 status: {
@@ -82,14 +103,14 @@ export async function sendDueOncologyFollowUpReminders() {
                     as: "doctor",
                     attributes: ["uuid"],
                     where: {
-                        specialization: REMINDER_SPECIALTY,
+                        specialization: specialty,
                     },
                 },
             ],
             attributes: ["uuid"],
         });
 
-        if (hasFutureOncologyAppointment) {
+        if (hasFutureAppointment) {
             continue;
         }
 
@@ -97,7 +118,7 @@ export async function sendDueOncologyFollowUpReminders() {
             where: {
                 patientUuid: appointment.patientUuid,
                 appointmentUuid: appointment.uuid,
-                reminderType: REMINDER_TYPE,
+                reminderType: getReminderType(specialty),
             },
         });
 
@@ -105,15 +126,17 @@ export async function sendDueOncologyFollowUpReminders() {
             continue;
         }
 
+        const label = toSpecialtyLabel(specialty);
+
         await createNotification({
             userId: appointment.patientUuid,
             type: "follow_up_reminder",
-            title: "Follow-up appointment reminder",
-            body: "You can schedule a follow-up appointment from the app.",
+            title: `${label} follow-up reminder`,
+            body: `It's been over ${FOLLOW_UP_INTERVAL_DAYS} days since your last ${specialty} appointment. Consider scheduling a follow-up.`,
             data: {
-                specialty: REMINDER_SPECIALTY,
+                specialty,
                 lastAppointmentId: appointment.uuid,
-                url: "/appointments/new?specialty=oncology",
+                url: `/appointments?create=true&specialty=${encodeURIComponent(specialty)}`,
             },
             sendPush: true,
         });
@@ -121,7 +144,7 @@ export async function sendDueOncologyFollowUpReminders() {
         await followUpReminderModel.create({
             patientUuid: appointment.patientUuid,
             appointmentUuid: appointment.uuid,
-            reminderType: REMINDER_TYPE,
+            reminderType: getReminderType(specialty),
             sentAt: now,
         });
 
@@ -129,7 +152,7 @@ export async function sendDueOncologyFollowUpReminders() {
     }
 
     return {
-        evaluatedPatients: latestCompletedByPatient.size,
+        evaluatedPatientSpecialties: latestByPatientSpecialty.size,
         sentCount,
     };
 }
