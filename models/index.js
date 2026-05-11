@@ -7,6 +7,8 @@ import { followUpReminderModel } from "./follow-up-reminder-model.js";
 import { notificationModel } from "./notification-model.js";
 import { patientModel } from "./patient-model.js";
 import { postEmbeddingModel } from "./post-embedding-model.js";
+import { pushDeliveryLogModel } from "./push-delivery-log-model.js";
+import { pushDeliveryQueueModel } from "./push-delivery-queue-model.js";
 import { pushSubscriptionModel } from "./push-subscription-model.js";
 import { scanModel } from "./scan-model.js";
 import { scanImageModel } from "./scan-image-model.js";
@@ -251,6 +253,48 @@ appointmentRecommendationModel.belongsTo(patientModel, {
     onDelete: "CASCADE",
 });
 
+notificationModel.hasMany(pushDeliveryQueueModel, {
+    foreignKey: { name: "notificationUuid", allowNull: false },
+    as: "deliveryQueue",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
+pushDeliveryQueueModel.belongsTo(notificationModel, {
+    foreignKey: { name: "notificationUuid", allowNull: false },
+    as: "notification",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
+pushSubscriptionModel.hasMany(pushDeliveryQueueModel, {
+    foreignKey: { name: "subscriptionUuid", allowNull: false },
+    as: "deliveryQueue",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
+pushDeliveryQueueModel.belongsTo(pushSubscriptionModel, {
+    foreignKey: { name: "subscriptionUuid", allowNull: false },
+    as: "subscription",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
+notificationModel.hasMany(pushDeliveryLogModel, {
+    foreignKey: { name: "notificationUuid", allowNull: false },
+    as: "deliveryLogs",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
+pushDeliveryLogModel.belongsTo(notificationModel, {
+    foreignKey: { name: "notificationUuid", allowNull: false },
+    as: "notification",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
 export {
     appointmentModel,
     appointmentDocumentModel,
@@ -261,6 +305,8 @@ export {
     notificationModel,
     patientModel,
     postEmbeddingModel,
+    pushDeliveryLogModel,
+    pushDeliveryQueueModel,
     pushSubscriptionModel,
     scanModel,
     scanImageModel,
