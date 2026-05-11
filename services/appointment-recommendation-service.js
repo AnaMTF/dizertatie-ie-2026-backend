@@ -2,6 +2,7 @@ import { Op } from "sequelize";
 
 import {
     appointmentRecommendationModel,
+    notificationModel,
     patientModel,
 } from "../models/index.js";
 import { createError } from "../utils/error.js";
@@ -9,6 +10,7 @@ import { createNotification } from "./notification-service.js";
 import { generateAppointmentRecommendations } from "./appointment-recommendation-engine/engine.js";
 
 const DEFAULT_SOURCE = "signup";
+const DEFAULT_NOTIFICATION_DEDUPLICATION_MINUTES = 120;
 
 function toPublicRecommendation(item) {
     return {
@@ -27,24 +29,83 @@ function toPublicRecommendation(item) {
     };
 }
 
-function buildNotificationPayload(recommendations) {
-    if (!recommendations.length) {
-        return null;
-    }
+function toSpecialtyLabel(value) {
+    return String(value)
+        .split("_")
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ");
+}
 
-    const firstSpecialty = recommendations[0].specialty;
+function buildNotificationPayloadForRecommendation(recommendation, source) {
+    const specialtyLabel = toSpecialtyLabel(recommendation.specialty);
 
     return {
         type: "system_message",
-        title: "Personalized appointment recommendations",
-        body: "We prepared recommendations based on your profile. You can review and book a suitable appointment.",
+        title: `Suggested appointment: ${specialtyLabel}`,
+        body: `Based on your profile, ${specialtyLabel} is recommended. Tap to book now.`,
         data: {
             category: "appointment_recommendation",
-            specialty: firstSpecialty,
-            specialties: recommendations.map((item) => item.specialty),
-            url: `/appointments?recommended=true&specialty=${firstSpecialty}`,
+            source,
+            specialty: recommendation.specialty,
+            score: recommendation.score,
+            priority: recommendation.priority,
+            url: `/appointments?create=true&recommended=true&specialty=${encodeURIComponent(recommendation.specialty)}`,
         },
     };
+}
+
+function getNotificationDedupeMinutes(source) {
+    if (source === "signup") {
+        return 0;
+    }
+
+    const configured = Number(
+        process.env.APPOINTMENT_RECOMMENDATION_NOTIFICATION_DEDUPE_MINUTES,
+    );
+
+    if (!Number.isFinite(configured) || configured < 0) {
+        return DEFAULT_NOTIFICATION_DEDUPLICATION_MINUTES;
+    }
+
+    return configured;
+}
+
+async function listRecentlyNotifiedSpecialties(patientUuid, source) {
+    const dedupeMinutes = getNotificationDedupeMinutes(source);
+
+    if (dedupeMinutes === 0) {
+        return new Set();
+    }
+
+    const since = new Date(Date.now() - dedupeMinutes * 60 * 1000);
+    const existing = await notificationModel.findAll({
+        where: {
+            patientUuid,
+            type: "system_message",
+            createdAt: {
+                [Op.gte]: since,
+            },
+        },
+        attributes: ["data"],
+    });
+
+    const specialties = new Set();
+
+    for (const notification of existing) {
+        if (notification.data?.category !== "appointment_recommendation") {
+            continue;
+        }
+
+        if (notification.data?.source !== source) {
+            continue;
+        }
+
+        if (typeof notification.data?.specialty === "string") {
+            specialties.add(notification.data.specialty);
+        }
+    }
+
+    return specialties;
 }
 
 export async function refreshAppointmentRecommendationsForPatient(
@@ -91,14 +152,26 @@ export async function refreshAppointmentRecommendationsForPatient(
     }
 
     if (sendNotification) {
-        const payload = buildNotificationPayload(generated.recommendations);
+        const recentlyNotifiedSpecialties =
+            await listRecentlyNotifiedSpecialties(patient.uuid, source);
 
-        if (payload) {
+        for (const recommendation of generated.recommendations) {
+            if (recentlyNotifiedSpecialties.has(recommendation.specialty)) {
+                continue;
+            }
+
+            const payload = buildNotificationPayloadForRecommendation(
+                recommendation,
+                source,
+            );
+
             await createNotification({
                 userId: patient.uuid,
                 ...payload,
                 sendPush: false,
             });
+
+            recentlyNotifiedSpecialties.add(recommendation.specialty);
         }
     }
 

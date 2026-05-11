@@ -1,3 +1,5 @@
+import { createTfjsZeroShotRiskInferenceProvider } from "./tfjs-zero-shot-provider.js";
+
 function createNoopRiskInferenceProvider() {
     return {
         name: "none",
@@ -15,6 +17,10 @@ function createNoopRiskInferenceProvider() {
 export function createRiskInferenceProvider() {
     const providerName =
         process.env.APPOINTMENT_RISK_INFERENCE_PROVIDER || "none";
+
+    if (providerName === "tfjs_zero_shot") {
+        return createTfjsZeroShotRiskInferenceProvider();
+    }
 
     if (providerName !== "none") {
         console.warn(
