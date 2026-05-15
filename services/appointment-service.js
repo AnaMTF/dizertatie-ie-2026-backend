@@ -411,23 +411,25 @@ export async function updateAppointment(uuid, data, user) {
         previousStatus !== "completed" &&
         appointment.status === "completed"
     ) {
-        createNotification({
-            userId: appointment.patientUuid,
-            type: "system_message",
-            title: "Consultation completed",
-            body: "Your doctor has completed your consultation. View your results.",
-            data: {
-                category: "consultation_completed",
-                appointmentUuid: appointment.uuid,
-                url: `/appointments?appointment=${appointment.uuid}`,
-            },
-            sendPush: true,
-        }).catch((error) => {
+        try {
+            await createNotification({
+                userId: appointment.patientUuid,
+                type: "system_message",
+                title: "Consultation completed",
+                body: "Your doctor has completed your consultation. View your results.",
+                data: {
+                    category: "consultation_completed",
+                    appointmentUuid: appointment.uuid,
+                    url: `/appointments?appointment=${appointment.uuid}`,
+                },
+                sendPush: true,
+            });
+        } catch (error) {
             console.error(
                 "Failed to send consultation completion notification",
                 error,
             );
-        });
+        }
     }
 
     return appointmentModel.findByPk(appointment.uuid, {
