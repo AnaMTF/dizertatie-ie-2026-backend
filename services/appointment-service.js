@@ -567,6 +567,86 @@ export async function updateAppointment(uuid, data, user) {
                 error,
             );
         }
+
+        try {
+            await createNotification({
+                userId: appointment.patientUuid,
+                type: "appointment_cancelled",
+                title: "Appointment cancelled",
+                body: "You have cancelled your consultation.",
+                data: {
+                    category: "appointment_cancelled",
+                    appointmentUuid: appointment.uuid,
+                    cancellationReason: appointment.cancellationReason ?? null,
+                    date: appointment.date,
+                    timeSlot: appointment.timeSlot,
+                    url: `/appointments?appointment=${appointment.uuid}`,
+                },
+                sendPush: true,
+            });
+        } catch (error) {
+            console.error(
+                "Failed to send patient cancellation notification",
+                error,
+            );
+        }
+    }
+
+    if (
+        user.role === "doctor" &&
+        previousStatus !== "confirmed" &&
+        appointment.status === "confirmed"
+    ) {
+        try {
+            await createNotification({
+                userId: appointment.patientUuid,
+                type: "appointment_confirmed",
+                title: "Appointment confirmed",
+                body: `Your doctor has confirmed your consultation on ${appointment.date} at ${appointment.timeSlot}.`,
+                data: {
+                    category: "appointment_confirmed",
+                    appointmentUuid: appointment.uuid,
+                    date: appointment.date,
+                    timeSlot: appointment.timeSlot,
+                    url: `/appointments?appointment=${appointment.uuid}`,
+                },
+                sendPush: true,
+            });
+        } catch (error) {
+            console.error(
+                "Failed to send appointment confirmation notification",
+                error,
+            );
+        }
+    }
+
+    if (
+        user.role === "doctor" &&
+        previousStatus !== "cancelled" &&
+        appointment.status === "cancelled"
+    ) {
+        try {
+            await createNotification({
+                userId: appointment.patientUuid,
+                type: "appointment_cancelled",
+                title: "Appointment cancelled",
+                body: "Your doctor has cancelled your consultation.",
+                data: {
+                    category: "appointment_cancelled",
+                    appointmentUuid: appointment.uuid,
+                    cancellationReason: appointment.cancellationReason ?? null,
+                    date: appointment.date,
+                    timeSlot: appointment.timeSlot,
+                    url: `/appointments?appointment=${appointment.uuid}`,
+                },
+                sendPush: true,
+            });
+        } catch (error) {
+            console.error(
+                "Failed to send appointment cancellation notification to patient",
+                error,
+            );
+        }
     }
 
     if (
