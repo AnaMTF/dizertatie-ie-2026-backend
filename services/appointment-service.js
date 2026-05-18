@@ -8,6 +8,8 @@ import {
     clinicModel,
     doctorModel,
     patientModel,
+    scanImageModel,
+    scanModel,
 } from "../models/index.js";
 import { createError } from "../utils/error.js";
 import { createNotification } from "./notification-service.js";
@@ -153,6 +155,60 @@ async function resolveStoredMimeType(filePath) {
     return fileType?.mime || "application/octet-stream";
 }
 
+function getExtensionFromMimeType(mimeType) {
+    const mimeTypeMap = {
+        "image/jpeg": "jpg",
+        "image/png": "png",
+        "image/webp": "webp",
+        "image/gif": "gif",
+        "image/bmp": "bmp",
+        "image/tiff": "tiff",
+        "application/pdf": "pdf",
+    };
+
+    return mimeTypeMap[mimeType] || "bin";
+}
+
+async function createAppointmentDocumentsFromScan({
+    appointmentUuid,
+    scanUuid,
+    patientUuid,
+    transaction,
+}) {
+    const scan = await scanModel.findOne({
+        where: {
+            uuid: scanUuid,
+            patientUuid,
+        },
+        include: [
+            {
+                model: scanImageModel,
+                as: "images",
+                attributes: ["uuid", "filePath", "mimeType"],
+            },
+        ],
+        transaction,
+    });
+
+    if (!scan) {
+        throw createError(404, "Scan not found");
+    }
+
+    if (!Array.isArray(scan.images) || scan.images.length === 0) {
+        throw createError(400, "Selected AI scan has no images to attach");
+    }
+
+    await appointmentDocumentModel.bulkCreate(
+        scan.images.map((image, index) => ({
+            appointmentUuid,
+            filePath: image.filePath,
+            mimeType: image.mimeType || "application/octet-stream",
+            fileName: `ai-scan-${scanUuid}-image-${index + 1}.${getExtensionFromMimeType(image.mimeType)}`,
+        })),
+        { transaction },
+    );
+}
+
 async function getOwnedAppointment(appointmentUuid, user) {
     const appointment = await appointmentModel.findByPk(appointmentUuid);
 
@@ -199,14 +255,30 @@ export async function createAppointment(data, user) {
     );
     await ensureSlotNotBooked(data.doctorUuid, date, timeSlot);
 
-    const appointment = await appointmentModel.create({
-        date,
-        timeSlot,
-        patientUuid: patient.uuid,
-        doctorUuid: data.doctorUuid,
-        clinicUuid: data.clinicUuid,
-        status: "scheduled",
-        notes: data.notes ?? null,
+    const appointment = await database.transaction(async (transaction) => {
+        const createdAppointment = await appointmentModel.create(
+            {
+                date,
+                timeSlot,
+                patientUuid: patient.uuid,
+                doctorUuid: data.doctorUuid,
+                clinicUuid: data.clinicUuid,
+                status: "scheduled",
+                notes: data.notes ?? null,
+            },
+            { transaction },
+        );
+
+        if (data.scanUuid) {
+            await createAppointmentDocumentsFromScan({
+                appointmentUuid: createdAppointment.uuid,
+                scanUuid: data.scanUuid,
+                patientUuid: patient.uuid,
+                transaction,
+            });
+        }
+
+        return createdAppointment;
     });
 
     try {

@@ -27,6 +27,10 @@ const schema = {
             type: "string",
             format: "uuid",
         },
+        scanUuid: {
+            type: "string",
+            format: "uuid",
+        },
         notes: {
             type: "string",
             maxLength: 5000,
