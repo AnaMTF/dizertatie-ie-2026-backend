@@ -51,6 +51,7 @@ export async function createPatient(data) {
         dateOfBirth: data.dateOfBirth,
         height: data.height,
         weight: data.weight,
+        favoriteClinicUuid: data.favoriteClinicUuid,
         additionalMedicalInfo: data.additionalMedicalInfo,
         smoker: data.smoker,
         alcoholConsumptionFrequency: data.alcoholConsumptionFrequency,

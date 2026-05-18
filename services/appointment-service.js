@@ -393,7 +393,12 @@ export async function updateAppointment(uuid, data, user) {
                 );
             }
 
-            appointment.status = data.status;
+            if (
+                data.status !== "rescheduled" ||
+                shouldNotifyDoctorRescheduled
+            ) {
+                appointment.status = data.status;
+            }
         }
 
         if (data.cancellationReason !== undefined) {
