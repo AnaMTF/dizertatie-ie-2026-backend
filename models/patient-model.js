@@ -45,6 +45,16 @@ export const patientModel = database.define("Patient", {
         type: DataTypes.FLOAT,
         allowNull: false,
     },
+    favoriteClinicUuid: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: {
+            model: "Clinics",
+            key: "uuid",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL",
+    },
     additionalMedicalInfo: {
         type: DataTypes.TEXT,
         allowNull: true,

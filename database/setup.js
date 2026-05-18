@@ -3,6 +3,7 @@ import "dotenv/config";
 const { default: bcrypt } = await import("bcryptjs");
 const { default: database } = await import("./index.js");
 await import("../models/index.js");
+const { patientModel } = await import("../models/patient-model.js");
 const { clinicModel } = await import("../models/clinic-model.js");
 const { doctorModel } = await import("../models/doctor-model.js");
 
@@ -341,6 +342,48 @@ const doctors = [
     },
 ];
 
+const patients = [
+    {
+        firstName: "Ana",
+        lastName: "Marin",
+        email: "ana.marin@testpatient.com",
+        sex: "Woman",
+        dateOfBirth: "1992-04-12",
+        height: 168,
+        weight: 62,
+        favoriteClinicIndex: 0,
+        additionalMedicalInfo: "Seasonal allergies",
+        smoker: false,
+        alcoholConsumptionFrequency: "monthly",
+    },
+    {
+        firstName: "Mihnea",
+        lastName: "Iacob",
+        email: "mihnea.iacob@testpatient.com",
+        sex: "Man",
+        dateOfBirth: "1988-11-03",
+        height: 181,
+        weight: 84,
+        favoriteClinicIndex: 1,
+        additionalMedicalInfo: null,
+        smoker: false,
+        alcoholConsumptionFrequency: "never",
+    },
+    {
+        firstName: "Eliza",
+        lastName: "Dobre",
+        email: "eliza.dobre@testpatient.com",
+        sex: "Woman",
+        dateOfBirth: "1996-07-21",
+        height: 173,
+        weight: 70,
+        favoriteClinicIndex: 2,
+        additionalMedicalInfo: "Follow-up after scan",
+        smoker: false,
+        alcoholConsumptionFrequency: "weekly",
+    },
+];
+
 async function setup() {
     const dialect = process.env.DIALECT || "sqlite";
 
@@ -386,6 +429,18 @@ async function setup() {
     });
 
     console.log(`Inserted ${createdDoctors.length} doctors`);
+
+    const patientRows = patients.map(({ favoriteClinicIndex, ...patient }) => ({
+        ...patient,
+        passwordHash,
+        favoriteClinicUuid: createdClinics[favoriteClinicIndex].uuid,
+    }));
+
+    const createdPatients = await patientModel.bulkCreate(patientRows, {
+        ignoreDuplicates: true,
+    });
+
+    console.log(`Inserted ${createdPatients.length} patients`);
 
     await database.close();
 }

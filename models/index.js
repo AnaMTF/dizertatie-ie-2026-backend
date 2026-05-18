@@ -33,6 +33,26 @@ doctorModel.belongsTo(clinicModel, {
     onDelete: "RESTRICT",
 });
 
+clinicModel.hasMany(patientModel, {
+    foreignKey: {
+        name: "favoriteClinicUuid",
+        allowNull: true,
+    },
+    as: "patientsWithFavoriteClinic",
+    onUpdate: "CASCADE",
+    onDelete: "SET NULL",
+});
+
+patientModel.belongsTo(clinicModel, {
+    foreignKey: {
+        name: "favoriteClinicUuid",
+        allowNull: true,
+    },
+    as: "favoriteClinic",
+    onUpdate: "CASCADE",
+    onDelete: "SET NULL",
+});
+
 patientModel.hasMany(appointmentModel, {
     foreignKey: {
         name: "patientUuid",
