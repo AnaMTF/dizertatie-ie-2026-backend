@@ -14,35 +14,35 @@ const router = express.Router();
 router.get(
     "/notifications",
     authenticate,
-    authorizeRoles("patient"),
+    authorizeRoles("patient", "doctor"),
     getNotifications,
 );
 
 router.get(
     "/notifications/unread-count",
     authenticate,
-    authorizeRoles("patient"),
+    authorizeRoles("patient", "doctor"),
     getUnreadNotificationCount,
 );
 
 router.patch(
     "/notifications/:uuid/read",
     authenticate,
-    authorizeRoles("patient"),
+    authorizeRoles("patient", "doctor"),
     markNotificationAsRead,
 );
 
 router.patch(
     "/notifications/read-all",
     authenticate,
-    authorizeRoles("patient"),
+    authorizeRoles("patient", "doctor"),
     markAllNotificationsAsRead,
 );
 
 router.delete(
     "/notifications/:uuid",
     authenticate,
-    authorizeRoles("patient"),
+    authorizeRoles("patient", "doctor"),
     deleteNotification,
 );
 

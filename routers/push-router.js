@@ -16,14 +16,14 @@ const router = express.Router();
 router.get(
     "/push/public-key",
     authenticate,
-    authorizeRoles("patient"),
+    authorizeRoles("patient", "doctor"),
     getPushPublicKey,
 );
 
 router.post(
     "/push/subscriptions",
     authenticate,
-    authorizeRoles("patient"),
+    authorizeRoles("patient", "doctor"),
     validate(validateCreatePushSubscription),
     createPushSubscription,
 );
@@ -31,7 +31,7 @@ router.post(
 router.delete(
     "/push/subscriptions",
     authenticate,
-    authorizeRoles("patient"),
+    authorizeRoles("patient", "doctor"),
     validate(validateDeletePushSubscription),
     deletePushSubscription,
 );
