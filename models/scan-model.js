@@ -26,4 +26,22 @@ export const scanModel = database.define("Scan", {
         type: DataTypes.JSON,
         allowNull: true,
     },
+    verified: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    },
+    verificationVerdict: {
+        type: DataTypes.ENUM("pending", "accurate", "inaccurate"),
+        allowNull: false,
+        defaultValue: "pending",
+    },
+    verifiedByDoctorUuid: {
+        type: DataTypes.UUID,
+        allowNull: true,
+    },
+    verifiedAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
 });

@@ -14,6 +14,8 @@ export const notificationModel = database.define(
         type: {
             type: DataTypes.ENUM(
                 "scan_results_ready",
+                "scan_verified_accurate",
+                "scan_verified_inaccurate",
                 "follow_up_reminder",
                 "appointment_confirmed",
                 "appointment_cancelled",

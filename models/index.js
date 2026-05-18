@@ -154,6 +154,26 @@ scanModel.belongsTo(patientModel, {
     onDelete: "CASCADE",
 });
 
+doctorModel.hasMany(scanModel, {
+    foreignKey: {
+        name: "verifiedByDoctorUuid",
+        allowNull: true,
+    },
+    as: "verifiedScans",
+    onUpdate: "CASCADE",
+    onDelete: "SET NULL",
+});
+
+scanModel.belongsTo(doctorModel, {
+    foreignKey: {
+        name: "verifiedByDoctorUuid",
+        allowNull: true,
+    },
+    as: "verifiedByDoctor",
+    onUpdate: "CASCADE",
+    onDelete: "SET NULL",
+});
+
 scanModel.hasMany(scanImageModel, {
     foreignKey: {
         name: "scanUuid",
