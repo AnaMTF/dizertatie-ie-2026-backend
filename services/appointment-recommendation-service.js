@@ -42,7 +42,7 @@ function buildNotificationPayloadForRecommendation(recommendation, source) {
     return {
         type: "system_message",
         title: `Suggested appointment: ${specialtyLabel}`,
-        body: `Based on your profile, ${specialtyLabel} is recommended. Tap to book now.`,
+        body: `Based on your profile, we recommend scheduling a ${specialtyLabel} appointment. Book now.`,
         data: {
             category: "appointment_recommendation",
             source,
