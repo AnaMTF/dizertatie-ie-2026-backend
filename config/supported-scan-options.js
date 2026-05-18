@@ -5,6 +5,7 @@ export const supportedScanOptions = [
         description: "Brain MRI analyzed for brain tumor classification.",
         bodyPart: "Brain",
         imageType: "MRI",
+        recommendedSpecialty: "neurology",
         modelKeys: ["brain_mri_b3"],
         region: {
             key: "brain",
@@ -18,6 +19,7 @@ export const supportedScanOptions = [
         description: "Chest X-ray analyzed with tuberculosis and COVID models.",
         bodyPart: "Chest / lungs",
         imageType: "X-Ray",
+        recommendedSpecialty: "pulmonology",
         modelKeys: ["tb_chest_xray", "covid_radiography"],
         region: {
             key: "chest",
@@ -32,6 +34,7 @@ export const supportedScanOptions = [
             "CT scan analyzed for kidney cyst, stone, tumor, and normal findings.",
         bodyPart: "Kidney",
         imageType: "CT Scan",
+        recommendedSpecialty: "urology",
         modelKeys: ["kidney_ct"],
         region: {
             key: "kidney",
@@ -46,6 +49,7 @@ export const supportedScanOptions = [
             "CT scan analyzed for healthy versus fatty liver patterns.",
         bodyPart: "Liver",
         imageType: "CT Scan",
+        recommendedSpecialty: "gastroenterology",
         modelKeys: ["liver_fatty_ct"],
         region: {
             key: "liver",
@@ -60,6 +64,7 @@ export const supportedScanOptions = [
             "Ultrasound analyzed for malignant versus non-malignant liver findings.",
         bodyPart: "Liver",
         imageType: "Ultrasound",
+        recommendedSpecialty: "gastroenterology",
         modelKeys: ["liver_malignant_binary"],
         region: {
             key: "liver",
@@ -74,6 +79,7 @@ export const supportedScanOptions = [
             "Ultrasound analyzed for ovarian cyst and follicle classification.",
         bodyPart: "Ovary",
         imageType: "Ultrasound",
+        recommendedSpecialty: "gynecology",
         modelKeys: ["ovarian_cyst"],
         region: {
             key: "ovary",
@@ -87,6 +93,7 @@ export const supportedScanOptions = [
         description: "X-ray analyzed for osteoarthritis severity grading.",
         bodyPart: "Knee",
         imageType: "X-Ray",
+        recommendedSpecialty: "orthopedics",
         modelKeys: ["knee_xray_osteoarthritis"],
         region: {
             key: "knee",
@@ -100,6 +107,7 @@ export const supportedScanOptions = [
         description: "Cervical imagery analyzed for cancer screening classes.",
         bodyPart: "Cervix",
         imageType: "Colposcopy",
+        recommendedSpecialty: "gynecology",
         modelKeys: ["cervical_cancer"],
         region: {
             key: "cervix",
@@ -113,6 +121,7 @@ export const supportedScanOptions = [
         description: "Histopathology tiles analyzed for lung cancer classes.",
         bodyPart: "Chest / lungs",
         imageType: "Histopathology",
+        recommendedSpecialty: "pulmonology",
         modelKeys: ["lung_colon_cancer"],
         region: {
             key: "chest",
@@ -126,6 +135,7 @@ export const supportedScanOptions = [
         description: "Histopathology tiles analyzed for colon cancer classes.",
         bodyPart: "Colon",
         imageType: "Histopathology",
+        recommendedSpecialty: "gastroenterology",
         modelKeys: ["lung_colon_cancer"],
         region: {
             key: "colon",
@@ -139,6 +149,7 @@ export const supportedScanOptions = [
         description: "Histopathology analyzed for lymphoma-related classes.",
         bodyPart: "Lymph node",
         imageType: "Histopathology",
+        recommendedSpecialty: "oncology",
         modelKeys: ["lymphoma"],
         region: {
             key: "lymph-node",
@@ -153,6 +164,7 @@ export const supportedScanOptions = [
         description: "Retinal OCT analyzed for retinal disease classes.",
         bodyPart: "Retina",
         imageType: "OCT",
+        recommendedSpecialty: "ophthalmology",
         modelKeys: ["retinal_oct_finetuned"],
         region: {
             key: "retina",
@@ -167,6 +179,7 @@ export const supportedScanOptions = [
         description: "Breast pathology imagery analyzed for cancer classes.",
         bodyPart: "Breast",
         imageType: "Histopathology",
+        recommendedSpecialty: "oncology",
         modelKeys: ["breast_cancer_best"],
         region: {
             key: "breast",
@@ -182,6 +195,7 @@ export const supportedScanOptions = [
             "Breast ultrasound analyzed for benign and malignant patterns.",
         bodyPart: "Breast",
         imageType: "Ultrasound",
+        recommendedSpecialty: "oncology",
         modelKeys: ["breast_ultrasound"],
         region: {
             key: "breast",
@@ -195,6 +209,7 @@ export const supportedScanOptions = [
         description: "Oral lesion imagery analyzed for oral cancer classes.",
         bodyPart: "Oral cavity",
         imageType: "Clinical photo",
+        recommendedSpecialty: "oncology",
         modelKeys: ["oral_cancer_b3"],
         region: {
             key: "oral",
@@ -209,6 +224,7 @@ export const supportedScanOptions = [
         description: "Skin lesion imagery analyzed for dermatology classes.",
         bodyPart: "Skin",
         imageType: "Dermoscopy",
+        recommendedSpecialty: "dermatology",
         modelKeys: ["skin_best"],
         region: {
             key: "skin",
@@ -223,6 +239,7 @@ export const supportedScanOptions = [
             "Cardiac images analyzed for abnormal versus normal classes.",
         bodyPart: "Heart",
         imageType: "Echocardiography",
+        recommendedSpecialty: "cardiology",
         modelKeys: ["heart_abnormal_binary"],
         region: {
             key: "heart",
@@ -238,6 +255,7 @@ export const supportedScanOptions = [
             "Colonoscopy imagery analyzed for 8-class GI finding classification.",
         bodyPart: "Colon",
         imageType: "Endoscopy",
+        recommendedSpecialty: "gastroenterology",
         modelKeys: ["colonoscopy_finetuned"],
         region: {
             key: "colon",
