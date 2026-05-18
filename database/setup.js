@@ -6,6 +6,9 @@ await import("../models/index.js");
 const { patientModel } = await import("../models/patient-model.js");
 const { clinicModel } = await import("../models/clinic-model.js");
 const { doctorModel } = await import("../models/doctor-model.js");
+const { postEmbeddingModel } =
+    await import("../models/post-embedding-model.js");
+const { favoritePostModel } = await import("../models/favorite-post-model.js");
 
 const DOCTOR_PASSWORD = "password123";
 
@@ -384,6 +387,57 @@ const patients = [
     },
 ];
 
+const favoriteBlogPosts = [
+    {
+        recipientRole: "patient",
+        recipientIndex: 0,
+        postSlug:
+            "10-semne-care-ne-ajuta-sa-recunoastem-boala-cronica-de-rinichi-smart-medical",
+    },
+    {
+        recipientRole: "patient",
+        recipientIndex: 0,
+        postSlug: "boli-de-inima-semne-si-simptome",
+    },
+    {
+        recipientRole: "patient",
+        recipientIndex: 1,
+        postSlug: "bolile-pulmonare-simptome-diagnostic-si-tratament-sanador",
+    },
+    {
+        recipientRole: "patient",
+        recipientIndex: 1,
+        postSlug:
+            "afectiuni-ale-ochiului-care-sunt-cele-mai-comune-dr-max-farmacia",
+    },
+    {
+        recipientRole: "patient",
+        recipientIndex: 2,
+        postSlug: "cancerul-simptome-si-semnale-de-alarma-medlife",
+    },
+    {
+        recipientRole: "patient",
+        recipientIndex: 2,
+        postSlug:
+            "200-de-afectiuni-ale-plamanului-au-simptome-similare-dar-cauze-diferite-sa-intelegem-bolile-interstitiale-pulmonare",
+    },
+    {
+        recipientRole: "doctor",
+        recipientIndex: 0,
+        postSlug: "ekg-sau-ecg-ce-este-si-cum-se-interpreteaza-reginamaria",
+    },
+    {
+        recipientRole: "doctor",
+        recipientIndex: 4,
+        postSlug: "boli-cardiovasculare-tipuri-cauze-simptome-dr-max",
+    },
+    {
+        recipientRole: "doctor",
+        recipientIndex: 7,
+        postSlug: "afectiuni-oftalmologice-clinica-dr-munteanu",
+    },
+];
+
 async function setup() {
     const dialect = process.env.DIALECT || "sqlite";
 
@@ -441,6 +495,44 @@ async function setup() {
     });
 
     console.log(`Inserted ${createdPatients.length} patients`);
+
+    const availablePosts = await postEmbeddingModel.findAll({
+        attributes: ["slug"],
+        raw: true,
+    });
+    const availablePostSlugs = new Set(availablePosts.map((item) => item.slug));
+
+    const favoriteRows = favoriteBlogPosts
+        .map(({ recipientRole, recipientIndex, postSlug }) => {
+            if (!availablePostSlugs.has(postSlug)) {
+                console.warn(
+                    `Skipping favorite seed for missing post embedding slug: ${postSlug}`,
+                );
+                return null;
+            }
+
+            const recipientUuid =
+                recipientRole === "patient"
+                    ? createdPatients[recipientIndex]?.uuid
+                    : createdDoctors[recipientIndex]?.uuid;
+
+            if (!recipientUuid) {
+                return null;
+            }
+
+            return {
+                recipientRole,
+                recipientUuid,
+                postSlug,
+            };
+        })
+        .filter(Boolean);
+
+    const createdFavorites = await favoritePostModel.bulkCreate(favoriteRows, {
+        ignoreDuplicates: true,
+    });
+
+    console.log(`Inserted ${createdFavorites.length} favorite blog posts`);
 
     await database.close();
 }

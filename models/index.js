@@ -4,6 +4,7 @@ import { appointmentRecommendationModel } from "./appointment-recommendation-mod
 import { clinicModel } from "./clinic-model.js";
 import { doctorModel } from "./doctor-model.js";
 import { followUpReminderModel } from "./follow-up-reminder-model.js";
+import { favoritePostModel } from "./favorite-post-model.js";
 import { notificationModel } from "./notification-model.js";
 import { patientModel } from "./patient-model.js";
 import { postEmbeddingModel } from "./post-embedding-model.js";
@@ -313,6 +314,26 @@ appointmentRecommendationModel.belongsTo(patientModel, {
     onDelete: "CASCADE",
 });
 
+postEmbeddingModel.hasMany(favoritePostModel, {
+    foreignKey: {
+        name: "postSlug",
+        allowNull: false,
+    },
+    as: "favorites",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
+favoritePostModel.belongsTo(postEmbeddingModel, {
+    foreignKey: {
+        name: "postSlug",
+        allowNull: false,
+    },
+    as: "post",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
 notificationModel.hasMany(pushDeliveryQueueModel, {
     foreignKey: { name: "notificationUuid", allowNull: false },
     as: "deliveryQueue",
@@ -361,6 +382,7 @@ export {
     appointmentRecommendationModel,
     clinicModel,
     doctorModel,
+    favoritePostModel,
     followUpReminderModel,
     notificationModel,
     patientModel,
