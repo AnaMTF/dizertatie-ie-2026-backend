@@ -28,9 +28,21 @@ export const pushSubscriptionModel = database.define(
             type: DataTypes.STRING,
             allowNull: true,
         },
+        recipientRole: {
+            type: DataTypes.ENUM("patient", "doctor"),
+            allowNull: false,
+            defaultValue: "patient",
+        },
+        recipientUuid: {
+            type: DataTypes.UUID,
+            allowNull: false,
+        },
     },
     {
         indexes: [
+            {
+                fields: ["recipientRole", "recipientUuid"],
+            },
             {
                 fields: ["patientUuid"],
             },

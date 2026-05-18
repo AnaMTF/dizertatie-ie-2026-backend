@@ -17,8 +17,20 @@ export const notificationModel = database.define(
                 "follow_up_reminder",
                 "appointment_confirmed",
                 "appointment_cancelled",
+                "doctor_new_appointment",
+                "doctor_appointment_rescheduled",
+                "doctor_appointment_cancelled",
                 "system_message",
             ),
+            allowNull: false,
+        },
+        recipientRole: {
+            type: DataTypes.ENUM("patient", "doctor"),
+            allowNull: false,
+            defaultValue: "patient",
+        },
+        recipientUuid: {
+            type: DataTypes.UUID,
             allowNull: false,
         },
         title: {
@@ -42,6 +54,12 @@ export const notificationModel = database.define(
     {
         paranoid: true,
         indexes: [
+            {
+                fields: ["recipientRole", "recipientUuid", "createdAt"],
+            },
+            {
+                fields: ["recipientRole", "recipientUuid", "readAt"],
+            },
             {
                 fields: ["patientUuid", "createdAt"],
             },

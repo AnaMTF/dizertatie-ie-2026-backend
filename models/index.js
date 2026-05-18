@@ -156,7 +156,7 @@ scanImageModel.belongsTo(scanModel, {
 patientModel.hasMany(pushSubscriptionModel, {
     foreignKey: {
         name: "patientUuid",
-        allowNull: false,
+        allowNull: true,
     },
     as: "pushSubscriptions",
     onUpdate: "CASCADE",
@@ -166,9 +166,29 @@ patientModel.hasMany(pushSubscriptionModel, {
 pushSubscriptionModel.belongsTo(patientModel, {
     foreignKey: {
         name: "patientUuid",
-        allowNull: false,
+        allowNull: true,
     },
     as: "patient",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
+doctorModel.hasMany(pushSubscriptionModel, {
+    foreignKey: {
+        name: "doctorUuid",
+        allowNull: true,
+    },
+    as: "pushSubscriptions",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
+pushSubscriptionModel.belongsTo(doctorModel, {
+    foreignKey: {
+        name: "doctorUuid",
+        allowNull: true,
+    },
+    as: "doctor",
     onUpdate: "CASCADE",
     onDelete: "CASCADE",
 });
@@ -176,7 +196,7 @@ pushSubscriptionModel.belongsTo(patientModel, {
 patientModel.hasMany(notificationModel, {
     foreignKey: {
         name: "patientUuid",
-        allowNull: false,
+        allowNull: true,
     },
     as: "notifications",
     onUpdate: "CASCADE",
@@ -186,9 +206,29 @@ patientModel.hasMany(notificationModel, {
 notificationModel.belongsTo(patientModel, {
     foreignKey: {
         name: "patientUuid",
-        allowNull: false,
+        allowNull: true,
     },
     as: "patient",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
+doctorModel.hasMany(notificationModel, {
+    foreignKey: {
+        name: "doctorUuid",
+        allowNull: true,
+    },
+    as: "notifications",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+
+notificationModel.belongsTo(doctorModel, {
+    foreignKey: {
+        name: "doctorUuid",
+        allowNull: true,
+    },
+    as: "doctor",
     onUpdate: "CASCADE",
     onDelete: "CASCADE",
 });
