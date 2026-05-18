@@ -50,10 +50,36 @@ const DEFAULT_PUSH_ICON =
 const DEFAULT_PUSH_BADGE =
     process.env.PUSH_BADGE || "/images/logo/logo-light.webp";
 
-function ensurePatientUser(user) {
-    if (!user || user.role !== "patient") {
-        throw createError(403, "Only patients can access notifications");
+function ensureRecipientUser(user) {
+    if (!user || (user.role !== "patient" && user.role !== "doctor")) {
+        throw createError(
+            403,
+            "Only patients and doctors can access notifications",
+        );
     }
+}
+
+function getRecipientFilter(user) {
+    ensureRecipientUser(user);
+
+    return {
+        recipientRole: user.role,
+        recipientUuid: user.uuid,
+    };
+}
+
+function getLegacyRecipientFields(recipientRole, recipientUuid) {
+    if (recipientRole === "patient") {
+        return {
+            patientUuid: recipientUuid,
+            doctorUuid: null,
+        };
+    }
+
+    return {
+        patientUuid: null,
+        doctorUuid: recipientUuid,
+    };
 }
 
 function toNotificationPayload(notification) {
@@ -70,9 +96,14 @@ function toNotificationPayload(notification) {
 }
 
 async function sendPushForNotification(notification) {
+    const recipientRole = notification.recipientRole ?? "patient";
+    const recipientUuid =
+        notification.recipientUuid ?? notification.patientUuid;
+
     const subscriptions = await pushSubscriptionModel.findAll({
         where: {
-            patientUuid: notification.patientUuid,
+            recipientRole,
+            recipientUuid,
         },
     });
 
@@ -123,14 +154,19 @@ async function sendPushForNotification(notification) {
 
 export async function createNotification({
     userId,
+    recipientRole = "patient",
     type,
     title,
     body,
     data = {},
     sendPush = false,
 }) {
+    const legacyFields = getLegacyRecipientFields(recipientRole, userId);
+
     const notification = await notificationModel.create({
-        patientUuid: userId,
+        ...legacyFields,
+        recipientRole,
+        recipientUuid: userId,
         type,
         title,
         body,
@@ -154,7 +190,7 @@ export async function createNotification({
 }
 
 export async function getNotifications(user, query = {}) {
-    ensurePatientUser(user);
+    const recipientFilter = getRecipientFilter(user);
 
     const page = Math.max(1, Number(query.page) || 1);
     const limit = Math.min(100, Math.max(1, Number(query.limit) || 20));
@@ -162,7 +198,7 @@ export async function getNotifications(user, query = {}) {
 
     const { rows, count } = await notificationModel.findAndCountAll({
         where: {
-            patientUuid: user.uuid,
+            ...recipientFilter,
         },
         order: [["createdAt", "DESC"]],
         limit,
@@ -181,11 +217,11 @@ export async function getNotifications(user, query = {}) {
 }
 
 export async function getUnreadNotificationCount(user) {
-    ensurePatientUser(user);
+    const recipientFilter = getRecipientFilter(user);
 
     return notificationModel.count({
         where: {
-            patientUuid: user.uuid,
+            ...recipientFilter,
             readAt: {
                 [Op.is]: null,
             },
@@ -194,12 +230,12 @@ export async function getUnreadNotificationCount(user) {
 }
 
 export async function markNotificationAsRead(uuid, user) {
-    ensurePatientUser(user);
+    const recipientFilter = getRecipientFilter(user);
 
     const notification = await notificationModel.findOne({
         where: {
             uuid,
-            patientUuid: user.uuid,
+            ...recipientFilter,
         },
     });
 
@@ -216,7 +252,7 @@ export async function markNotificationAsRead(uuid, user) {
 }
 
 export async function markAllNotificationsAsRead(user) {
-    ensurePatientUser(user);
+    const recipientFilter = getRecipientFilter(user);
 
     const [updatedRows] = await notificationModel.update(
         {
@@ -224,7 +260,7 @@ export async function markAllNotificationsAsRead(user) {
         },
         {
             where: {
-                patientUuid: user.uuid,
+                ...recipientFilter,
                 readAt: {
                     [Op.is]: null,
                 },
@@ -236,12 +272,12 @@ export async function markAllNotificationsAsRead(user) {
 }
 
 export async function deleteNotification(uuid, user) {
-    ensurePatientUser(user);
+    const recipientFilter = getRecipientFilter(user);
 
     const notification = await notificationModel.findOne({
         where: {
             uuid,
-            patientUuid: user.uuid,
+            ...recipientFilter,
         },
     });
 

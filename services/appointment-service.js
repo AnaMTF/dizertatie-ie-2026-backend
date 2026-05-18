@@ -193,7 +193,10 @@ export async function createAppointment(data, user) {
 
     const { date, timeSlot } = normalizeScheduleInput(data);
 
-    await ensureDoctorAndClinic(data.doctorUuid, data.clinicUuid);
+    const doctor = await ensureDoctorAndClinic(
+        data.doctorUuid,
+        data.clinicUuid,
+    );
     await ensureSlotNotBooked(data.doctorUuid, date, timeSlot);
 
     const appointment = await appointmentModel.create({
@@ -205,6 +208,31 @@ export async function createAppointment(data, user) {
         status: "scheduled",
         notes: data.notes ?? null,
     });
+
+    try {
+        await createNotification({
+            userId: doctor.uuid,
+            recipientRole: "doctor",
+            type: "doctor_new_appointment",
+            title: "New appointment request",
+            body: `${patient.firstName} ${patient.lastName} booked ${date} at ${timeSlot}.`,
+            data: {
+                category: "doctor_new_appointment",
+                appointmentUuid: appointment.uuid,
+                patientUuid: patient.uuid,
+                patientName: `${patient.firstName} ${patient.lastName}`,
+                date,
+                timeSlot,
+                url: `/doctor/appointments?appointment=${appointment.uuid}`,
+            },
+            sendPush: true,
+        });
+    } catch (error) {
+        console.error(
+            "Failed to send doctor new appointment notification",
+            error,
+        );
+    }
 
     return appointmentModel.findByPk(appointment.uuid, {
         include: appointmentInclude,
@@ -221,6 +249,10 @@ export async function replaceAppointment(uuid, data, user) {
     if (!appointment) {
         return null;
     }
+
+    const previousDate = appointment.date;
+    const previousTimeSlot = appointment.timeSlot;
+    const previousStatus = appointment.status;
 
     const { date, timeSlot } = normalizeScheduleInput(data);
 
@@ -242,6 +274,64 @@ export async function replaceAppointment(uuid, data, user) {
     appointment.notes = data.notes ?? null;
     await appointment.save();
 
+    if (
+        previousDate !== appointment.date ||
+        previousTimeSlot !== appointment.timeSlot
+    ) {
+        try {
+            await createNotification({
+                userId: appointment.doctorUuid,
+                recipientRole: "doctor",
+                type: "doctor_appointment_rescheduled",
+                title: "Appointment rescheduled",
+                body: `A patient changed the consultation to ${appointment.date} at ${appointment.timeSlot}.`,
+                data: {
+                    category: "doctor_appointment_rescheduled",
+                    appointmentUuid: appointment.uuid,
+                    patientUuid: appointment.patientUuid,
+                    previousDate,
+                    previousTimeSlot,
+                    date: appointment.date,
+                    timeSlot: appointment.timeSlot,
+                    url: `/doctor/appointments?appointment=${appointment.uuid}`,
+                },
+                sendPush: true,
+            });
+        } catch (error) {
+            console.error(
+                "Failed to send doctor reschedule notification",
+                error,
+            );
+        }
+    }
+
+    if (previousStatus !== "cancelled" && appointment.status === "cancelled") {
+        try {
+            await createNotification({
+                userId: appointment.doctorUuid,
+                recipientRole: "doctor",
+                type: "doctor_appointment_cancelled",
+                title: "Appointment cancelled",
+                body: "A patient cancelled an upcoming consultation.",
+                data: {
+                    category: "doctor_appointment_cancelled",
+                    appointmentUuid: appointment.uuid,
+                    patientUuid: appointment.patientUuid,
+                    cancellationReason: appointment.cancellationReason ?? null,
+                    date: appointment.date,
+                    timeSlot: appointment.timeSlot,
+                    url: `/doctor/appointments?appointment=${appointment.uuid}`,
+                },
+                sendPush: true,
+            });
+        } catch (error) {
+            console.error(
+                "Failed to send doctor cancellation notification",
+                error,
+            );
+        }
+    }
+
     return appointmentModel.findByPk(appointment.uuid, {
         include: appointmentInclude,
     });
@@ -255,6 +345,9 @@ export async function updateAppointment(uuid, data, user) {
     }
 
     const previousStatus = appointment.status;
+    const previousDate = appointment.date;
+    const previousTimeSlot = appointment.timeSlot;
+    let shouldNotifyDoctorRescheduled = false;
 
     if (user.role === "patient") {
         const hasDoctorResultFields =
@@ -284,6 +377,12 @@ export async function updateAppointment(uuid, data, user) {
             );
             appointment.date = date;
             appointment.timeSlot = timeSlot;
+            shouldNotifyDoctorRescheduled =
+                previousDate !== date || previousTimeSlot !== timeSlot;
+
+            if (shouldNotifyDoctorRescheduled) {
+                appointment.status = "rescheduled";
+            }
         }
 
         if (data.status !== undefined) {
@@ -405,6 +504,65 @@ export async function updateAppointment(uuid, data, user) {
     }
 
     await appointment.save();
+
+    if (user.role === "patient" && shouldNotifyDoctorRescheduled) {
+        try {
+            await createNotification({
+                userId: appointment.doctorUuid,
+                recipientRole: "doctor",
+                type: "doctor_appointment_rescheduled",
+                title: "Appointment rescheduled",
+                body: `A patient changed the consultation to ${appointment.date} at ${appointment.timeSlot}.`,
+                data: {
+                    category: "doctor_appointment_rescheduled",
+                    appointmentUuid: appointment.uuid,
+                    patientUuid: appointment.patientUuid,
+                    previousDate,
+                    previousTimeSlot,
+                    date: appointment.date,
+                    timeSlot: appointment.timeSlot,
+                    url: `/doctor/appointments?appointment=${appointment.uuid}`,
+                },
+                sendPush: true,
+            });
+        } catch (error) {
+            console.error(
+                "Failed to send doctor reschedule notification",
+                error,
+            );
+        }
+    }
+
+    if (
+        user.role === "patient" &&
+        previousStatus !== "cancelled" &&
+        appointment.status === "cancelled"
+    ) {
+        try {
+            await createNotification({
+                userId: appointment.doctorUuid,
+                recipientRole: "doctor",
+                type: "doctor_appointment_cancelled",
+                title: "Appointment cancelled",
+                body: "A patient cancelled an upcoming consultation.",
+                data: {
+                    category: "doctor_appointment_cancelled",
+                    appointmentUuid: appointment.uuid,
+                    patientUuid: appointment.patientUuid,
+                    cancellationReason: appointment.cancellationReason ?? null,
+                    date: appointment.date,
+                    timeSlot: appointment.timeSlot,
+                    url: `/doctor/appointments?appointment=${appointment.uuid}`,
+                },
+                sendPush: true,
+            });
+        } catch (error) {
+            console.error(
+                "Failed to send doctor cancellation notification",
+                error,
+            );
+        }
+    }
 
     if (
         user.role === "doctor" &&
