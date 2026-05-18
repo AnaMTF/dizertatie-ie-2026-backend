@@ -15,6 +15,7 @@ const schema = {
         "dateOfBirth",
         "height",
         "weight",
+        "favoriteClinicUuid",
     ],
     additionalProperties: false,
     properties: {
@@ -52,6 +53,10 @@ const schema = {
         weight: {
             type: "number",
             minimum: 0,
+        },
+        favoriteClinicUuid: {
+            type: "string",
+            format: "uuid",
         },
         additionalMedicalInfo: {
             type: "string",

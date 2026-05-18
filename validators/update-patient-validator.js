@@ -39,6 +39,10 @@ const schema = {
             type: "number",
             minimum: 0,
         },
+        favoriteClinicUuid: {
+            type: "string",
+            format: "uuid",
+        },
         additionalMedicalInfo: {
             type: "string",
         },
