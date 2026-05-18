@@ -365,7 +365,7 @@ async function setup() {
     if (dialect === "postgres") {
         await database.query("CREATE EXTENSION IF NOT EXISTS vector");
     }
-    await database.sync();
+    await database.sync({ force: true });
 
     const passwordHash = await bcrypt.hash(DOCTOR_PASSWORD, 10);
 
