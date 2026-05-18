@@ -42,6 +42,56 @@ export async function getScanByUuid(request, response) {
     }
 }
 
+export async function getDoctorReviewQueue(request, response) {
+    try {
+        const scans = await scanService.getDoctorReviewQueue(
+            request.query,
+            request.user,
+        );
+        sendSuccess(response, 200, scans);
+    } catch (error) {
+        sendError(response, error.status || 500, error.message);
+    }
+}
+
+export async function getDoctorReviewScanByUuid(request, response) {
+    try {
+        const scan = await scanService.getDoctorReviewScanByUuid(
+            request.params.uuid,
+            request.user,
+        );
+        sendSuccess(response, 200, scan);
+    } catch (error) {
+        sendError(response, error.status || 500, error.message);
+    }
+}
+
+export async function verifyScanAsAccurate(request, response) {
+    try {
+        const scan = await scanService.verifyScanAsAccurate(
+            request.params.uuid,
+            request.body,
+            request.user,
+        );
+        sendSuccess(response, 200, scan);
+    } catch (error) {
+        sendError(response, error.status || 500, error.message);
+    }
+}
+
+export async function verifyScanAsInaccurate(request, response) {
+    try {
+        const scan = await scanService.verifyScanAsInaccurate(
+            request.params.uuid,
+            request.body,
+            request.user,
+        );
+        sendSuccess(response, 200, scan);
+    } catch (error) {
+        sendError(response, error.status || 500, error.message);
+    }
+}
+
 export async function getOptimizedScanImage(request, response) {
     try {
         const optimizedImage = await scanService.getOptimizedScanImage({
@@ -75,6 +125,21 @@ export async function getOptimizedScanImage(request, response) {
                 );
             },
         );
+    } catch (error) {
+        sendError(response, error.status || 500, error.message);
+    }
+}
+
+export async function getScanImageByUuid(request, response) {
+    try {
+        const image = await scanService.getScanImageByUuid({
+            scanUuid: request.params.scanUuid,
+            imageUuid: request.params.imageUuid,
+            user: request.user,
+        });
+
+        response.setHeader("Content-Type", image.mimeType);
+        response.download(image.filePath, image.fileName);
     } catch (error) {
         sendError(response, error.status || 500, error.message);
     }

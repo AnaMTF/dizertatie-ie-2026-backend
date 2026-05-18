@@ -3,10 +3,15 @@ import multer from "multer";
 
 import {
     createScan,
+    getDoctorReviewQueue,
+    getDoctorReviewScanByUuid,
+    getScanImageByUuid,
     getOptimizedScanImage,
     getScanByUuid,
     getScanOptions,
     getScans,
+    verifyScanAsAccurate,
+    verifyScanAsInaccurate,
 } from "../controllers/index.js";
 import {
     authenticate,
@@ -15,7 +20,7 @@ import {
     validate,
     validateFileCount,
 } from "../middleware/index.js";
-import { validateCreateScan } from "../validators/index.js";
+import { validateCreateScan, validateVerifyScan } from "../validators/index.js";
 
 const router = express.Router();
 const upload = multer({
@@ -44,12 +49,49 @@ router.get(
     getScanOptions,
 );
 
+router.get(
+    "/scan/review-queue",
+    authenticate,
+    authorizeRoles("doctor"),
+    getDoctorReviewQueue,
+);
+
+router.get(
+    "/scan/review-queue/:uuid",
+    authenticate,
+    authorizeRoles("doctor"),
+    getDoctorReviewScanByUuid,
+);
+
+router.patch(
+    "/scan/:uuid/verify-accurate",
+    authenticate,
+    authorizeRoles("doctor"),
+    validate(validateVerifyScan),
+    verifyScanAsAccurate,
+);
+
+router.patch(
+    "/scan/:uuid/verify-inaccurate",
+    authenticate,
+    authorizeRoles("doctor"),
+    validate(validateVerifyScan),
+    verifyScanAsInaccurate,
+);
+
 router.get("/scan", authenticate, authorizeRoles("patient"), getScans);
+
+router.get(
+    "/scan/:scanUuid/images/:imageUuid/download",
+    authenticate,
+    authorizeRoles("patient", "doctor"),
+    getScanImageByUuid,
+);
 
 router.get(
     "/scan/:scanUuid/images/:imageUuid",
     authenticate,
-    authorizeRoles("patient"),
+    authorizeRoles("patient", "doctor"),
     getOptimizedScanImage,
 );
 
