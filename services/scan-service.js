@@ -4,10 +4,18 @@ import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import { fileTypeFromFile } from "file-type";
 import sharp from "sharp";
+import { Op } from "sequelize";
 
 import database from "../database/index.js";
-import { scanImageModel, scanModel } from "../models/index.js";
+import {
+    doctorModel,
+    patientModel,
+    scanImageModel,
+    scanModel,
+} from "../models/index.js";
+import { supportedScanOptions } from "../config/supported-scan-options.js";
 import { publishScanJob } from "./rabbitmq-service.js";
+import { createNotification } from "./notification-service.js";
 import { createError } from "../utils/error.js";
 
 const scanInclude = [
@@ -16,10 +24,45 @@ const scanInclude = [
         as: "images",
         attributes: ["uuid", "filePath", "mimeType"],
     },
+    {
+        model: doctorModel,
+        as: "verifiedByDoctor",
+        attributes: ["uuid", "firstName", "lastName", "specialization"],
+        required: false,
+    },
+];
+
+const doctorQueueInclude = [
+    ...scanInclude,
+    {
+        model: patientModel,
+        as: "patient",
+        attributes: ["uuid", "firstName", "lastName", "email"],
+    },
 ];
 
 const CACHE_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 const CACHE_STALE_WHILE_REVALIDATE_SECONDS = 60 * 60 * 24;
+
+const recommendedSpecialtyByScanPair = new Map(
+    supportedScanOptions.map((option) => [
+        `${option.bodyPart}::${option.imageType}`,
+        option.recommendedSpecialty,
+    ]),
+);
+
+const scanPairsBySpecialty = supportedScanOptions.reduce((result, option) => {
+    if (!result.has(option.recommendedSpecialty)) {
+        result.set(option.recommendedSpecialty, []);
+    }
+
+    result.get(option.recommendedSpecialty).push({
+        bodyPart: option.bodyPart,
+        imageType: option.imageType,
+    });
+
+    return result;
+}, new Map());
 
 function parseBoundedInteger(value, fallback, { min, max }) {
     if (value == null || value === "") {
@@ -98,6 +141,48 @@ function serializeScan(scan) {
     return serializedScan;
 }
 
+function resolveRecommendedSpecialty(scan) {
+    return (
+        recommendedSpecialtyByScanPair.get(
+            `${scan.bodyPart}::${scan.imageType}`,
+        ) || null
+    );
+}
+
+async function getAuthenticatedDoctor(user) {
+    if (user.role !== "doctor") {
+        throw createError(403, "Only doctors can review scans");
+    }
+
+    const doctor = await doctorModel.findByPk(user.uuid, {
+        attributes: ["uuid", "specialization", "firstName", "lastName"],
+    });
+
+    if (!doctor) {
+        throw createError(401, "Authenticated doctor account was not found");
+    }
+
+    return doctor;
+}
+
+function ensureDoctorSpecializationCanReview(scan, doctorSpecialization) {
+    const recommendedSpecialty = resolveRecommendedSpecialty(scan);
+
+    if (!recommendedSpecialty) {
+        throw createError(
+            403,
+            "This scan cannot be reviewed by specialization",
+        );
+    }
+
+    if (recommendedSpecialty !== doctorSpecialization) {
+        throw createError(
+            403,
+            "Doctors can only review scans matching their specialization",
+        );
+    }
+}
+
 async function resolveStoredMimeType(filePath) {
     const fileType = await fileTypeFromFile(filePath);
     return fileType?.mime || "application/octet-stream";
@@ -161,6 +246,46 @@ async function getOwnedScanImage(scanUuid, imageUuid, user) {
 
     if (scan.patientUuid !== user.uuid) {
         throw createError(403, "Patients can only access their own scans");
+    }
+
+    const image = scan.images?.[0];
+
+    if (!image) {
+        throw createError(404, "Scan image not found");
+    }
+
+    return image;
+}
+
+async function getAccessibleScanImage(scanUuid, imageUuid, user) {
+    const scan = await scanModel.findByPk(scanUuid, {
+        include: [
+            {
+                model: scanImageModel,
+                as: "images",
+                where: { uuid: imageUuid },
+                attributes: ["uuid", "filePath", "mimeType"],
+                required: false,
+            },
+        ],
+    });
+
+    if (!scan) {
+        throw createError(404, "Scan not found");
+    }
+
+    if (user.role === "patient") {
+        if (scan.patientUuid !== user.uuid) {
+            throw createError(403, "Patients can only access their own scans");
+        }
+    } else if (user.role === "doctor") {
+        const doctor = await getAuthenticatedDoctor(user);
+        ensureDoctorSpecializationCanReview(scan, doctor.specialization);
+    } else {
+        throw createError(
+            403,
+            "Only patients and doctors can access scan images",
+        );
     }
 
     const image = scan.images?.[0];
@@ -294,17 +419,140 @@ export async function getScanByUuid(uuid, user) {
     return serializeScan(scan);
 }
 
+export async function getDoctorReviewQueue(query, user) {
+    const doctor = await getAuthenticatedDoctor(user);
+    const specializationPairs =
+        scanPairsBySpecialty.get(doctor.specialization) ?? [];
+
+    if (specializationPairs.length === 0) {
+        return [];
+    }
+
+    const limitValue = Number.parseInt(String(query?.limit || "50"), 10);
+    const limit = Number.isFinite(limitValue)
+        ? Math.max(1, Math.min(100, limitValue))
+        : 50;
+
+    const scans = await scanModel.findAll({
+        where: {
+            status: "completed",
+            verificationVerdict: "pending",
+            [Op.or]: specializationPairs,
+        },
+        include: doctorQueueInclude,
+        order: [["createdAt", "DESC"]],
+        limit,
+    });
+
+    return scans.map(serializeScan);
+}
+
+export async function getDoctorReviewScanByUuid(uuid, user) {
+    const doctor = await getAuthenticatedDoctor(user);
+
+    const scan = await scanModel.findByPk(uuid, {
+        include: doctorQueueInclude,
+    });
+
+    if (!scan) {
+        throw createError(404, "Scan not found");
+    }
+
+    if (scan.status !== "completed") {
+        throw createError(409, "Only completed scans can be reviewed");
+    }
+
+    ensureDoctorSpecializationCanReview(scan, doctor.specialization);
+
+    return serializeScan(scan);
+}
+
+async function verifyScanWithVerdict({ uuid, verdict, user }) {
+    const doctor = await getAuthenticatedDoctor(user);
+
+    const scan = await scanModel.findByPk(uuid, {
+        include: doctorQueueInclude,
+    });
+
+    if (!scan) {
+        throw createError(404, "Scan not found");
+    }
+
+    if (scan.status !== "completed") {
+        throw createError(409, "Only completed scans can be reviewed");
+    }
+
+    ensureDoctorSpecializationCanReview(scan, doctor.specialization);
+
+    if (scan.verificationVerdict !== "pending") {
+        throw createError(409, "This scan has already been reviewed");
+    }
+
+    await scan.update({
+        verified: verdict === "accurate",
+        verificationVerdict: verdict,
+        verifiedByDoctorUuid: doctor.uuid,
+        verifiedAt: new Date(),
+    });
+
+    await createNotification({
+        userId: scan.patientUuid,
+        type:
+            verdict === "accurate"
+                ? "scan_verified_accurate"
+                : "scan_verified_inaccurate",
+        title:
+            verdict === "accurate"
+                ? "A doctor verified your AI scan"
+                : "A doctor reviewed your AI scan",
+        body:
+            verdict === "accurate"
+                ? "Your AI scan result was verified as accurate."
+                : "Your AI scan result was marked as inaccurate. Please review the details.",
+        data: {
+            scanUuid: scan.uuid,
+            url: `/ai-scan?scan=${scan.uuid}`,
+            verificationVerdict: verdict,
+            verifiedByDoctorUuid: doctor.uuid,
+            verifiedAt: scan.verifiedAt,
+        },
+        sendPush: true,
+    });
+
+    const refreshed = await scanModel.findByPk(scan.uuid, {
+        include: doctorQueueInclude,
+    });
+
+    return serializeScan(refreshed);
+}
+
+export async function verifyScanAsAccurate(uuid, data, user) {
+    void data;
+
+    return verifyScanWithVerdict({
+        uuid,
+        verdict: "accurate",
+        user,
+    });
+}
+
+export async function verifyScanAsInaccurate(uuid, data, user) {
+    void data;
+
+    return verifyScanWithVerdict({
+        uuid,
+        verdict: "inaccurate",
+        user,
+    });
+}
+
 export async function getOptimizedScanImage({
     scanUuid,
     imageUuid,
     user,
     query,
 }) {
-    if (user.role !== "patient") {
-        throw createError(403, "Only patients can access scan images");
-    }
-
-    const image = await getOwnedScanImage(scanUuid, imageUuid, user);
+    const image = await getAccessibleScanImage(scanUuid, imageUuid, user);
     const uploadsBasePath = path.resolve(
         process.env.UPLOADS_BASE_PATH || path.resolve(process.cwd(), "uploads"),
     );
@@ -367,5 +615,15 @@ export async function getOptimizedScanImage({
         etag: `"${cacheKey}"`,
         lastModified: sourceStats.mtime.toUTCString(),
         cacheControl: `private, max-age=${CACHE_MAX_AGE_SECONDS}, stale-while-revalidate=${CACHE_STALE_WHILE_REVALIDATE_SECONDS}`,
+    };
+}
+
+export async function getScanImageByUuid({ scanUuid, imageUuid, user }) {
+    const image = await getAccessibleScanImage(scanUuid, imageUuid, user);
+
+    return {
+        filePath: image.filePath,
+        mimeType: image.mimeType || "application/octet-stream",
+        fileName: path.basename(image.filePath) || `${image.uuid}.bin`,
     };
 }
