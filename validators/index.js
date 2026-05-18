@@ -16,5 +16,6 @@ export { validateReplaceDoctor } from "./replace-doctor-validator.js";
 export { validateUpdateDoctor } from "./update-doctor-validator.js";
 export { validateCreatePushSubscription } from "./create-push-subscription-validator.js";
 export { validateCreateScan } from "./create-scan-validator.js";
+export { validateVerifyScan } from "./verify-scan-validator.js";
 export { validateDeletePushSubscription } from "./delete-push-subscription-validator.js";
 export { validateBlogFavorite } from "./blog-favorite-validator.js";
