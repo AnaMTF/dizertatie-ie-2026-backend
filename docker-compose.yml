@@ -1,0 +1,33 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    env_file:
+      - .env
+    environment:
+      PORT: 9000
+      DIALECT: postgres
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: postgres
+      DB_USER: postgres
+      DB_PASSWORD: example
+      RABBITMQ_URL: amqp://app:app@rabbitmq:5672
+      UPLOADS_BASE_PATH: /app/uploads
+    volumes:
+      - dizertatie_uploads_data:/app/uploads
+    networks:
+      - dizertatie_shared_net
+
+volumes:
+  dizertatie_uploads_data:
+    name: dizertatie_uploads_data
+
+networks:
+  dizertatie_shared_net:
+    name: dizertatie_shared_net
