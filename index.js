@@ -18,6 +18,7 @@ import {
     authenticationRouter,
     blogRouter,
     clinicRouter,
+    contactRouter,
     doctorRouter,
     notificationRouter,
     patientRouter,
@@ -41,6 +42,7 @@ app.use("/api/v1", appointmentRecommendationRouter);
 app.use("/api/v1", appointmentRouter);
 app.use("/api/v1", blogRouter);
 app.use("/api/v1", clinicRouter);
+app.use("/api/v1", contactRouter);
 app.use("/api/v1", doctorRouter);
 app.use("/api/v1", notificationRouter);
 app.use("/api/v1", patientRouter);

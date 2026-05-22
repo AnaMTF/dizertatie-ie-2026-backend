@@ -3,6 +3,7 @@ export { default as appointmentRecommendationRouter } from "./appointment-recomm
 export { default as authenticationRouter } from "./authentication-router.js";
 export { default as blogRouter } from "./blog-router.js";
 export { default as clinicRouter } from "./clinic-router.js";
+export { default as contactRouter } from "./contact-router.js";
 export { default as doctorRouter } from "./doctor-router.js";
 export { default as notificationRouter } from "./notification-router.js";
 export { default as patientRouter } from "./patient-router.js";
