@@ -9,6 +9,7 @@ export { validateCreatePatient } from "./create-patient-validator.js";
 export { validateReplacePatient } from "./replace-patient-validator.js";
 export { validateUpdatePatient } from "./update-patient-validator.js";
 export { validateCreateClinic } from "./create-clinic-validator.js";
+export { validateContactSubmission } from "./contact-submission-validator.js";
 export { validateReplaceClinic } from "./replace-clinic-validator.js";
 export { validateUpdateClinic } from "./update-clinic-validator.js";
 export { validateCreateDoctor } from "./create-doctor-validator.js";

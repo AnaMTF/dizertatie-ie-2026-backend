@@ -2,6 +2,7 @@ import { appointmentModel } from "./appointment-model.js";
 import { appointmentDocumentModel } from "./appointment-document-model.js";
 import { appointmentRecommendationModel } from "./appointment-recommendation-model.js";
 import { clinicModel } from "./clinic-model.js";
+import { contactSubmissionModel } from "./contact-submission-model.js";
 import { doctorModel } from "./doctor-model.js";
 import { followUpReminderModel } from "./follow-up-reminder-model.js";
 import { favoritePostModel } from "./favorite-post-model.js";
@@ -401,6 +402,7 @@ export {
     appointmentDocumentModel,
     appointmentRecommendationModel,
     clinicModel,
+    contactSubmissionModel,
     doctorModel,
     favoritePostModel,
     followUpReminderModel,

@@ -3,6 +3,7 @@ export * from "./appointment-recommendation-controller.js";
 export * from "./authentication-controller.js";
 export * from "./blog-favorite-controller.js";
 export * from "./clinic-controller.js";
+export * from "./contact-controller.js";
 export * from "./doctor-controller.js";
 export * from "./notification-controller.js";
 export * from "./patient-controller.js";
