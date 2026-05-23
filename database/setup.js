@@ -20,6 +20,7 @@ const clinics = [
         longitude: 23.5899542,
         phone: "+40 123 123 1001",
         website: "https://arbor-medical.example",
+        imagePath: "/clinic-images/clinic_1.webp",
     },
     {
         name: "Nova Care București",
@@ -28,6 +29,7 @@ const clinics = [
         longitude: 26.1046636,
         phone: "+40 123 123 1002",
         website: "https://nova-care.example",
+        imagePath: "/clinic-images/clinic_2.jpg",
     },
     {
         name: "Cernica Health Sibiu",
@@ -36,6 +38,7 @@ const clinics = [
         longitude: 24.1517425,
         phone: "+40 123 123 1003",
         website: "https://cernica-health.example",
+        imagePath: "/clinic-images/clinic_3.webp",
     },
     {
         name: "Alba Clinic Timișoara",
@@ -44,6 +47,7 @@ const clinics = [
         longitude: 21.2284492,
         phone: "+40 123 123 1004",
         website: "https://alba-clinic.example",
+        imagePath: "/clinic-images/clinic_4.jpg",
     },
     {
         name: "VitaPoint Brașov",
@@ -52,6 +56,7 @@ const clinics = [
         longitude: 25.6071293,
         phone: "+40 123 123 1005",
         website: "https://vitapoint.example",
+        imagePath: "/clinic-images/clinic_5.avif",
     },
     {
         name: "Solis Medical Iași",
@@ -60,6 +65,7 @@ const clinics = [
         longitude: 27.5860716,
         phone: "+40 123 123 1006",
         website: "https://solis-medical.example",
+        imagePath: "/clinic-images/clinic_6.jpg",
     },
     {
         name: "DeltaCare Constanța",
@@ -68,6 +74,7 @@ const clinics = [
         longitude: 28.6349036,
         phone: "+40 123 123 1007",
         website: "https://deltacare.example",
+        imagePath: "/clinic-images/clinic_7.jpg",
     },
     {
         name: "Aurora Health Oradea",
@@ -76,6 +83,7 @@ const clinics = [
         longitude: 21.9354208,
         phone: "+40 123 123 1008",
         website: "https://aurora-health.example",
+        imagePath: "/clinic-images/clinic_8.jpg",
     },
     {
         name: "Lumen Medical Pitești",
@@ -84,6 +92,7 @@ const clinics = [
         longitude: 24.8717075,
         phone: "+40 123 123 1009",
         website: "https://lumen-medical.example",
+        imagePath: "/clinic-images/clinic_9.jpg",
     },
     {
         name: "Atlas Clinic Craiova",
@@ -92,6 +101,7 @@ const clinics = [
         longitude: 23.7961551,
         phone: "+40 123 123 1010",
         website: "https://atlas-clinic.example",
+        imagePath: "/clinic-images/clinic_10.webp",
     },
     {
         name: "Verde Medical Ploiești",
@@ -100,6 +110,7 @@ const clinics = [
         longitude: 26.0269162,
         phone: "+40 123 123 1011",
         website: "https://verde-medical.example",
+        imagePath: "/clinic-images/clinic_11.jpg",
     },
     {
         name: "Nexus Health Galați",
@@ -108,6 +119,7 @@ const clinics = [
         longitude: 28.0379937,
         phone: "+40 123 123 1012",
         website: "https://nexus-health.example",
+        imagePath: "/clinic-images/clinic_12.webp",
     },
 ];
 
