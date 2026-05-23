@@ -9,6 +9,7 @@ const { doctorModel } = await import("../models/doctor-model.js");
 const { postEmbeddingModel } =
     await import("../models/post-embedding-model.js");
 const { favoritePostModel } = await import("../models/favorite-post-model.js");
+const { getBlogImagePathForSlug } = await import("./blog-image-paths.js");
 
 const DOCTOR_PASSWORD = "password123";
 
@@ -432,6 +433,26 @@ async function setup() {
         attributes: ["slug"],
         raw: true,
     });
+
+    for (const { slug } of availablePosts) {
+        await postEmbeddingModel.update(
+            {
+                imagePath: getBlogImagePathForSlug(slug),
+            },
+            {
+                where: {
+                    slug,
+                },
+            },
+        );
+    }
+
+    if (availablePosts.length > 0) {
+        console.log(
+            `Updated blog image paths for ${availablePosts.length} post embeddings`,
+        );
+    }
+
     const availablePostSlugs = new Set(availablePosts.map((item) => item.slug));
 
     const favoriteRows = favoriteBlogPosts

@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import database from "../database/index.js";
 import "../models/index.js";
 import { postEmbeddingModel } from "../models/post-embedding-model.js";
+import { getBlogImagePathForSlug } from "./blog-image-paths.js";
 import { embed } from "../utils/embed.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -58,6 +59,7 @@ async function seedPostEmbeddings() {
         await postEmbeddingModel.upsert({
             slug,
             embedding: vector,
+            imagePath: getBlogImagePathForSlug(slug),
         });
 
         processed += 1;
