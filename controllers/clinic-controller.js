@@ -70,3 +70,16 @@ export async function getClinicByUuid(request, response) {
         sendError(response, error.status || 500, error.message);
     }
 }
+
+export async function getClinicByUuidWithDoctors(request, response) {
+    try {
+        const { uuid } = request.params;
+        const clinic = await clinicService.getClinicByUuidWithDoctors(uuid);
+        if (!clinic) {
+            return sendError(response, 404, "Clinic not found");
+        }
+        sendSuccess(response, 200, clinic);
+    } catch (error) {
+        sendError(response, error.status || 500, error.message);
+    }
+}

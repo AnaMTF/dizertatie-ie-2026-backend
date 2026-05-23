@@ -43,3 +43,19 @@ export async function getClinics() {
 export async function getClinicByUuid(uuid) {
     return clinicModel.findByPk(uuid);
 }
+
+export async function getClinicByUuidWithDoctors(uuid) {
+    return clinicModel.findByPk(uuid, {
+        include: {
+            association: "doctors",
+            attributes: [
+                "uuid",
+                "email",
+                "firstName",
+                "lastName",
+                "specialization",
+            ],
+            required: false,
+        },
+    });
+}

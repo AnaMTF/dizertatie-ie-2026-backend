@@ -13,12 +13,30 @@ const { favoritePostModel } = await import("../models/favorite-post-model.js");
 const DOCTOR_PASSWORD = "password123";
 
 const clinics = [
-    { name: "Medicover Cluj", address: "Str. Republicii 109, Cluj-Napoca" },
+    {
+        name: "Medicover Cluj",
+        address: "Str. Republicii 109, Cluj-Napoca",
+        latitude: 46.7693792,
+        longitude: 23.5899542,
+        phone: "+40 264 406 600",
+        website: "https://www.medicover.ro",
+    },
     {
         name: "Regina Maria București",
         address: "Calea Floreasca 88, București",
+        latitude: 44.4660818,
+        longitude: 26.1046636,
+        phone: "+40 21 9268",
+        website: "https://www.reginamaria.ro",
     },
-    { name: "Polisano Sibiu", address: "Str. Învățătorului 2, Sibiu" },
+    {
+        name: "Polisano Sibiu",
+        address: "Str. Învățătorului 2, Sibiu",
+        latitude: 45.7956113,
+        longitude: 24.1517425,
+        phone: "+40 269 229 300",
+        website: "https://www.polisano.ro",
+    },
 ];
 
 const doctors = [

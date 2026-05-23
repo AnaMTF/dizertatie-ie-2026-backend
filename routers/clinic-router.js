@@ -6,6 +6,7 @@ import {
     deleteClinic,
     getClinics,
     getClinicByUuid,
+    getClinicByUuidWithDoctors,
 } from "../controllers/index.js";
 import { authenticate, authorizeRoles, validate } from "../middleware/index.js";
 import {
@@ -48,6 +49,8 @@ router.delete(
 );
 
 router.get("/clinic", getClinics);
+
+router.get("/clinic/:uuid/with-doctors", getClinicByUuidWithDoctors);
 
 router.get("/clinic/:uuid", getClinicByUuid);
 
