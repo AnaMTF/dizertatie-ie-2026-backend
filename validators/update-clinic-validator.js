@@ -19,6 +19,11 @@ const schema = {
             minLength: 1,
             maxLength: 500,
         },
+        imagePath: {
+            type: ["string", "null"],
+            minLength: 1,
+            pattern: "^/clinic-images/",
+        },
     },
 };
 

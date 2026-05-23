@@ -33,4 +33,8 @@ export const clinicModel = database.define("Clinic", {
         type: DataTypes.STRING,
         allowNull: true,
     },
+    imagePath: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
 });
