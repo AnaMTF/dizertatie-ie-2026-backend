@@ -13,6 +13,10 @@ export const postEmbeddingModel = database.define(
             type: DataTypes.VECTOR(384),
             allowNull: false,
         },
+        imagePath: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
     },
     {
         timestamps: false,

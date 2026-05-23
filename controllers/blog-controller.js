@@ -1,5 +1,6 @@
 import database from "../database/index.js";
 import pgvector from "pgvector";
+import { BLOG_IMAGE_FALLBACK_PATH } from "../database/blog-image-paths.js";
 import { embed } from "../utils/embed.js";
 import { sendError, sendSuccess } from "../utils/response.js";
 
@@ -38,7 +39,9 @@ export async function searchPosts(request, response) {
         );
 
         const [rows] = await database.query(
-            `SELECT slug, 1 - (embedding <=> :vector) AS score
+            `SELECT slug,
+                    COALESCE("imagePath", :fallbackImagePath) AS "imagePath",
+                    1 - (embedding <=> :vector) AS score
              FROM "PostEmbeddings"
              ORDER BY embedding <=> :vector
              LIMIT :limit
@@ -46,6 +49,7 @@ export async function searchPosts(request, response) {
             {
                 replacements: {
                     vector: vectorLiteral,
+                    fallbackImagePath: BLOG_IMAGE_FALLBACK_PATH,
                     limit,
                     offset,
                 },
