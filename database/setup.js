@@ -14,354 +14,256 @@ const DOCTOR_PASSWORD = "password123";
 
 const clinics = [
     {
-        name: "Medicover Cluj",
+        name: "Arbor Medical Cluj",
         address: "Str. Republicii 109, Cluj-Napoca",
         latitude: 46.7693792,
         longitude: 23.5899542,
-        phone: "+40 264 406 600",
-        website: "https://www.medicover.ro",
+        phone: "+40 123 123 1001",
+        website: "https://arbor-medical.example",
     },
     {
-        name: "Regina Maria București",
+        name: "Nova Care București",
         address: "Calea Floreasca 88, București",
         latitude: 44.4660818,
         longitude: 26.1046636,
-        phone: "+40 21 9268",
-        website: "https://www.reginamaria.ro",
+        phone: "+40 123 123 1002",
+        website: "https://nova-care.example",
     },
     {
-        name: "Polisano Sibiu",
+        name: "Cernica Health Sibiu",
         address: "Str. Învățătorului 2, Sibiu",
         latitude: 45.7956113,
         longitude: 24.1517425,
-        phone: "+40 269 229 300",
-        website: "https://www.polisano.ro",
+        phone: "+40 123 123 1003",
+        website: "https://cernica-health.example",
+    },
+    {
+        name: "Alba Clinic Timișoara",
+        address: "Str. Gheorghe Lazăr 24, Timișoara",
+        latitude: 45.7569863,
+        longitude: 21.2284492,
+        phone: "+40 123 123 1004",
+        website: "https://alba-clinic.example",
+    },
+    {
+        name: "VitaPoint Brașov",
+        address: "Str. Zizinului 19, Brașov",
+        latitude: 45.6486158,
+        longitude: 25.6071293,
+        phone: "+40 123 123 1005",
+        website: "https://vitapoint.example",
+    },
+    {
+        name: "Solis Medical Iași",
+        address: "Șos. Nicolina 4, Iași",
+        latitude: 47.1422531,
+        longitude: 27.5860716,
+        phone: "+40 123 123 1006",
+        website: "https://solis-medical.example",
+    },
+    {
+        name: "DeltaCare Constanța",
+        address: "Bulevardul Tomis 92, Constanța",
+        latitude: 44.1736782,
+        longitude: 28.6349036,
+        phone: "+40 123 123 1007",
+        website: "https://deltacare.example",
+    },
+    {
+        name: "Aurora Health Oradea",
+        address: "Calea Republicii 77, Oradea",
+        latitude: 47.0536928,
+        longitude: 21.9354208,
+        phone: "+40 123 123 1008",
+        website: "https://aurora-health.example",
+    },
+    {
+        name: "Lumen Medical Pitești",
+        address: "Bulevardul Republicii 118, Pitești",
+        latitude: 44.8543017,
+        longitude: 24.8717075,
+        phone: "+40 123 123 1009",
+        website: "https://lumen-medical.example",
+    },
+    {
+        name: "Atlas Clinic Craiova",
+        address: "Str. Calea Unirii 86, Craiova",
+        latitude: 44.3245579,
+        longitude: 23.7961551,
+        phone: "+40 123 123 1010",
+        website: "https://atlas-clinic.example",
+    },
+    {
+        name: "Verde Medical Ploiești",
+        address: "Str. Gheorghe Doja 102, Ploiești",
+        latitude: 44.9384695,
+        longitude: 26.0269162,
+        phone: "+40 123 123 1011",
+        website: "https://verde-medical.example",
+    },
+    {
+        name: "Nexus Health Galați",
+        address: "Str. Brăilei 171, Galați",
+        latitude: 45.4342937,
+        longitude: 28.0379937,
+        phone: "+40 123 123 1012",
+        website: "https://nexus-health.example",
     },
 ];
 
-const doctors = [
-    // General
-    {
-        firstName: "Andrei",
-        lastName: "Ionescu",
-        email: "andrei.ionescu@testdoctor.com",
-        specialization: "general",
-        clinicIndex: 0,
-    },
-    {
-        firstName: "Maria",
-        lastName: "Popescu",
-        email: "maria.popescu@testdoctor.com",
-        specialization: "general",
-        clinicIndex: 0,
-    },
-    {
-        firstName: "Elena",
-        lastName: "Dumitrescu",
-        email: "elena.dumitrescu@testdoctor.com",
-        specialization: "general",
-        clinicIndex: 1,
-    },
-
-    // Cardiology
-    {
-        firstName: "Gheorghe",
-        lastName: "Marin",
-        email: "gheorghe.marin@testdoctor.com",
-        specialization: "cardiology",
-        clinicIndex: 0,
-    },
-    {
-        firstName: "Ioana",
-        lastName: "Stan",
-        email: "ioana.stan@testdoctor.com",
-        specialization: "cardiology",
-        clinicIndex: 1,
-    },
-    {
-        firstName: "Mihai",
-        lastName: "Vlad",
-        email: "mihai.vlad@testdoctor.com",
-        specialization: "cardiology",
-        clinicIndex: 2,
-    },
-
-    // Dermatology
-    {
-        firstName: "Cristina",
-        lastName: "Popa",
-        email: "cristina.popa@testdoctor.com",
-        specialization: "dermatology",
-        clinicIndex: 0,
-    },
-    {
-        firstName: "Radu",
-        lastName: "Neagu",
-        email: "radu.neagu@testdoctor.com",
-        specialization: "dermatology",
-        clinicIndex: 1,
-    },
-    {
-        firstName: "Alina",
-        lastName: "Barbu",
-        email: "alina.barbu@testdoctor.com",
-        specialization: "dermatology",
-        clinicIndex: 2,
-    },
-
-    // Endocrinology
-    {
-        firstName: "Florin",
-        lastName: "Dima",
-        email: "florin.dima@testdoctor.com",
-        specialization: "endocrinology",
-        clinicIndex: 0,
-    },
-    {
-        firstName: "Daniela",
-        lastName: "Crisan",
-        email: "daniela.crisan@testdoctor.com",
-        specialization: "endocrinology",
-        clinicIndex: 1,
-    },
-    {
-        firstName: "Sorin",
-        lastName: "Lazar",
-        email: "sorin.lazar@testdoctor.com",
-        specialization: "endocrinology",
-        clinicIndex: 2,
-    },
-
-    // Gastroenterology
-    {
-        firstName: "Adriana",
-        lastName: "Stoica",
-        email: "adriana.stoica@testdoctor.com",
-        specialization: "gastroenterology",
-        clinicIndex: 0,
-    },
-    {
-        firstName: "Bogdan",
-        lastName: "Tudor",
-        email: "bogdan.tudor@testdoctor.com",
-        specialization: "gastroenterology",
-        clinicIndex: 1,
-    },
-    {
-        firstName: "Simona",
-        lastName: "Rus",
-        email: "simona.rus@testdoctor.com",
-        specialization: "gastroenterology",
-        clinicIndex: 2,
-    },
-
-    // Gynecology
-    {
-        firstName: "Laura",
-        lastName: "Ciobanu",
-        email: "laura.ciobanu@testdoctor.com",
-        specialization: "gynecology",
-        clinicIndex: 0,
-    },
-    {
-        firstName: "Roxana",
-        lastName: "Niculescu",
-        email: "roxana.niculescu@testdoctor.com",
-        specialization: "gynecology",
-        clinicIndex: 1,
-    },
-    {
-        firstName: "Oana",
-        lastName: "Gheorghiu",
-        email: "oana.gheorghiu@testdoctor.com",
-        specialization: "gynecology",
-        clinicIndex: 2,
-    },
-
-    // Neurology
-    {
-        firstName: "Victor",
-        lastName: "Dragomir",
-        email: "victor.dragomir@testdoctor.com",
-        specialization: "neurology",
-        clinicIndex: 0,
-    },
-    {
-        firstName: "Teodora",
-        lastName: "Matei",
-        email: "teodora.matei@testdoctor.com",
-        specialization: "neurology",
-        clinicIndex: 1,
-    },
-    {
-        firstName: "Alexandru",
-        lastName: "Petre",
-        email: "alexandru.petre@testdoctor.com",
-        specialization: "neurology",
-        clinicIndex: 2,
-    },
-
-    // Oncology
-    {
-        firstName: "Marius",
-        lastName: "Cojocaru",
-        email: "marius.cojocaru@testdoctor.com",
-        specialization: "oncology",
-        clinicIndex: 0,
-    },
-    {
-        firstName: "Nicoleta",
-        lastName: "Serban",
-        email: "nicoleta.serban@testdoctor.com",
-        specialization: "oncology",
-        clinicIndex: 1,
-    },
-    {
-        firstName: "Catalin",
-        lastName: "Preda",
-        email: "catalin.preda@testdoctor.com",
-        specialization: "oncology",
-        clinicIndex: 2,
-    },
-
-    // Ophthalmology
-    {
-        firstName: "Andreea",
-        lastName: "Constantin",
-        email: "andreea.constantin@testdoctor.com",
-        specialization: "ophthalmology",
-        clinicIndex: 0,
-    },
-    {
-        firstName: "Dan",
-        lastName: "Mocanu",
-        email: "dan.mocanu@testdoctor.com",
-        specialization: "ophthalmology",
-        clinicIndex: 1,
-    },
-    {
-        firstName: "Irina",
-        lastName: "Florea",
-        email: "irina.florea@testdoctor.com",
-        specialization: "ophthalmology",
-        clinicIndex: 2,
-    },
-
-    // Orthopedics
-    {
-        firstName: "Lucian",
-        lastName: "Dobre",
-        email: "lucian.dobre@testdoctor.com",
-        specialization: "orthopedics",
-        clinicIndex: 0,
-    },
-    {
-        firstName: "Claudia",
-        lastName: "Bucur",
-        email: "claudia.bucur@testdoctor.com",
-        specialization: "orthopedics",
-        clinicIndex: 1,
-    },
-    {
-        firstName: "Sebastian",
-        lastName: "Nica",
-        email: "sebastian.nica@testdoctor.com",
-        specialization: "orthopedics",
-        clinicIndex: 2,
-    },
-
-    // Otolaryngology
-    {
-        firstName: "Monica",
-        lastName: "Lungu",
-        email: "monica.lungu@testdoctor.com",
-        specialization: "otolaryngology",
-        clinicIndex: 0,
-    },
-    {
-        firstName: "Costin",
-        lastName: "Voicu",
-        email: "costin.voicu@testdoctor.com",
-        specialization: "otolaryngology",
-        clinicIndex: 1,
-    },
-    {
-        firstName: "Raluca",
-        lastName: "Badea",
-        email: "raluca.badea@testdoctor.com",
-        specialization: "otolaryngology",
-        clinicIndex: 2,
-    },
-
-    // Psychiatry
-    {
-        firstName: "Stefan",
-        lastName: "Olaru",
-        email: "stefan.olaru@testdoctor.com",
-        specialization: "psychiatry",
-        clinicIndex: 0,
-    },
-    {
-        firstName: "Bianca",
-        lastName: "Enache",
-        email: "bianca.enache@testdoctor.com",
-        specialization: "psychiatry",
-        clinicIndex: 1,
-    },
-    {
-        firstName: "Vlad",
-        lastName: "Chiriac",
-        email: "vlad.chiriac@testdoctor.com",
-        specialization: "psychiatry",
-        clinicIndex: 2,
-    },
-
-    // Pulmonology
-    {
-        firstName: "Camelia",
-        lastName: "Rotaru",
-        email: "camelia.rotaru@testdoctor.com",
-        specialization: "pulmonology",
-        clinicIndex: 0,
-    },
-    {
-        firstName: "Ionut",
-        lastName: "Apostol",
-        email: "ionut.apostol@testdoctor.com",
-        specialization: "pulmonology",
-        clinicIndex: 1,
-    },
-    {
-        firstName: "Gabriela",
-        lastName: "Manea",
-        email: "gabriela.manea@testdoctor.com",
-        specialization: "pulmonology",
-        clinicIndex: 2,
-    },
-
-    // Urology
-    {
-        firstName: "Cristian",
-        lastName: "Toma",
-        email: "cristian.toma@testdoctor.com",
-        specialization: "urology",
-        clinicIndex: 0,
-    },
-    {
-        firstName: "Mirela",
-        lastName: "Oprea",
-        email: "mirela.oprea@testdoctor.com",
-        specialization: "urology",
-        clinicIndex: 1,
-    },
-    {
-        firstName: "Paul",
-        lastName: "Nistor",
-        email: "paul.nistor@testdoctor.com",
-        specialization: "urology",
-        clinicIndex: 2,
-    },
+const SPECIALIZATIONS = [
+    "general",
+    "cardiology",
+    "dermatology",
+    "endocrinology",
+    "gastroenterology",
+    "gynecology",
+    "neurology",
+    "oncology",
+    "ophthalmology",
+    "orthopedics",
+    "otolaryngology",
+    "psychiatry",
+    "pulmonology",
+    "urology",
 ];
+
+const DOCTOR_FIRST_NAMES = [
+    "Andrei",
+    "Maria",
+    "Elena",
+    "Gheorghe",
+    "Ioana",
+    "Mihai",
+    "Cristina",
+    "Radu",
+    "Alina",
+    "Florin",
+    "Daniela",
+    "Sorin",
+    "Adriana",
+    "Bogdan",
+    "Simona",
+    "Laura",
+    "Roxana",
+    "Oana",
+    "Victor",
+    "Teodora",
+    "Alexandru",
+    "Marius",
+    "Nicoleta",
+    "Catalin",
+    "Andreea",
+    "Dan",
+    "Irina",
+    "Lucian",
+    "Claudia",
+    "Sebastian",
+    "Monica",
+    "Costin",
+    "Raluca",
+    "Stefan",
+    "Bianca",
+    "Vlad",
+    "Camelia",
+    "Ionut",
+    "Gabriela",
+    "Cristian",
+    "Mirela",
+    "Paul",
+    "Daria",
+    "Robert",
+    "Lavinia",
+    "Tudor",
+    "Ana",
+    "Matei",
+    "Iulia",
+    "Claudiu",
+];
+
+const DOCTOR_LAST_NAMES = [
+    "Ionescu",
+    "Popescu",
+    "Dumitrescu",
+    "Marin",
+    "Stan",
+    "Vlad",
+    "Popa",
+    "Neagu",
+    "Barbu",
+    "Dima",
+    "Crisan",
+    "Lazar",
+    "Stoica",
+    "Tudor",
+    "Rus",
+    "Ciobanu",
+    "Niculescu",
+    "Gheorghiu",
+    "Dragomir",
+    "Matei",
+    "Petre",
+    "Cojocaru",
+    "Serban",
+    "Preda",
+    "Constantin",
+    "Mocanu",
+    "Florea",
+    "Dobre",
+    "Bucur",
+    "Nica",
+    "Lungu",
+    "Voicu",
+    "Badea",
+    "Olaru",
+    "Enache",
+    "Chiriac",
+    "Rotaru",
+    "Apostol",
+    "Manea",
+    "Toma",
+    "Oprea",
+    "Nistor",
+    "Rusu",
+    "Munteanu",
+    "Sandu",
+    "Avram",
+    "Iliescu",
+    "Iacob",
+    "Zamfir",
+    "Vasilescu",
+];
+
+const DOCTORS_PER_CLINIC_AND_SPECIALIZATION = 4;
+
+const doctors = SPECIALIZATIONS.flatMap((specialization, specializationIndex) =>
+    clinics.flatMap((_, clinicIndex) =>
+        Array.from(
+            { length: DOCTORS_PER_CLINIC_AND_SPECIALIZATION },
+            (_, slotIndex) => {
+                const seed =
+                    specializationIndex * 100 +
+                    clinicIndex * DOCTORS_PER_CLINIC_AND_SPECIALIZATION +
+                    slotIndex;
+
+                return {
+                    firstName:
+                        DOCTOR_FIRST_NAMES[
+                            (seed * 7 + clinicIndex) % DOCTOR_FIRST_NAMES.length
+                        ],
+                    lastName:
+                        DOCTOR_LAST_NAMES[
+                            (seed * 11 + specializationIndex) %
+                                DOCTOR_LAST_NAMES.length
+                        ],
+                    email: `${specialization}.${clinicIndex + 1}.${slotIndex + 1}@testdoctor.com`,
+                    specialization,
+                    clinicIndex,
+                };
+            },
+        ),
+    ),
+);
 
 const patients = [
     {
