@@ -136,6 +136,35 @@ function normalizeSimilarityScore(value) {
     return Math.max(0, Math.min(1, (value + 1) / 2));
 }
 
+const ALCOHOL_SEVERITY = {
+    never: 0,
+    less_than_monthly: 0.1,
+    monthly: 0.25,
+    weekly: 0.5,
+    daily_or_almost_daily: 0.8,
+};
+
+function computeLifestyleRiskSeverity(profile) {
+    let severity = ALCOHOL_SEVERITY[profile.alcoholConsumptionFrequency] ?? 0;
+
+    if (profile.smoker === true) {
+        severity += 0.25;
+    }
+
+    if (
+        Number.isFinite(profile?.metrics?.ageYears) &&
+        profile.metrics.ageYears >= 60
+    ) {
+        severity += 0.15;
+    }
+
+    if (Number.isFinite(profile?.metrics?.bmi) && profile.metrics.bmi >= 30) {
+        severity += 0.15;
+    }
+
+    return Math.min(1, severity);
+}
+
 function buildReasonCodes(profile) {
     const reasonCodes = ["tfjs_zero_shot_similarity"];
 
@@ -226,9 +255,8 @@ export function createTfjsZeroShotRiskInferenceProvider() {
                     .map((item) => ({
                         specialty: item.specialty,
                         score: Number(item.score.toFixed(3)),
-                        rationale:
-                            "TensorFlow.js zero-shot profile matching indicated this specialization as relevant.",
-                        reasonCodes: buildReasonCodes(profile),
+                        lifestyleRiskSeverity:
+                            computeLifestyleRiskSeverity(profile),
                     }));
 
                 const topScore = scored.length ? scored[0].score : null;

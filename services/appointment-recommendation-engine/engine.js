@@ -6,12 +6,26 @@ import { runAgeBmiRules } from "./rules/age-bmi-rules.js";
 const ENGINE_VERSION = "age-bmi-rules-v1";
 const MAX_RECOMMENDATIONS = 3;
 
-function toPriority(score) {
+const LIFESTYLE_SEVERITY_BOOST_THRESHOLD = 0.6;
+
+function toPriority(score, lifestyleRiskSeverity = 0) {
+    let level = 0;
+
     if (score >= 0.85) {
+        level = 2;
+    } else if (score >= 0.7) {
+        level = 1;
+    }
+
+    if (lifestyleRiskSeverity >= LIFESTYLE_SEVERITY_BOOST_THRESHOLD) {
+        level = Math.min(2, level + 1);
+    }
+
+    if (level === 2) {
         return "high";
     }
 
-    if (score >= 0.7) {
+    if (level === 1) {
         return "medium";
     }
 
@@ -49,7 +63,7 @@ function mergeCandidates(candidates) {
         .slice(0, MAX_RECOMMENDATIONS)
         .map((item) => ({
             ...item,
-            priority: toPriority(item.score),
+            priority: toPriority(item.score, item.lifestyleRiskSeverity ?? 0),
         }));
 }
 
