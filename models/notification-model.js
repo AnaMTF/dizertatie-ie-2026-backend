@@ -43,6 +43,14 @@ export const notificationModel = database.define(
             type: DataTypes.TEXT,
             allowNull: false,
         },
+        priority: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: "medium",
+            validate: {
+                isIn: [["low", "medium", "high"]],
+            },
+        },
         data: {
             type: DataTypes.JSON,
             allowNull: false,
