@@ -131,6 +131,7 @@ export async function sendDueFollowUpReminders() {
         await createNotification({
             userId: appointment.patientUuid,
             type: "follow_up_reminder",
+            priority: "high",
             title: `${label} follow-up reminder`,
             body: `It's been over ${FOLLOW_UP_INTERVAL_DAYS} days since your last ${specialty} appointment. Consider scheduling a follow-up.`,
             data: {

@@ -501,6 +501,7 @@ async function verifyScanWithVerdict({ uuid, verdict, user }) {
             verdict === "accurate"
                 ? "scan_verified_accurate"
                 : "scan_verified_inaccurate",
+        priority: verdict === "accurate" ? "low" : "high",
         title:
             verdict === "accurate"
                 ? "A doctor verified your AI scan"

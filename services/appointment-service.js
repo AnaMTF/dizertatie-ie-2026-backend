@@ -286,6 +286,7 @@ export async function createAppointment(data, user) {
             userId: doctor.uuid,
             recipientRole: "doctor",
             type: "doctor_new_appointment",
+            priority: "high",
             title: "New appointment request",
             body: `${patient.firstName} ${patient.lastName} booked ${date} at ${timeSlot}.`,
             data: {
@@ -355,6 +356,7 @@ export async function replaceAppointment(uuid, data, user) {
                 userId: appointment.doctorUuid,
                 recipientRole: "doctor",
                 type: "doctor_appointment_rescheduled",
+                priority: "medium",
                 title: "Appointment rescheduled",
                 body: `A patient changed the consultation to ${appointment.date} at ${appointment.timeSlot}.`,
                 data: {
@@ -383,6 +385,7 @@ export async function replaceAppointment(uuid, data, user) {
                 userId: appointment.doctorUuid,
                 recipientRole: "doctor",
                 type: "doctor_appointment_cancelled",
+                priority: "medium",
                 title: "Appointment cancelled",
                 body: "A patient cancelled an upcoming consultation.",
                 data: {
@@ -588,6 +591,7 @@ export async function updateAppointment(uuid, data, user) {
                 userId: appointment.doctorUuid,
                 recipientRole: "doctor",
                 type: "doctor_appointment_rescheduled",
+                priority: "medium",
                 title: "Appointment rescheduled",
                 body: `A patient changed the consultation to ${appointment.date} at ${appointment.timeSlot}.`,
                 data: {
@@ -620,6 +624,7 @@ export async function updateAppointment(uuid, data, user) {
                 userId: appointment.doctorUuid,
                 recipientRole: "doctor",
                 type: "doctor_appointment_cancelled",
+                priority: "medium",
                 title: "Appointment cancelled",
                 body: "A patient cancelled an upcoming consultation.",
                 data: {
@@ -644,6 +649,7 @@ export async function updateAppointment(uuid, data, user) {
             await createNotification({
                 userId: appointment.patientUuid,
                 type: "appointment_cancelled",
+                priority: "high",
                 title: "Appointment cancelled",
                 body: "You have cancelled your consultation.",
                 data: {
@@ -673,6 +679,7 @@ export async function updateAppointment(uuid, data, user) {
             await createNotification({
                 userId: appointment.patientUuid,
                 type: "appointment_confirmed",
+                priority: "medium",
                 title: "Appointment confirmed",
                 body: `Your doctor has confirmed your consultation on ${appointment.date} at ${appointment.timeSlot}.`,
                 data: {
@@ -701,6 +708,7 @@ export async function updateAppointment(uuid, data, user) {
             await createNotification({
                 userId: appointment.patientUuid,
                 type: "appointment_cancelled",
+                priority: "high",
                 title: "Appointment cancelled",
                 body: "Your doctor has cancelled your consultation.",
                 data: {
@@ -730,6 +738,7 @@ export async function updateAppointment(uuid, data, user) {
             await createNotification({
                 userId: appointment.patientUuid,
                 type: "system_message",
+                priority: "low",
                 title: "Consultation completed",
                 body: "Your doctor has completed your consultation. View your results.",
                 data: {

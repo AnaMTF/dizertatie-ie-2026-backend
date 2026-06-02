@@ -90,6 +90,7 @@ function toNotificationPayload(notification) {
         badge: DEFAULT_PUSH_BADGE,
         data: {
             notificationUuid: notification.uuid,
+            priority: notification.priority ?? "medium",
             ...(notification.data ?? {}),
         },
     };
@@ -158,6 +159,7 @@ export async function createNotification({
     type,
     title,
     body,
+    priority = "medium",
     data = {},
     sendPush = false,
 }) {
@@ -170,6 +172,7 @@ export async function createNotification({
         type,
         title,
         body,
+        priority,
         data,
     });
 

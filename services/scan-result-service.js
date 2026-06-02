@@ -48,6 +48,7 @@ export async function applyScanResult(payload) {
         await createNotification({
             userId: scan.patientUuid,
             type: "scan_results_ready",
+            priority: "high",
             title: "AI scan results are ready",
             body: "Open the app to review your completed analysis.",
             data: {

@@ -167,6 +167,7 @@ export async function refreshAppointmentRecommendationsForPatient(
 
             await createNotification({
                 userId: patient.uuid,
+                priority: recommendation.priority,
                 ...payload,
                 sendPush: false,
             });
