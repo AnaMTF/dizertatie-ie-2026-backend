@@ -135,8 +135,11 @@ export async function sendDueFollowUpReminders() {
             title: `${label} follow-up reminder`,
             body: `It's been over ${FOLLOW_UP_INTERVAL_DAYS} days since your last ${specialty} appointment. Consider scheduling a follow-up.`,
             data: {
+                category: "follow_up_reminder",
+                reminderKind: "follow_up",
                 specialty,
                 lastAppointmentId: appointment.uuid,
+                targetDate: today,
                 url: `/appointments?create=true&specialty=${encodeURIComponent(specialty)}`,
             },
             sendPush: true,

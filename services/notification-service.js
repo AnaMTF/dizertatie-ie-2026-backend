@@ -1,4 +1,4 @@
-import { Op } from "sequelize";
+import { Op, where, json } from "sequelize";
 
 import {
     notificationModel,
@@ -65,6 +65,26 @@ function getRecipientFilter(user) {
     return {
         recipientRole: user.role,
         recipientUuid: user.uuid,
+    };
+}
+
+function getNotificationKindFilter(kind) {
+    if (kind !== "reminder") {
+        return {};
+    }
+
+    return {
+        [Op.or]: [
+            {
+                type: "follow_up_reminder",
+            },
+            {
+                type: "system_message",
+                [Op.and]: [
+                    where(json("data.category"), "appointment_reminder"),
+                ],
+            },
+        ],
     };
 }
 
@@ -194,6 +214,7 @@ export async function createNotification({
 
 export async function getNotifications(user, query = {}) {
     const recipientFilter = getRecipientFilter(user);
+    const kindFilter = getNotificationKindFilter(query.kind);
 
     const page = Math.max(1, Number(query.page) || 1);
     const limit = Math.min(100, Math.max(1, Number(query.limit) || 20));
@@ -202,6 +223,7 @@ export async function getNotifications(user, query = {}) {
     const { rows, count } = await notificationModel.findAndCountAll({
         where: {
             ...recipientFilter,
+            ...kindFilter,
         },
         order: [["createdAt", "DESC"]],
         limit,

@@ -122,6 +122,16 @@ function normalizeScheduleInput(data) {
     );
 }
 
+function toAppointmentTargetDateTime(date, timeSlot) {
+    const targetDateTime = new Date(`${date}T${timeSlot}:00`);
+
+    if (Number.isNaN(targetDateTime.getTime())) {
+        return null;
+    }
+
+    return targetDateTime.toISOString();
+}
+
 async function ensureSlotNotBooked(
     doctorUuid,
     date,
@@ -303,6 +313,34 @@ export async function createAppointment(data, user) {
     } catch (error) {
         console.error(
             "Failed to send doctor new appointment notification",
+            error,
+        );
+    }
+
+    try {
+        await createNotification({
+            userId: patient.uuid,
+            type: "system_message",
+            priority: "high",
+            title: "Appointment reminder",
+            body: `Your consultation is scheduled for ${date} at ${timeSlot}.`,
+            data: {
+                category: "appointment_reminder",
+                reminderKind: "appointment",
+                appointmentUuid: appointment.uuid,
+                date,
+                timeSlot,
+                doctorUuid: doctor.uuid,
+                doctorName: `Dr. ${doctor.lastName}`,
+                specialty: doctor.specialization ?? null,
+                targetDateTime: toAppointmentTargetDateTime(date, timeSlot),
+                url: `/appointments?appointment=${appointment.uuid}`,
+            },
+            sendPush: true,
+        });
+    } catch (error) {
+        console.error(
+            "Failed to send patient appointment reminder notification",
             error,
         );
     }
