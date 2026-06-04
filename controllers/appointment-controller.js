@@ -82,6 +82,7 @@ export async function getAppointments(request, response) {
     try {
         const appointments = await appointmentService.getAppointments(
             request.user,
+            request.query,
         );
         sendSuccess(response, 200, appointments);
     } catch (error) {

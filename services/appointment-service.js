@@ -18,6 +18,13 @@ const SLOT_TIMES = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"];
 
 const DATE_REGEXP = /^\d{4}-\d{2}-\d{2}$/;
 const MONTH_REGEXP = /^\d{4}-\d{2}$/;
+const APPOINTMENT_STATUSES = new Set([
+    "scheduled",
+    "confirmed",
+    "cancelled",
+    "rescheduled",
+    "completed",
+]);
 
 const appointmentInclude = [
     {
@@ -92,6 +99,14 @@ function computeAvailability(appointments, dateList) {
             hasAvailability: availableSlots.length > 0,
         };
     });
+}
+
+function asTrimmedQueryValue(value) {
+    if (typeof value !== "string") {
+        return "";
+    }
+
+    return value.trim();
 }
 
 async function ensureDoctorAndClinic(doctorUuid, clinicUuid) {
@@ -814,13 +829,33 @@ export async function deleteAppointment(uuid, user) {
     return true;
 }
 
-export async function getAppointments(user) {
+function normalizeAppointmentFilters(query, user) {
+    const status = asTrimmedQueryValue(query?.status);
+    const patientUuid = asTrimmedQueryValue(query?.patientUuid);
+
+    if (status && !APPOINTMENT_STATUSES.has(status)) {
+        throw createError(400, "Invalid appointment status filter");
+    }
+
+    if (patientUuid && user.role !== "doctor") {
+        throw createError(403, "Only doctors can filter by patientUuid");
+    }
+
+    return {
+        status: status || null,
+        patientUuid: patientUuid || null,
+    };
+}
+
+export async function getAppointments(user, query) {
+    const filters = normalizeAppointmentFilters(query, user);
+
     if (user.role === "patient") {
-        return getAppointmentsByPatientUuid(user.uuid);
+        return getAppointmentsByPatientUuid(user.uuid, filters);
     }
 
     if (user.role === "doctor") {
-        return getAppointmentsByDoctorUuid(user.uuid);
+        return getAppointmentsByDoctorUuid(user.uuid, filters);
     }
 
     throw createError(403, "Forbidden");
@@ -1038,9 +1073,15 @@ export async function getAppointmentByUuid(uuid, user) {
     });
 }
 
-export async function getAppointmentsByPatientUuid(patientUuid) {
+export async function getAppointmentsByPatientUuid(patientUuid, filters = {}) {
+    const where = { patientUuid };
+
+    if (filters.status) {
+        where.status = filters.status;
+    }
+
     return appointmentModel.findAll({
-        where: { patientUuid },
+        where,
         include: appointmentInclude,
         order: [
             ["date", "ASC"],
@@ -1049,9 +1090,19 @@ export async function getAppointmentsByPatientUuid(patientUuid) {
     });
 }
 
-export async function getAppointmentsByDoctorUuid(doctorUuid) {
+export async function getAppointmentsByDoctorUuid(doctorUuid, filters = {}) {
+    const where = { doctorUuid };
+
+    if (filters.status) {
+        where.status = filters.status;
+    }
+
+    if (filters.patientUuid) {
+        where.patientUuid = filters.patientUuid;
+    }
+
     return appointmentModel.findAll({
-        where: { doctorUuid },
+        where,
         include: appointmentInclude,
         order: [
             ["date", "ASC"],
