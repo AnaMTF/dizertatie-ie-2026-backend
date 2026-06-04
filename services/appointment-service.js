@@ -638,6 +638,57 @@ export async function updateAppointment(uuid, data, user) {
 
     await appointment.save();
 
+    // Create follow-up reminder notification when doctor sets a follow-up date
+    if (
+        user.role === "doctor" &&
+        data.doctorFollowUpDate !== undefined &&
+        data.doctorFollowUpDate
+    ) {
+        try {
+            // Get doctor details for the notification
+            const doctor = await doctorModel.findByPk(appointment.doctorUuid, {
+                attributes: ["uuid", "firstName", "lastName", "specialization"],
+            });
+
+            if (doctor) {
+                const followUpDate = new Date(
+                    `${data.doctorFollowUpDate}T00:00:00`,
+                );
+                const formattedDate = followUpDate.toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                });
+
+                await createNotification({
+                    userId: appointment.patientUuid,
+                    type: "follow_up_reminder",
+                    priority: "medium",
+                    title: "Follow-up appointment reminder",
+                    body: `Your doctor recommends a follow-up on ${formattedDate}.`,
+                    data: {
+                        category: "follow_up_reminder",
+                        reminderKind: "follow_up",
+                        appointmentUuid: appointment.uuid,
+                        doctorUuid: doctor.uuid,
+                        doctorName: `Dr. ${doctor.lastName}`,
+                        specialty: doctor.specialization ?? null,
+                        targetDate: data.doctorFollowUpDate,
+                        recommendation:
+                            appointment.doctorFollowUpRecommendation ?? null,
+                        url: `/appointments?create=true&doctorUuid=${doctor.uuid}`,
+                    },
+                    sendPush: true,
+                });
+            }
+        } catch (error) {
+            console.error(
+                "Failed to send follow-up reminder notification",
+                error,
+            );
+        }
+    }
+
     if (user.role === "patient" && shouldNotifyDoctorRescheduled) {
         try {
             await createNotification({
