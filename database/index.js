@@ -14,10 +14,12 @@ const database =
               database: process.env.DB_NAME || "postgres",
               username: process.env.DB_USER || "postgres",
               password: process.env.DB_PASSWORD || "",
+              logging: false,
           })
         : new Sequelize({
               dialect: "sqlite",
               storage: process.env.DATABASE || "./dizertatie.db",
+              logging: false,
           });
 
 export default database;
