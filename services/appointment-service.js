@@ -174,6 +174,29 @@ function getFollowUpReminderType(specialization) {
     return `${specialization || "general"}_follow_up`;
 }
 
+async function clearFollowUpRemindersBySpecialty(patientUuid, doctorUuid) {
+    try {
+        const doctor = await doctorModel.findByPk(doctorUuid, {
+            attributes: ["specialization"],
+        });
+
+        if (!doctor) {
+            return;
+        }
+
+        const reminderType = getFollowUpReminderType(doctor.specialization);
+
+        await followUpReminderModel.destroy({
+            where: {
+                patientUuid,
+                reminderType,
+            },
+        });
+    } catch (error) {
+        console.error("Failed to clear follow-up reminders", error);
+    }
+}
+
 async function ensureSlotNotBooked(
     doctorUuid,
     date,
@@ -383,6 +406,18 @@ export async function createAppointment(data, user) {
     } catch (error) {
         console.error(
             "Failed to send patient appointment reminder notification",
+            error,
+        );
+    }
+
+    try {
+        await clearFollowUpRemindersBySpecialty(
+            appointment.patientUuid,
+            appointment.doctorUuid,
+        );
+    } catch (error) {
+        console.error(
+            "Failed to clear follow-up reminders on new appointment",
             error,
         );
     }
@@ -991,6 +1026,12 @@ export async function getFollowUpReminders(user) {
                 addDaysToDateText(appointment?.date, 30);
 
             if (!appointment || !targetDate) {
+                return null;
+            }
+
+            const today = new Date();
+            const targetDateObj = new Date(`${targetDate}T00:00:00Z`);
+            if (targetDateObj < today) {
                 return null;
             }
 
