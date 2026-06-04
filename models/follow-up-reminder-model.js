@@ -19,6 +19,18 @@ export const followUpReminderModel = database.define(
             type: DataTypes.DATE,
             allowNull: false,
         },
+        appointmentUuid: {
+            type: DataTypes.UUID,
+            allowNull: true,
+        },
+        doctorFollowUpRecommendation: {
+            type: DataTypes.TEXT,
+            allowNull: true,
+        },
+        doctorFollowUpDate: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
     },
     {
         indexes: [

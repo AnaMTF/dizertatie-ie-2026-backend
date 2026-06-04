@@ -54,6 +54,17 @@ const appointmentInclude = [
         as: "documents",
         attributes: ["uuid", "fileName", "mimeType", "createdAt"],
     },
+    {
+        model: followUpReminderModel,
+        as: "followUpReminder",
+        attributes: [
+            "uuid",
+            "reminderType",
+            "sentAt",
+            "doctorFollowUpRecommendation",
+            "doctorFollowUpDate",
+        ],
+    },
 ];
 
 function getDaysInMonth(monthValue) {
@@ -606,14 +617,10 @@ export async function updateAppointment(uuid, data, user) {
             hasDoctorResultChanges = true;
         }
 
-        if (data.doctorFollowUpRecommendation !== undefined) {
-            appointment.doctorFollowUpRecommendation =
-                data.doctorFollowUpRecommendation;
-            hasDoctorResultChanges = true;
-        }
-
-        if (data.doctorFollowUpDate !== undefined) {
-            appointment.doctorFollowUpDate = data.doctorFollowUpDate;
+        if (
+            data.doctorFollowUpRecommendation !== undefined ||
+            data.doctorFollowUpDate !== undefined
+        ) {
             hasDoctorResultChanges = true;
         }
 
@@ -638,7 +645,7 @@ export async function updateAppointment(uuid, data, user) {
                 appointment.doctorPrescription ?? "",
             ).trim();
             const followUpRecommendation = String(
-                appointment.doctorFollowUpRecommendation ?? "",
+                data.doctorFollowUpRecommendation ?? "",
             ).trim();
 
             if (!diagnosis || !prescription || !followUpRecommendation) {
@@ -668,7 +675,7 @@ export async function updateAppointment(uuid, data, user) {
                 doctor?.specialization ?? null,
             );
 
-            await followUpReminderModel.findOrCreate({
+            const [reminder] = await followUpReminderModel.findOrCreate({
                 where: {
                     patientUuid: appointment.patientUuid,
                     appointmentUuid: appointment.uuid,
@@ -679,8 +686,13 @@ export async function updateAppointment(uuid, data, user) {
                     appointmentUuid: appointment.uuid,
                     reminderType,
                     sentAt: new Date(),
+                    doctorFollowUpRecommendation:
+                        data.doctorFollowUpRecommendation ?? null,
+                    doctorFollowUpDate: data.doctorFollowUpDate ?? null,
                 },
             });
+
+            await appointment.update({ followUpReminderUuid: reminder.uuid });
         } catch (error) {
             console.error("Failed to persist follow-up reminder entry", error);
         }
@@ -940,8 +952,6 @@ export async function getFollowUpReminders(user) {
                     "uuid",
                     "date",
                     "timeSlot",
-                    "doctorFollowUpDate",
-                    "doctorFollowUpRecommendation",
                     "doctorUuid",
                     "patientUuid",
                 ],
@@ -977,7 +987,7 @@ export async function getFollowUpReminders(user) {
             const appointment = reminder.appointment;
             const doctor = appointment?.doctor;
             const targetDate =
-                appointment?.doctorFollowUpDate ||
+                reminder.doctorFollowUpDate ||
                 addDaysToDateText(appointment?.date, 30);
 
             if (!appointment || !targetDate) {
@@ -990,8 +1000,7 @@ export async function getFollowUpReminders(user) {
                 reminderType: reminder.reminderType,
                 createdAt: reminder.sentAt,
                 targetDate,
-                recommendation:
-                    appointment.doctorFollowUpRecommendation || null,
+                recommendation: reminder.doctorFollowUpRecommendation || null,
                 doctorName: doctor ? `Dr. ${doctor.lastName}` : null,
                 specialty: doctor?.specialization || null,
                 clinicName: appointment.clinic?.name || null,

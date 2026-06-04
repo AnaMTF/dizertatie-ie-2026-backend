@@ -295,24 +295,24 @@ followUpReminderModel.belongsTo(patientModel, {
     onDelete: "CASCADE",
 });
 
-appointmentModel.hasMany(followUpReminderModel, {
+appointmentModel.belongsTo(followUpReminderModel, {
     foreignKey: {
-        name: "appointmentUuid",
-        allowNull: false,
+        name: "followUpReminderUuid",
+        allowNull: true,
     },
-    as: "followUpReminders",
+    as: "followUpReminder",
     onUpdate: "CASCADE",
-    onDelete: "CASCADE",
+    onDelete: "SET NULL",
 });
 
-followUpReminderModel.belongsTo(appointmentModel, {
+followUpReminderModel.hasOne(appointmentModel, {
     foreignKey: {
-        name: "appointmentUuid",
-        allowNull: false,
+        name: "followUpReminderUuid",
+        allowNull: true,
     },
     as: "appointment",
     onUpdate: "CASCADE",
-    onDelete: "CASCADE",
+    onDelete: "SET NULL",
 });
 
 patientModel.hasMany(appointmentRecommendationModel, {

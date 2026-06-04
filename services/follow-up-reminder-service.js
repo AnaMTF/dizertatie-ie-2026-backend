@@ -94,7 +94,7 @@ export async function sendDueFollowUpReminders() {
 
         const hasFutureAppointment = await appointmentModel.findOne({
             where: {
-                patientUuid: appointment.patientUuid,
+                patientUuid: reminder.patientUuid,
                 status: {
                     [Op.ne]: "cancelled",
                 },
@@ -126,7 +126,7 @@ export async function sendDueFollowUpReminders() {
         const label = toSpecialtyLabel(specialty);
 
         await createNotification({
-            userId: appointment.patientUuid,
+            userId: reminder.patientUuid,
             type: "follow_up_reminder",
             priority: "high",
             title: `${label} follow-up reminder`,

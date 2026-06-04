@@ -44,12 +44,8 @@ export const appointmentModel = database.define("Appointment", {
         type: DataTypes.TEXT,
         allowNull: true,
     },
-    doctorFollowUpRecommendation: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-    },
-    doctorFollowUpDate: {
-        type: DataTypes.STRING,
+    followUpReminderUuid: {
+        type: DataTypes.UUID,
         allowNull: true,
     },
     doctorResultsUpdatedAt: {
