@@ -1,9 +1,10 @@
-import { Op } from "sequelize";
+import { Op, where, json } from "sequelize";
 
 import {
     appointmentModel,
     doctorModel,
     followUpReminderModel,
+    notificationModel,
 } from "../models/index.js";
 import { createNotification } from "./notification-service.js";
 
@@ -25,57 +26,61 @@ function hasAtLeastDaysElapsed(appointmentDateText, days, now = new Date()) {
     return diffMs >= days * MS_IN_DAY;
 }
 
-function getReminderType(specialty) {
-    return `${specialty}_follow_up`;
-}
-
 function toSpecialtyLabel(specialty) {
     return specialty.charAt(0).toUpperCase() + specialty.slice(1);
+}
+
+async function hasPushNotificationForReminder(reminder) {
+    const existingNotification = await notificationModel.findOne({
+        where: {
+            recipientRole: "patient",
+            recipientUuid: reminder.patientUuid,
+            type: "follow_up_reminder",
+            [Op.and]: [
+                where(json("data.lastAppointmentId"), reminder.appointmentUuid),
+            ],
+        },
+        attributes: ["uuid"],
+    });
+
+    return Boolean(existingNotification);
 }
 
 export async function sendDueFollowUpReminders() {
     const now = new Date();
     const today = toDateOnlyText(now);
 
-    const completedAppointments = await appointmentModel.findAll({
-        where: {
-            status: "completed",
-        },
+    const reminders = await followUpReminderModel.findAll({
         include: [
             {
-                model: doctorModel,
-                as: "doctor",
-                attributes: ["uuid", "specialization"],
+                model: appointmentModel,
+                as: "appointment",
+                required: true,
+                where: {
+                    status: "completed",
+                },
+                attributes: ["uuid", "patientUuid", "date", "timeSlot"],
+                include: [
+                    {
+                        model: doctorModel,
+                        as: "doctor",
+                        attributes: ["uuid", "specialization"],
+                    },
+                ],
             },
         ],
-        attributes: ["uuid", "patientUuid", "date", "timeSlot"],
-        order: [
-            ["patientUuid", "ASC"],
-            ["date", "DESC"],
-            ["timeSlot", "DESC"],
-        ],
+        order: [["sentAt", "ASC"]],
     });
-
-    // Group by patient+specialty; keep only the latest completed per pair
-    const latestByPatientSpecialty = new Map();
-
-    for (const appointment of completedAppointments) {
-        const specialty = appointment.doctor?.specialization;
-        if (!specialty) {
-            continue;
-        }
-
-        const key = `${appointment.patientUuid}:${specialty}`;
-
-        if (!latestByPatientSpecialty.has(key)) {
-            latestByPatientSpecialty.set(key, appointment);
-        }
-    }
 
     let sentCount = 0;
 
-    for (const appointment of latestByPatientSpecialty.values()) {
-        const specialty = appointment.doctor.specialization;
+    for (const reminder of reminders) {
+        const appointment = reminder.appointment;
+        const specialty = appointment?.doctor?.specialization;
+
+        if (!appointment || !specialty) {
+            continue;
+        }
 
         if (
             !hasAtLeastDaysElapsed(
@@ -114,15 +119,7 @@ export async function sendDueFollowUpReminders() {
             continue;
         }
 
-        const existingReminder = await followUpReminderModel.findOne({
-            where: {
-                patientUuid: appointment.patientUuid,
-                appointmentUuid: appointment.uuid,
-                reminderType: getReminderType(specialty),
-            },
-        });
-
-        if (existingReminder) {
+        if (await hasPushNotificationForReminder(reminder)) {
             continue;
         }
 
@@ -138,25 +135,18 @@ export async function sendDueFollowUpReminders() {
                 category: "follow_up_reminder",
                 reminderKind: "follow_up",
                 specialty,
-                lastAppointmentId: appointment.uuid,
+                lastAppointmentId: reminder.appointmentUuid,
                 targetDate: today,
                 url: `/appointments?create=true&specialty=${encodeURIComponent(specialty)}`,
             },
             sendPush: true,
         });
 
-        await followUpReminderModel.create({
-            patientUuid: appointment.patientUuid,
-            appointmentUuid: appointment.uuid,
-            reminderType: getReminderType(specialty),
-            sentAt: now,
-        });
-
         sentCount += 1;
     }
 
     return {
-        evaluatedPatientSpecialties: latestByPatientSpecialty.size,
+        evaluatedPatientSpecialties: reminders.length,
         sentCount,
     };
 }

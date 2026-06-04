@@ -7,6 +7,7 @@ import {
     appointmentModel,
     clinicModel,
     doctorModel,
+    followUpReminderModel,
     patientModel,
     scanImageModel,
     scanModel,
@@ -145,6 +146,21 @@ function toAppointmentTargetDateTime(date, timeSlot) {
     }
 
     return targetDateTime.toISOString();
+}
+
+function addDaysToDateText(dateText, daysToAdd) {
+    const date = new Date(`${dateText}T00:00:00Z`);
+
+    if (Number.isNaN(date.getTime())) {
+        return null;
+    }
+
+    date.setUTCDate(date.getUTCDate() + daysToAdd);
+    return date.toISOString().slice(0, 10);
+}
+
+function getFollowUpReminderType(specialization) {
+    return `${specialization || "general"}_follow_up`;
 }
 
 async function ensureSlotNotBooked(
@@ -638,54 +654,35 @@ export async function updateAppointment(uuid, data, user) {
 
     await appointment.save();
 
-    // Create follow-up reminder notification when doctor sets a follow-up date
     if (
         user.role === "doctor" &&
-        data.doctorFollowUpDate !== undefined &&
-        data.doctorFollowUpDate
+        previousStatus !== "completed" &&
+        appointment.status === "completed"
     ) {
         try {
-            // Get doctor details for the notification
             const doctor = await doctorModel.findByPk(appointment.doctorUuid, {
-                attributes: ["uuid", "firstName", "lastName", "specialization"],
+                attributes: ["specialization"],
             });
 
-            if (doctor) {
-                const followUpDate = new Date(
-                    `${data.doctorFollowUpDate}T00:00:00`,
-                );
-                const formattedDate = followUpDate.toLocaleDateString("en-GB", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                });
-
-                await createNotification({
-                    userId: appointment.patientUuid,
-                    type: "follow_up_reminder",
-                    priority: "medium",
-                    title: "Follow-up appointment reminder",
-                    body: `Your doctor recommends a follow-up on ${formattedDate}.`,
-                    data: {
-                        category: "follow_up_reminder",
-                        reminderKind: "follow_up",
-                        appointmentUuid: appointment.uuid,
-                        doctorUuid: doctor.uuid,
-                        doctorName: `Dr. ${doctor.lastName}`,
-                        specialty: doctor.specialization ?? null,
-                        targetDate: data.doctorFollowUpDate,
-                        recommendation:
-                            appointment.doctorFollowUpRecommendation ?? null,
-                        url: `/appointments?create=true&doctorUuid=${doctor.uuid}`,
-                    },
-                    sendPush: true,
-                });
-            }
-        } catch (error) {
-            console.error(
-                "Failed to send follow-up reminder notification",
-                error,
+            const reminderType = getFollowUpReminderType(
+                doctor?.specialization ?? null,
             );
+
+            await followUpReminderModel.findOrCreate({
+                where: {
+                    patientUuid: appointment.patientUuid,
+                    appointmentUuid: appointment.uuid,
+                    reminderType,
+                },
+                defaults: {
+                    patientUuid: appointment.patientUuid,
+                    appointmentUuid: appointment.uuid,
+                    reminderType,
+                    sentAt: new Date(),
+                },
+            });
+        } catch (error) {
+            console.error("Failed to persist follow-up reminder entry", error);
         }
     }
 
@@ -910,6 +907,123 @@ export async function getAppointments(user, query) {
     }
 
     throw createError(403, "Forbidden");
+}
+
+export async function getFollowUpReminders(user) {
+    if (user.role !== "patient" && user.role !== "doctor") {
+        throw createError(403, "Forbidden");
+    }
+
+    const appointmentWhere = {
+        status: "completed",
+    };
+
+    if (user.role === "doctor") {
+        appointmentWhere.doctorUuid = user.uuid;
+    }
+
+    const reminderWhere = {};
+
+    if (user.role === "patient") {
+        reminderWhere.patientUuid = user.uuid;
+    }
+
+    const reminders = await followUpReminderModel.findAll({
+        where: reminderWhere,
+        include: [
+            {
+                model: appointmentModel,
+                as: "appointment",
+                required: true,
+                where: appointmentWhere,
+                attributes: [
+                    "uuid",
+                    "date",
+                    "timeSlot",
+                    "doctorFollowUpDate",
+                    "doctorFollowUpRecommendation",
+                    "doctorUuid",
+                    "patientUuid",
+                ],
+                include: [
+                    {
+                        model: doctorModel,
+                        as: "doctor",
+                        attributes: [
+                            "uuid",
+                            "firstName",
+                            "lastName",
+                            "specialization",
+                        ],
+                    },
+                    {
+                        model: patientModel,
+                        as: "patient",
+                        attributes: ["uuid", "firstName", "lastName"],
+                    },
+                    {
+                        model: clinicModel,
+                        as: "clinic",
+                        attributes: ["uuid", "name"],
+                    },
+                ],
+            },
+        ],
+        order: [["sentAt", "DESC"]],
+    });
+
+    const mappedReminders = reminders
+        .map((reminder) => {
+            const appointment = reminder.appointment;
+            const doctor = appointment?.doctor;
+            const targetDate =
+                appointment?.doctorFollowUpDate ||
+                addDaysToDateText(appointment?.date, 30);
+
+            if (!appointment || !targetDate) {
+                return null;
+            }
+
+            return {
+                uuid: reminder.uuid,
+                appointmentUuid: appointment.uuid,
+                reminderType: reminder.reminderType,
+                createdAt: reminder.sentAt,
+                targetDate,
+                recommendation:
+                    appointment.doctorFollowUpRecommendation || null,
+                doctorName: doctor ? `Dr. ${doctor.lastName}` : null,
+                specialty: doctor?.specialization || null,
+                clinicName: appointment.clinic?.name || null,
+                patientName: appointment.patient
+                    ? `${appointment.patient.firstName} ${appointment.patient.lastName}`
+                    : null,
+                url:
+                    user.role === "patient"
+                        ? `/appointments?create=true&doctorUuid=${appointment.doctorUuid}`
+                        : `/doctor/appointments?appointment=${appointment.uuid}`,
+            };
+        })
+        .filter(Boolean)
+        .sort((first, second) => {
+            const firstDate = new Date(
+                `${first.targetDate}T00:00:00`,
+            ).getTime();
+            const secondDate = new Date(
+                `${second.targetDate}T00:00:00`,
+            ).getTime();
+
+            if (firstDate === secondDate) {
+                return (
+                    new Date(second.createdAt).getTime() -
+                    new Date(first.createdAt).getTime()
+                );
+            }
+
+            return firstDate - secondDate;
+        });
+
+    return mappedReminders;
 }
 
 export async function getAppointmentAvailability(query, user) {

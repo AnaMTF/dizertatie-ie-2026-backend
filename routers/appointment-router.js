@@ -10,6 +10,7 @@ import {
     updateAppointment,
     deleteAppointment,
     getAppointments,
+    getFollowUpReminders,
     getAppointmentByUuid,
 } from "../controllers/index.js";
 import {
@@ -71,6 +72,13 @@ router.get(
     authenticate,
     authorizeRoles("patient", "doctor"),
     getAppointments,
+);
+
+router.get(
+    "/appointment/follow-up-reminders",
+    authenticate,
+    authorizeRoles("patient", "doctor"),
+    getFollowUpReminders,
 );
 
 router.get(

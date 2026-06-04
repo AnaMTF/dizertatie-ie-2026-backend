@@ -90,6 +90,17 @@ export async function getAppointments(request, response) {
     }
 }
 
+export async function getFollowUpReminders(request, response) {
+    try {
+        const reminders = await appointmentService.getFollowUpReminders(
+            request.user,
+        );
+        sendSuccess(response, 200, reminders);
+    } catch (error) {
+        sendError(response, error.status || 500, error.message);
+    }
+}
+
 export async function getAppointmentAvailability(request, response) {
     try {
         const availability =
