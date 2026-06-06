@@ -137,6 +137,15 @@ export async function refreshAppointmentRecommendationsForPatient(
     }
 
     for (const recommendation of generated.recommendations) {
+        if (recommendation.reasonCodes?.includes("rationale_fallback")) {
+            console.warn("Appointment recommendation used fallback rationale", {
+                patientUuid: patient.uuid,
+                source,
+                specialty: recommendation.specialty,
+                provider: generated.provider,
+            });
+        }
+
         await appointmentRecommendationModel.upsert({
             patientUuid: patient.uuid,
             source,

@@ -8,6 +8,34 @@ const MAX_RECOMMENDATIONS = 3;
 
 const LIFESTYLE_SEVERITY_BOOST_THRESHOLD = 0.6;
 
+function toHumanLabel(value) {
+    return String(value)
+        .split("_")
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ");
+}
+
+function normalizeRecommendation(item) {
+    const hasRationale =
+        typeof item.rationale === "string" && item.rationale.trim().length > 0;
+
+    const fallbackRationale = hasRationale
+        ? item.rationale
+        : `Recommendation for ${toHumanLabel(item.specialty)} based on profile-derived risk signals (score ${Number(item.score).toFixed(3)}).`;
+
+    const reasonCodes = [...new Set(item.reasonCodes || [])];
+
+    if (!hasRationale && !reasonCodes.includes("rationale_fallback")) {
+        reasonCodes.push("rationale_fallback");
+    }
+
+    return {
+        ...item,
+        rationale: fallbackRationale,
+        reasonCodes,
+    };
+}
+
 function toPriority(score, lifestyleRiskSeverity = 0) {
     let level = 0;
 
@@ -61,6 +89,7 @@ function mergeCandidates(candidates) {
     return [...bySpecialty.values()]
         .sort((a, b) => b.score - a.score)
         .slice(0, MAX_RECOMMENDATIONS)
+        .map(normalizeRecommendation)
         .map((item) => ({
             ...item,
             priority: toPriority(item.score, item.lifestyleRiskSeverity ?? 0),
