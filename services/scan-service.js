@@ -227,35 +227,35 @@ async function getOwnedScan(uuid, user) {
     return scan;
 }
 
-async function getOwnedScanImage(scanUuid, imageUuid, user) {
-    const scan = await scanModel.findByPk(scanUuid, {
-        include: [
-            {
-                model: scanImageModel,
-                as: "images",
-                where: { uuid: imageUuid },
-                attributes: ["uuid", "filePath", "mimeType"],
-                required: false,
-            },
-        ],
-    });
+// async function getOwnedScanImage(scanUuid, imageUuid, user) {
+//     const scan = await scanModel.findByPk(scanUuid, {
+//         include: [
+//             {
+//                 model: scanImageModel,
+//                 as: "images",
+//                 where: { uuid: imageUuid },
+//                 attributes: ["uuid", "filePath", "mimeType"],
+//                 required: false,
+//             },
+//         ],
+//     });
 
-    if (!scan) {
-        throw createError(404, "Scan not found");
-    }
+//     if (!scan) {
+//         throw createError(404, "Scan not found");
+//     }
 
-    if (scan.patientUuid !== user.uuid) {
-        throw createError(403, "Patients can only access their own scans");
-    }
+//     if (scan.patientUuid !== user.uuid) {
+//         throw createError(403, "Patients can only access their own scans");
+//     }
 
-    const image = scan.images?.[0];
+//     const image = scan.images?.[0];
 
-    if (!image) {
-        throw createError(404, "Scan image not found");
-    }
+//     if (!image) {
+//         throw createError(404, "Scan image not found");
+//     }
 
-    return image;
-}
+//     return image;
+// }
 
 async function getAccessibleScanImage(scanUuid, imageUuid, user) {
     const scan = await scanModel.findByPk(scanUuid, {

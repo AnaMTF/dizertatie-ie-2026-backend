@@ -165,27 +165,27 @@ function computeLifestyleRiskSeverity(profile) {
     return Math.min(1, severity);
 }
 
-function buildReasonCodes(profile) {
-    const reasonCodes = ["tfjs_zero_shot_similarity"];
+// function buildReasonCodes(profile) {
+//     const reasonCodes = ["tfjs_zero_shot_similarity"];
 
-    if (typeof profile.smoker === "boolean") {
-        reasonCodes.push(profile.smoker ? "smoker_yes" : "smoker_no");
-    }
+//     if (typeof profile.smoker === "boolean") {
+//         reasonCodes.push(profile.smoker ? "smoker_yes" : "smoker_no");
+//     }
 
-    if (profile.alcoholConsumptionFrequency) {
-        reasonCodes.push(`alcohol_${profile.alcoholConsumptionFrequency}`);
-    }
+//     if (profile.alcoholConsumptionFrequency) {
+//         reasonCodes.push(`alcohol_${profile.alcoholConsumptionFrequency}`);
+//     }
 
-    if (Number.isFinite(profile?.metrics?.ageYears)) {
-        reasonCodes.push("age_available");
-    }
+//     if (Number.isFinite(profile?.metrics?.ageYears)) {
+//         reasonCodes.push("age_available");
+//     }
 
-    if (Number.isFinite(profile?.metrics?.bmi)) {
-        reasonCodes.push("bmi_available");
-    }
+//     if (Number.isFinite(profile?.metrics?.bmi)) {
+//         reasonCodes.push("bmi_available");
+//     }
 
-    return reasonCodes;
-}
+//     return reasonCodes;
+// }
 
 async function getEmbeddingModel() {
     await ensureTfReady();
