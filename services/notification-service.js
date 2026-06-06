@@ -45,10 +45,8 @@ async function logPushAttempt({
     });
 }
 
-const DEFAULT_PUSH_ICON =
-    process.env.PUSH_ICON || "/images/logo/logo-light.webp";
-const DEFAULT_PUSH_BADGE =
-    process.env.PUSH_BADGE || "/images/logo/logo-light.webp";
+const DEFAULT_PUSH_ICON = process.env.PUSH_ICON || "light_logo.png";
+const DEFAULT_PUSH_BADGE = process.env.PUSH_BADGE || "dark_logo.png";
 
 function ensureRecipientUser(user) {
     if (!user || (user.role !== "patient" && user.role !== "doctor")) {
