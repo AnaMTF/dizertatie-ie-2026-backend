@@ -165,27 +165,55 @@ function computeLifestyleRiskSeverity(profile) {
     return Math.min(1, severity);
 }
 
-// function buildReasonCodes(profile) {
-//     const reasonCodes = ["tfjs_zero_shot_similarity"];
+function buildReasonCodes(profile) {
+    const reasonCodes = ["tfjs_zero_shot_similarity"];
 
-//     if (typeof profile.smoker === "boolean") {
-//         reasonCodes.push(profile.smoker ? "smoker_yes" : "smoker_no");
-//     }
+    if (typeof profile.smoker === "boolean") {
+        reasonCodes.push(profile.smoker ? "smoker_yes" : "smoker_no");
+    }
 
-//     if (profile.alcoholConsumptionFrequency) {
-//         reasonCodes.push(`alcohol_${profile.alcoholConsumptionFrequency}`);
-//     }
+    if (profile.alcoholConsumptionFrequency) {
+        reasonCodes.push(`alcohol_${profile.alcoholConsumptionFrequency}`);
+    }
 
-//     if (Number.isFinite(profile?.metrics?.ageYears)) {
-//         reasonCodes.push("age_available");
-//     }
+    if (Number.isFinite(profile?.metrics?.ageYears)) {
+        reasonCodes.push("age_available");
+    }
 
-//     if (Number.isFinite(profile?.metrics?.bmi)) {
-//         reasonCodes.push("bmi_available");
-//     }
+    if (Number.isFinite(profile?.metrics?.bmi)) {
+        reasonCodes.push("bmi_available");
+    }
 
-//     return reasonCodes;
-// }
+    return reasonCodes;
+}
+
+function buildRationale(item, profile) {
+    const details = [];
+
+    if (Number.isFinite(profile?.metrics?.ageYears)) {
+        details.push(`age ${profile.metrics.ageYears}`);
+    }
+
+    if (Number.isFinite(profile?.metrics?.bmi)) {
+        details.push(`BMI ${profile.metrics.bmi}`);
+    }
+
+    if (typeof profile.smoker === "boolean") {
+        details.push(profile.smoker ? "smoker" : "non-smoker");
+    }
+
+    if (profile.alcoholConsumptionFrequency) {
+        details.push(
+            `alcohol ${mapAlcoholFrequency(profile.alcoholConsumptionFrequency)}`,
+        );
+    }
+
+    const context = details.length
+        ? ` using ${details.join(", ")}`
+        : " using available profile context";
+
+    return `TFJS similarity suggested ${toHumanLabel(item.specialty)} (score ${item.score.toFixed(3)})${context}.`;
+}
 
 async function getEmbeddingModel() {
     await ensureTfReady();
@@ -257,6 +285,8 @@ export function createTfjsZeroShotRiskInferenceProvider() {
                         score: Number(item.score.toFixed(3)),
                         lifestyleRiskSeverity:
                             computeLifestyleRiskSeverity(profile),
+                        rationale: buildRationale(item, profile),
+                        reasonCodes: buildReasonCodes(profile),
                     }));
 
                 const topScore = scored.length ? scored[0].score : null;
