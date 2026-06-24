@@ -1050,7 +1050,9 @@ export async function getFollowUpReminders(user) {
                     : null,
                 url:
                     user.role === "patient"
-                        ? `/appointments?create=true&doctorUuid=${appointment.doctorUuid}`
+                        ? `/appointments?create=true&specialty=${encodeURIComponent(
+                              doctor?.specialization || "",
+                          )}&doctorUuid=${appointment.doctorUuid}&clinicUuid=${appointment.clinic?.uuid || ""}&date=${targetDate}`
                         : `/doctor/appointments?appointment=${appointment.uuid}`,
             };
         })
